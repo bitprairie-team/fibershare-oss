@@ -1,0 +1,38 @@
+{
+  "name": "fibershare-oss",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Open-source FiberShare community MVP — collar map, ranch sponsorship, fiber shop.",
+  "homepage": "https://fibershare.dev",
+  "bugs": {
+    "url": "https://github.com/steelhead99x/fibershare-oss/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steelhead99x/fibershare-oss.git"
+  },
+  "license": "MIT",
+  "author": "BitPrairie LLC",
+  "keywords": [
+    "fibershare",
+    "open-source",
+    "fiber",
+    "goats",
+    "cloudflare-pages",
+    "ranch"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "pages:dev": "npx wrangler@3 pages dev dist"
+  },
+  "devDependencies": {
+    "vite": "^5.4.19",
+    "wrangler": "3.114.15"
+  },
+  "engines": {
+    "node": ">=20 <21"
+  }
+}
