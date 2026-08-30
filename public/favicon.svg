@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FiberShare">
+  <rect width="64" height="64" rx="14" fill="#6b4a2e"/>
+  <circle cx="32" cy="36" r="14" fill="#f6f3ec"/>
+  <path d="M22 28c0-8 6-14 10-14s10 6 10 14" fill="none" stroke="#b0893e" stroke-width="4"/>
+  <circle cx="26" cy="34" r="2" fill="#141416"/>
+  <circle cx="38" cy="34" r="2" fill="#141416"/>
+</svg>

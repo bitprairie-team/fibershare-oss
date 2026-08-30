@@ -1,0 +1,37 @@
+{
+  "ranch": "Community sample herd",
+  "note": "Placeholder animals for the OSS demo. Not a live collar feed and not the Linden ranch herd.",
+  "updated": "2026-08-30",
+  "goats": [
+    {
+      "id": "juniper",
+      "name": "Juniper",
+      "breed": "Nigerian Dwarf",
+      "color": "buckskin",
+      "status": "on pasture",
+      "x": 28,
+      "y": 42,
+      "fiber": "fine, high-crimp"
+    },
+    {
+      "id": "thistle",
+      "name": "Thistle",
+      "breed": "Pygora",
+      "color": "silver",
+      "status": "near barn",
+      "x": 62,
+      "y": 35,
+      "fiber": "soft dual-coat"
+    },
+    {
+      "id": "clover",
+      "name": "Clover",
+      "breed": "Angora mix",
+      "color": "white",
+      "status": "creek side",
+      "x": 48,
+      "y": 68,
+      "fiber": "long staple mohair-blend"
+    }
+  ]
+}
