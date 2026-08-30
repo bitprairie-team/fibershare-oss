@@ -1,0 +1,9 @@
+{
+  "note": "Stub catalog for the OSS MVP. Demo only.",
+  "currency": "USD",
+  "products": [
+    {"id": "roving-juniper", "name": "Juniper sample roving", "fiber": "Nigerian Dwarf", "grams": 50, "usd": 12, "inStock": true},
+    {"id": "yarn-pasture", "name": "Pasture-blend DK yarn", "fiber": "mixed ranch sample", "grams": 100, "usd": 24, "inStock": true},
+    {"id": "collar-kit", "name": "Community collar kit (demo)", "fiber": "hardware sample", "grams": 80, "usd": 18, "inStock": false}
+  ]
+}
