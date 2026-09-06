@@ -1,7 +1,7 @@
 {
   "ranch": "Community sample herd",
   "note": "Placeholder animals for the OSS demo. Not a live collar feed and not the Linden ranch herd.",
-  "updated": "2026-08-30",
+  "updated": "2026-09-06",
   "goats": [
     {
       "id": "juniper",
@@ -32,6 +32,16 @@
       "x": 48,
       "y": 68,
       "fiber": "long staple mohair-blend"
+    },
+    {
+      "id": "bramble",
+      "name": "Bramble",
+      "breed": "Angora",
+      "color": "pearl",
+      "status": "oak shade",
+      "x": 72,
+      "y": 58,
+      "fiber": "lustrous kid mohair"
     }
   ]
 }

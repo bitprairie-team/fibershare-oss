@@ -3,12 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FiberShare OSS — community MVP</title>
-    <meta name="description" content="Open-source FiberShare community MVP: ranch sponsorship, collar map, and fiber shop." />
+    <title>FiberShare OSS — ranch sponsorship, herd map, fiber shop</title>
+    <meta
+      name="description"
+      content="Open-source FiberShare community MVP: ranch sponsorship story, sample collar map, and stub fiber shop. MIT-licensed demo for ranchers and fiber artists."
+    />
+    <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="FiberShare OSS — community MVP" />
+    <meta
+      property="og:description"
+      content="Ranch sponsorship, a sample herd map, and a fiber shop stub. Clone it, run it, contribute."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fibershare.dev/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("fs-theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FiberShare">
-  <rect width="64" height="64" rx="14" fill="#6b4a2e"/>
-  <circle cx="32" cy="36" r="14" fill="#f6f3ec"/>
-  <path d="M22 28c0-8 6-14 10-14s10 6 10 14" fill="none" stroke="#b0893e" stroke-width="4"/>
-  <circle cx="26" cy="34" r="2" fill="#141416"/>
-  <circle cx="38" cy="34" r="2" fill="#141416"/>
+  <defs>
+    <linearGradient id="g" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7a5534"/>
+      <stop offset="1" stop-color="#5a3c24"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <circle cx="32" cy="37" r="15" fill="#f6f3ec"/>
+  <path d="M21 30c1-9 7-15 11-15s10 6 11 15" fill="none" stroke="#b0893e" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="26" cy="35" r="2.2" fill="#141416"/>
+  <circle cx="38" cy="35" r="2.2" fill="#141416"/>
+  <path d="M28 42c1.4 2.2 6.6 2.2 8 0" fill="none" stroke="#6b4a2e" stroke-width="2" stroke-linecap="round"/>
 </svg>
