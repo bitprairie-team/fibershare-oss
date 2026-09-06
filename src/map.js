@@ -25,40 +25,49 @@ export async function renderMap() {
     })
     .join("");
   const list = goats
-    .map((g) => {
+    .map((g, i) => {
+      const n = String(i + 1).padStart(2, "0");
       return (
-        '<article class="card" id="goat-' +
+        '<li class="goat-row" id="goat-' +
         g.id +
         '" data-goat-card="' +
         g.id +
-        '"><p class="kicker">' +
-        g.status +
-        "</p><h3>" +
+        '">' +
+        '<span class="feature-num" aria-hidden="true">' +
+        n +
+        "</span>" +
+        "<div>" +
+        "<h3>" +
         g.name +
-        "</h3><p>" +
+        '</h3><p class="row-meta">' +
+        g.status +
+        " · " +
         g.breed +
         " · " +
         g.color +
         '</p><p class="muted">' +
         g.fiber +
-        "</p></article>"
+        "</p></div></li>"
       );
     })
     .join("");
   const body = goats.length
-    ? '<div class="pasture" id="pasture" role="img" aria-label="Pasture with sample collar pins">' +
+    ? '<div class="map-split">' +
+      '<div class="pasture" id="pasture" role="img" aria-label="Pasture with sample collar pins">' +
       pins +
       '<div class="pasture-legend">' +
       goats.length +
       " sample pins · demo only</div></div>" +
-      '<div class="goat-panel grid">' +
+      '<ol class="goat-list" aria-label="Sample herd">' +
       list +
-      "</div>"
+      "</ol></div>"
     : '<div class="empty">No sample goats loaded. Check public/data/herd.json.</div>';
 
   return (
     nav("/map") +
-    '<main class="wrap" id="main"><section class="hero"><p class="kicker">Herd map</p><h1>' +
+    '<main class="wrap" id="main">' +
+    '<section class="page-head">' +
+    "<h1>" +
     (data.ranch || "Sample herd") +
     '</h1><p class="lede">' +
     (data.note || "") +
@@ -81,7 +90,15 @@ export function bindMap(root) {
       btn.classList.add("is-active");
       const card = root.querySelector('[data-goat-card="' + btn.dataset.id + '"]');
       card?.classList.add("selected");
-      card?.scrollIntoView({ behavior: "smooth", block: "center" });
+      card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  });
+  cards.forEach((card) => {
+    card.addEventListener("click", () => {
+      clear();
+      card.classList.add("selected");
+      const pin = root.querySelector('.goat[data-id="' + card.dataset.goatCard + '"]');
+      pin?.classList.add("is-active");
     });
   });
 }

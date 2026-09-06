@@ -23,4 +23,8 @@ Thank you for helping with the community MVP.
 
 ## Code style
 
-Vanilla JS plus CSS, small files, no framework required. Match the prairie palette: paper `#f6f3ec`, ink `#141416`, leather `#6b4a2e`, gold `#b0893e`, pasture `#5c6b4a`.
+Vanilla JS plus CSS, small files, no framework required.
+
+Visual direction is a **ranch journal / fiber catalog**: editorial and utilitarian, not a SaaS landing page. Prefer numbered lists and tables over soft card grids. Fonts are Source Serif 4 (headings) and IBM Plex Sans (UI/body).
+
+Palette: paper `#f4efe6`, ink `#1c1916`, leather `#5c4030`, pasture `#4f5d41`, muted `#6e675c`. Gold is a rare accent (rules, active states), not labels.

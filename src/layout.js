@@ -2,12 +2,12 @@ import { DISCORD, SITES } from "./sites.js";
 
 const MARK =
   '<svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
-  '<rect width="64" height="64" rx="16" fill="#6b4a2e"/>' +
-  '<circle cx="32" cy="37" r="15" fill="#f6f3ec"/>' +
-  '<path d="M21 30c1-9 7-15 11-15s10 6 11 15" fill="none" stroke="#b0893e" stroke-width="3.5" stroke-linecap="round"/>' +
-  '<circle cx="26" cy="35" r="2.2" fill="#141416"/>' +
-  '<circle cx="38" cy="35" r="2.2" fill="#141416"/>' +
-  '</svg>';
+  '<rect width="64" height="64" fill="#5c4030"/>' +
+  '<circle cx="32" cy="37" r="15" fill="#f4efe6"/>' +
+  '<path d="M21 30c1-9 7-15 11-15s10 6 11 15" fill="none" stroke="#a67c3d" stroke-width="3.5" stroke-linecap="round"/>' +
+  '<circle cx="26" cy="35" r="2.2" fill="#1c1916"/>' +
+  '<circle cx="38" cy="35" r="2.2" fill="#1c1916"/>' +
+  "</svg>";
 
 export function nav(active) {
   const links = [
@@ -26,7 +26,7 @@ export function nav(active) {
     '<header class="site-header"><div class="wrap">' +
     '<a class="brand" href="#/">' +
     MARK +
-    'Fiber<span>Share</span> OSS</a>' +
+    "FiberShare <span>OSS</span></a>" +
     '<nav class="nav" aria-label="Primary">' +
     links +
     '<a href="' +

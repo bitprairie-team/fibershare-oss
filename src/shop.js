@@ -9,34 +9,45 @@ export async function renderShop() {
   }
   const products = data.products || [];
   const list = products
-    .map((p) => {
+    .map((p, i) => {
+      const n = String(i + 1).padStart(2, "0");
       const badge = p.inStock
         ? '<span class="badge">in stock</span>'
         : '<span class="badge out">sample only</span>';
       return (
-        '<article class="card product"><div><p class="kicker">' +
-        p.fiber +
-        "</p><h3>" +
+        '<li class="catalog-row">' +
+        '<span class="feature-num" aria-hidden="true">' +
+        n +
+        "</span>" +
+        '<div class="catalog-main">' +
+        "<h3>" +
         p.name +
-        '</h3><p class="muted">' +
+        '</h3><p class="row-meta">' +
+        p.fiber +
+        " · " +
         p.grams +
-        "g lot</p></div><div class="product-meta"><strong>USD " +
+        "g lot</p></div>" +
+        '<div class="catalog-meta"><strong>USD ' +
         p.usd +
         "</strong> " +
         badge +
-        "</div></article>"
+        "</div></li>"
       );
     })
     .join("");
   const body = products.length
-    ? '<div class="grid">' + list + "</div>"
+    ? '<ol class="catalog-list" aria-label="Stub fiber catalog">' + list + "</ol>"
     : '<div class="empty">No stub products loaded. Check public/data/shop.json.</div>';
 
   return (
     nav("/shop") +
-    '<main class="wrap" id="main"><section class="hero"><p class="kicker">Fiber shop</p><h1>Stub catalog</h1><p class="lede">' +
+    '<main class="wrap" id="main">' +
+    '<section class="page-head">' +
+    "<h1>Stub catalog</h1>" +
+    '<p class="lede">' +
     (data.note || "Demo lots for the OSS MVP.") +
-    ' Real ordering belongs on <a href="https://fibershare.app" rel="noopener">fibershare.app</a> (Expo) and the paid US web at <a href="https://fibershare.us" rel="noopener">fibershare.us</a>.</p></section>' +
+    ' Real ordering belongs on <a href="https://fibershare.app" rel="noopener">fibershare.app</a> (Expo) and the paid US web at <a href="https://fibershare.us" rel="noopener">fibershare.us</a>.</p>' +
+    "</section>" +
     body +
     "</main>" +
     footer()

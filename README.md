@@ -6,7 +6,7 @@ This repository is the public project behind [fibershare.dev](https://fibershare
 
 ## What this MVP includes
 
-- A static community landing (Vite) with a prairie cream / leather palette, light and dark themes
+- A static community landing (Vite) with a ranch-journal palette (paper / ink / leather / pasture), light and dark themes
 - A sample **herd map** with three placeholder goats (not a live collar feed)
 - A stub **fiber shop** catalog loaded from JSON (no checkout in this repo)
 - A tiny Pages Function health stub, as a sketch of how an API layer can sit next to the site
