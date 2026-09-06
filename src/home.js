@@ -1,15 +1,18 @@
 import { DISCORD, REPO, SITES } from "./sites.js";
 import { nav, footer } from "./layout.js";
+import { esc, EXT } from "./util.js";
 
 export function renderHome() {
   const related = SITES.map((s) => {
     return (
-      "<tr><th scope=\"row\"><a href=\"" +
-      s.href +
-      '" rel="noopener">' +
-      s.name +
+      '<tr><th scope="row"><a href="' +
+      esc(s.href) +
+      '"' +
+      EXT +
+      ">" +
+      esc(s.name) +
       "</a></th><td>" +
-      s.blurb +
+      esc(s.blurb) +
       "</td></tr>"
     );
   }).join("");
@@ -25,20 +28,26 @@ export function renderHome() {
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="' +
     DISCORD +
-    '">Join Discord</a>' +
+    '"' +
+    EXT +
+    ">Join Discord</a>" +
     '<a class="btn btn-ghost" href="' +
     REPO +
-    '">View on GitHub</a>' +
+    '"' +
+    EXT +
+    ">View on GitHub</a>" +
     '<a class="btn btn-ghost" href="#/map">Open herd map</a>' +
     "</div>" +
-    '<p class="fine-print">Sponsorship and ranch gifts are support for animals and pasture — not ownership shares and not an investment return.</p>' +
+    '<p class="fine-print">Sponsorship and ranch gifts are support for animals and pasture, not ownership shares and not an investment return.</p>' +
     "</div>" +
     "</section>" +
     '<section class="section" aria-label="What this MVP includes">' +
     '<h2 class="section-rule">In this journal</h2>' +
     '<ol class="feature-list">' +
     '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Collar map</h3><p>Sample goats on a pasture sketch. Placeholder pins, not live telemetry. <a href="#/map">Explore the map</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Sponsorship story</h3><p>A public frame for herds, fiber, and people who want a ranch to thrive. <a href="https://www.bitprairie.com/fibershare" rel="noopener">See the ranch program</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Sponsorship story</h3><p>A public frame for herds, fiber, and people who want a ranch to thrive. <a href="https://www.bitprairie.com/fibershare"' +
+    EXT +
+    ">See the ranch program</a></p></div></li>' +
     '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber catalog</h3><p>Stub lots from JSON. Real ordering lives on fibershare.app and fibershare.us. <a href="#/shop">Browse the stub shop</a></p></div></li>' +
     "</ol>" +
     "</section>" +
@@ -51,7 +60,7 @@ export function renderHome() {
     "</section>" +
     '<section class="section">' +
     '<h2 class="section-rule">Related links</h2>' +
-    '<p class="lede-tight">This repo is only the open-source community MVP.</p>' +
+    '<p class="lede-tight">This repo is only the open-source community MVP. Live fibershare.dev is the BitPrairie-hosted ranch product.</p>' +
     '<table class="link-table"><thead><tr><th scope="col">Site</th><th scope="col">What it is</th></tr></thead><tbody>' +
     related +
     "</tbody></table>" +

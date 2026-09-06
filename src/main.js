@@ -6,10 +6,13 @@ import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 
 const routes = {
-  "/": renderHome,
-  "/map": renderMap,
-  "/shop": renderShop,
-  "/architecture": renderArchitecture,
+  "/": { render: renderHome, title: "FiberShare OSS · community MVP" },
+  "/map": { render: renderMap, title: "Herd map · FiberShare OSS" },
+  "/shop": { render: renderShop, title: "Stub fiber shop · FiberShare OSS" },
+  "/architecture": {
+    render: renderArchitecture,
+    title: "Architecture · FiberShare OSS",
+  },
 };
 
 function pathFromHash() {
@@ -18,9 +21,14 @@ function pathFromHash() {
 }
 
 async function render() {
-  const path = pathFromHash();
-  const view = routes[path] || renderHome;
-  const html = await view();
+  let path = pathFromHash();
+  if (!routes[path]) {
+    history.replaceState(null, "", "#/");
+    path = "/";
+  }
+  const route = routes[path];
+  document.title = route.title;
+  const html = await route.render();
   const app = document.getElementById("app");
   app.innerHTML = html;
   bindTheme(app);

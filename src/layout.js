@@ -1,4 +1,5 @@
 import { DISCORD, SITES } from "./sites.js";
+import { esc, EXT } from "./util.js";
 
 const MARK =
   '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
@@ -23,8 +24,10 @@ export function nav(active) {
     ["/architecture", "Architecture"],
   ]
     .map(([href, label]) => {
-      const cls = active === href ? "active" : "";
-      return '<a href="#' + href + '" class="' + cls + '">' + label + "</a>";
+      const on = active === href;
+      const cls = on ? ' class="active"' : "";
+      const cur = on ? ' aria-current="page"' : "";
+      return '<a href="#' + href + '"' + cls + cur + ">" + label + "</a>";
     })
     .join("");
   return (
@@ -37,7 +40,9 @@ export function nav(active) {
     links +
     '<a href="' +
     DISCORD +
-    '" rel="noopener">Discord</a>' +
+    '"' +
+    EXT +
+    ">Discord</a>" +
     '<button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle light or dark theme">Theme</button>' +
     "</nav></div></header>"
   );
@@ -45,7 +50,7 @@ export function nav(active) {
 
 export function footer() {
   const items = SITES.map(
-    (s) => '<a href="' + s.href + '" rel="noopener">' + s.name + "</a>"
+    (s) => '<a href="' + esc(s.href) + '"' + EXT + ">" + esc(s.name) + "</a>"
   ).join(" · ");
   return (
     '<footer class="site-footer"><div class="wrap">' +

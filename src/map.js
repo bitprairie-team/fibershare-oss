@@ -1,4 +1,5 @@
 import { nav, footer } from "./layout.js";
+import { esc } from "./util.js";
 
 export async function renderMap() {
   let data;
@@ -10,15 +11,21 @@ export async function renderMap() {
   const goats = data.goats || [];
   const pins = goats
     .map((g) => {
+      const id = esc(g.id);
+      const name = esc(g.name);
+      const x = Number(g.x);
+      const y = Number(g.y);
+      const left = Number.isFinite(x) ? x : 50;
+      const top = Number.isFinite(y) ? y : 50;
       return (
         '<button class="goat" type="button" style="left:' +
-        g.x +
+        left +
         "%;top:" +
-        g.y +
+        top +
         '%" data-id="' +
-        g.id +
+        id +
         '" aria-label="' +
-        g.name +
+        name +
         " on the pasture" +
         '"></button>'
       );
@@ -27,27 +34,28 @@ export async function renderMap() {
   const list = goats
     .map((g, i) => {
       const n = String(i + 1).padStart(2, "0");
+      const id = esc(g.id);
       return (
         '<li id="goat-' +
-        g.id +
+        id +
         '">' +
         '<button type="button" class="goat-row" data-goat-card="' +
-        g.id +
+        id +
         '" aria-pressed="false">' +
         '<span class="feature-num" aria-hidden="true">' +
         n +
         "</span>" +
         "<div>" +
         "<h3>" +
-        g.name +
+        esc(g.name) +
         '</h3><p class="row-meta">' +
-        g.status +
+        esc(g.status) +
         " · " +
-        g.breed +
+        esc(g.breed) +
         " · " +
-        g.color +
+        esc(g.color) +
         '</p><p class="muted">' +
-        g.fiber +
+        esc(g.fiber) +
         "</p></div></button></li>"
       );
     })
@@ -69,9 +77,9 @@ export async function renderMap() {
     '<main class="wrap" id="main">' +
     '<section class="page-head">' +
     "<h1>" +
-    (data.ranch || "Sample herd") +
+    esc(data.ranch || "Sample herd") +
     '</h1><p class="lede">' +
-    (data.note || "") +
+    esc(data.note || "") +
     "</p></section>" +
     body +
     "</main>" +

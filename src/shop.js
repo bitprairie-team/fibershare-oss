@@ -1,4 +1,5 @@
 import { nav, footer } from "./layout.js";
+import { esc, EXT } from "./util.js";
 
 export async function renderShop() {
   let data;
@@ -14,6 +15,8 @@ export async function renderShop() {
       const badge = p.inStock
         ? '<span class="badge">in stock</span>'
         : '<span class="badge out">sample only</span>';
+      const usd = Number(p.usd);
+      const price = Number.isFinite(usd) ? usd : esc(p.usd);
       return (
         '<li class="catalog-row">' +
         '<span class="feature-num" aria-hidden="true">' +
@@ -21,14 +24,14 @@ export async function renderShop() {
         "</span>" +
         '<div class="catalog-main">' +
         "<h3>" +
-        p.name +
+        esc(p.name) +
         '</h3><p class="row-meta">' +
-        p.fiber +
+        esc(p.fiber) +
         " · " +
-        p.grams +
+        esc(p.grams) +
         "g lot</p></div>" +
         '<div class="catalog-meta"><strong>USD ' +
-        p.usd +
+        price +
         "</strong> " +
         badge +
         "</div></li>"
@@ -45,8 +48,12 @@ export async function renderShop() {
     '<section class="page-head">' +
     "<h1>Stub catalog</h1>" +
     '<p class="lede">' +
-    (data.note || "Demo lots for the OSS MVP.") +
-    ' Real ordering belongs on <a href="https://fibershare.app" rel="noopener">fibershare.app</a> (Expo) and the paid US web at <a href="https://fibershare.us" rel="noopener">fibershare.us</a>.</p>' +
+    esc(data.note || "Demo lots for the OSS MVP.") +
+    ' Real ordering belongs on <a href="https://fibershare.app"' +
+    EXT +
+    ">fibershare.app</a> (Expo) and the paid US web at <a href="https://fibershare.us"' +
+    EXT +
+    ">fibershare.us</a>.</p>" +
     "</section>" +
     body +
     "</main>" +
