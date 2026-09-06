@@ -1,4 +1,4 @@
-import { REPO, SITES } from "./sites.js";
+import { DISCORD, REPO, SITES } from "./sites.js";
 import { nav, footer } from "./layout.js";
 
 export function renderHome() {
@@ -22,10 +22,12 @@ export function renderHome() {
     '<p class="lede">Community MVP for ranch sponsorship, a sample collar map, and a stub fiber shop. Clone it, run it, contribute. This is not the paid US brand.</p>' +
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="' +
+    DISCORD +
+    '">Join Discord</a>' +
+    '<a class="btn btn-ghost" href="' +
     REPO +
     '">View on GitHub</a>' +
     '<a class="btn btn-ghost" href="#/map">Open herd map</a>' +
-    '<a class="btn btn-ghost" href="#get-started">Get started</a>' +
     "</div>" +
     '<p class="fine-print" style="margin-top:1.25rem">Sponsorship and ranch gifts are support for animals and pasture — not ownership shares and not an investment return.</p>' +
     "</section>" +

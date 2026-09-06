@@ -1,4 +1,4 @@
-import { SITES } from "./sites.js";
+import { DISCORD, SITES } from "./sites.js";
 
 const MARK =
   '<svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
@@ -29,6 +29,9 @@ export function nav(active) {
     'Fiber<span>Share</span> OSS</a>' +
     '<nav class="nav" aria-label="Primary">' +
     links +
+    '<a href="' +
+    DISCORD +
+    '" rel="noopener">Discord</a>' +
     '<button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle light or dark theme">Theme</button>' +
     "</nav></div></header>"
   );
