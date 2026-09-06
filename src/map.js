@@ -28,11 +28,12 @@ export async function renderMap() {
     .map((g, i) => {
       const n = String(i + 1).padStart(2, "0");
       return (
-        '<li class="goat-row" id="goat-' +
-        g.id +
-        '" data-goat-card="' +
+        '<li id="goat-' +
         g.id +
         '">' +
+        '<button type="button" class="goat-row" data-goat-card="' +
+        g.id +
+        '" aria-pressed="false">' +
         '<span class="feature-num" aria-hidden="true">' +
         n +
         "</span>" +
@@ -47,13 +48,13 @@ export async function renderMap() {
         g.color +
         '</p><p class="muted">' +
         g.fiber +
-        "</p></div></li>"
+        "</p></div></button></li>"
       );
     })
     .join("");
   const body = goats.length
     ? '<div class="map-split">' +
-      '<div class="pasture" id="pasture" role="img" aria-label="Pasture with sample collar pins">' +
+      '<div class="pasture" id="pasture" role="group" aria-label="Pasture with sample collar pins">' +
       pins +
       '<div class="pasture-legend">' +
       goats.length +
@@ -82,7 +83,10 @@ export function bindMap(root) {
   const cards = root.querySelectorAll("[data-goat-card]");
   const clear = () => {
     root.querySelectorAll(".goat.is-active").forEach((el) => el.classList.remove("is-active"));
-    cards.forEach((card) => card.classList.remove("selected"));
+    cards.forEach((card) => {
+      card.classList.remove("selected");
+      card.setAttribute("aria-pressed", "false");
+    });
   };
   root.querySelectorAll(".goat").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -90,6 +94,7 @@ export function bindMap(root) {
       btn.classList.add("is-active");
       const card = root.querySelector('[data-goat-card="' + btn.dataset.id + '"]');
       card?.classList.add("selected");
+      card?.setAttribute("aria-pressed", "true");
       card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
   });
@@ -97,6 +102,7 @@ export function bindMap(root) {
     card.addEventListener("click", () => {
       clear();
       card.classList.add("selected");
+      card.setAttribute("aria-pressed", "true");
       const pin = root.querySelector('.goat[data-id="' + card.dataset.goatCard + '"]');
       pin?.classList.add("is-active");
     });
