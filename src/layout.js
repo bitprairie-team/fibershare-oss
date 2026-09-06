@@ -1,12 +1,15 @@
 import { DISCORD, SITES } from "./sites.js";
 
 const MARK =
-  '<svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
-  '<rect width="64" height="64" fill="#5c4030"/>' +
-  '<circle cx="32" cy="37" r="15" fill="#f4efe6"/>' +
-  '<path d="M21 30c1-9 7-15 11-15s10 6 11 15" fill="none" stroke="#a67c3d" stroke-width="3.5" stroke-linecap="round"/>' +
-  '<circle cx="26" cy="35" r="2.2" fill="#1c1916"/>' +
-  '<circle cx="38" cy="35" r="2.2" fill="#1c1916"/>' +
+  '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
+  '<rect width="32" height="32" rx="7" fill="#5c4030"/>' +
+  '<path d="M11 13.5c.8-5.8 3.6-8.5 5-8.5s4.2 2.7 5 8.5" fill="none" stroke="#c49a6c" stroke-width="2.2" stroke-linecap="round"/>' +
+  '<circle cx="16" cy="19" r="8" fill="#f4efe6"/>' +
+  '<circle cx="13" cy="18" r="1.35" fill="#1c1916"/>' +
+  '<circle cx="19" cy="18" r="1.35" fill="#1c1916"/>' +
+  '<path d="M14.2 21.2c.9 1.4 2.7 1.4 3.6 0" fill="none" stroke="#5c4030" stroke-width="1.3" stroke-linecap="round"/>' +
+  '<circle cx="16" cy="26.2" r="3.6" fill="none" stroke="#6b8f5a" stroke-width="1.8"/>' +
+  '<circle cx="16" cy="26.2" r="1.25" fill="#c49a6c"/>' +
   "</svg>";
 
 export function nav(active) {
