@@ -36,7 +36,9 @@ export function nav(active) {
     '<a class="brand" href="#/">' +
     MARK +
     "FiberShare <span>OSS</span></a>" +
-    '<nav class="nav" aria-label="Primary">' +
+    '<button class="nav-toggle" type="button" data-nav-toggle aria-label="Toggle navigation menu" aria-expanded="false">' +
+    '<span aria-hidden="true">☰</span> Menu</button>' +
+    '<nav class="nav" id="primary-nav" aria-label="Primary">' +
     links +
     '<a href="' +
     DISCORD +
@@ -79,5 +81,36 @@ export function bindTheme(root) {
     document.documentElement.style.colorScheme = next;
     localStorage.setItem("fs-theme", next);
     syncLabel();
+  });
+
+  // Mobile nav toggle
+  const navToggle = root.querySelector("[data-nav-toggle]");
+  const nav = root.querySelector("#primary-nav");
+  
+  navToggle?.addEventListener("click", () => {
+    const isOpen = nav?.classList.contains("is-open");
+    if (isOpen) {
+      nav?.classList.remove("is-open");
+      navToggle.setAttribute("aria-expanded", "false");
+    } else {
+      nav?.classList.add("is-open");
+      navToggle.setAttribute("aria-expanded", "true");
+    }
+  });
+
+  // Close mobile nav when clicking a link
+  nav?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      nav?.classList.remove("is-open");
+      navToggle?.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // Close mobile nav when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!nav?.contains(e.target) && !navToggle?.contains(e.target)) {
+      nav?.classList.remove("is-open");
+      navToggle?.setAttribute("aria-expanded", "false");
+    }
   });
 }
