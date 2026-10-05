@@ -1,17 +1,17 @@
 import "./style.css";
-import { bindTheme } from "./layout.js";
+import { bindTheme, nav, footer } from "./layout.js";
 import { renderHome } from "./home.js";
 import { renderMap, bindMap } from "./map.js";
 import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 
 const routes = {
-  "/": { render: renderHome, title: "FiberShare OSS · community MVP" },
-  "/map": { render: renderMap, title: "Herd map · FiberShare OSS" },
-  "/shop": { render: renderShop, title: "Stub fiber shop · FiberShare OSS" },
+  "/": { render: renderHome, title: "FiberShare · follow a herd" },
+  "/map": { render: renderMap, title: "Herd map · FiberShare" },
+  "/shop": { render: renderShop, title: "Sample fiber · FiberShare" },
   "/architecture": {
     render: renderArchitecture,
-    title: "Architecture · FiberShare OSS",
+    title: "How it is built · FiberShare",
   },
 };
 
@@ -20,15 +20,27 @@ function pathFromHash() {
   return raw.startsWith("/") ? raw : "/" + raw;
 }
 
+function renderNotFound() {
+  return (
+    nav("") +
+    '<main class="wrap" id="main">' +
+    '<section class="page-head">' +
+    "<h1>Page not found</h1>" +
+    '<p class="lede">This page isn\'t on FiberShare. Try Herd map, Fiber shop, or Home.</p>' +
+    '<div class="cta-row">' +
+    '<a class="btn btn-primary" href="#/">Home</a>' +
+    '<a class="btn btn-ghost" href="#/map">Herd map</a>' +
+    '<a class="btn btn-ghost" href="#/shop">Fiber shop</a>' +
+    "</div></section></main>" +
+    footer()
+  );
+}
+
 async function render() {
-  let path = pathFromHash();
-  if (!routes[path]) {
-    history.replaceState(null, "", "#/");
-    path = "/";
-  }
+  const path = pathFromHash();
   const route = routes[path];
-  document.title = route.title;
-  const html = await route.render();
+  document.title = route ? route.title : "Page not found · FiberShare";
+  const html = route ? await route.render() : renderNotFound();
   const app = document.getElementById("app");
   app.innerHTML = html;
   bindTheme(app);

@@ -1,33 +1,34 @@
 # FiberShare (open source)
 
-Community MVP for **ranch sponsorship**, a **collar / herd map**, and a **fiber shop**.
+FiberShare lets you follow a goat herd and support a ranch.
 
-This repository is the public project behind [fibershare.dev](https://fibershare.dev). It is a small, MIT-licensed starting point so ranchers, fiber artists, and volunteers can run a local demo, read the architecture, and contribute.
+This repo is a free demo of that idea. You get a sample herd map and a sample fiber shop. You can read the code, run your own copy, or help build it.
 
-## What this MVP includes
+The live site at [fibershare.dev](https://fibershare.dev) is the ranch product hosted by BitPrairie. It is not this repo.
 
-- A static community landing (Vite) with a ranch-journal palette (paper / ink / leather / pasture), light and dark themes
-- A sample **herd map** with three placeholder goats (not a live collar feed)
-- A stub **fiber shop** catalog loaded from JSON (no checkout in this repo)
-- A tiny Pages Function health stub, as a sketch of how an API layer can sit next to the site
-- `wrangler.toml` aimed at a Cloudflare Pages project named `fibershare-dev`
+## What you can do here
 
-There are **no operator secrets** in this repo: no API keys, no Mailjet, no ranch telemetry tokens.
+- See sample goats on a pasture drawing. The pins do not track live collars.
+- Browse sample fiber lots. You cannot check out.
+- Read how ranch support works. Support pays for animals and pasture. It is not ownership or an investment return.
+- Run a free copy on your computer.
 
-## FiberShare on the public web
+There are no secrets in this repo. No API keys. No mail settings. No live collar tokens.
 
-These are related, but they are not this repository:
+## Related sites
 
-- **[fibershare.dev](https://fibershare.dev)** — this open-source community MVP
-- **[fibershare.us](https://fibershare.us)** — paid US FiberShare web product
-- **[fibershare.app](https://fibershare.app)** — Expo shop / order app (built separately)
-- **[bitprairie.com/fibershare](https://www.bitprairie.com/fibershare)** — the same latest FiberShare product at the ranch URL (not an old fork)
+These sites are not this repository:
 
-Please do not open issues here about US billing, Expo app releases, or private herd data. Those belong on their own sites.
+- **[fibershare.dev](https://fibershare.dev)**: the live ranch product, hosted by BitPrairie
+- **[fibershare.us](https://fibershare.us)**: the paid shop for people in the US
+- **[fibershare.app](https://fibershare.app)**: the phone app for the shop and orders
+- **[bitprairie.com/fibershare](https://www.bitprairie.com/fibershare)**: the same live ranch product on the BitPrairie page
 
-## Run locally
+Do not open issues here about US billing, the phone app, or private herd data. Use those sites for that.
 
-Requires **Node 20**.
+## Run it yourself
+
+This is free. You need Node 20.
 
 ```bash
 git clone https://github.com/steelhead99x/fibershare-oss.git
@@ -36,34 +37,44 @@ npm install
 npm run dev
 ```
 
-Vite serves the app at http://localhost:5173.
+Then open http://localhost:5173.
 
 Useful scripts:
 
-- `npm run dev` — local Vite server
-- `npm run build` — production assets in `dist/`
-- `npm run preview` — serve the production build
-- `npm run pages:dev` — `wrangler@3 pages dev dist` (Node 20 compatible)
+- `npm run dev`: start the local site
+- `npm run build`: build the site into `dist/`
+- `npm run preview`: open the built site
+- `npm run pages:dev`: preview with Wrangler 3 (Node 20)
 
-Sample data lives in `public/data/herd.json` and `public/data/shop.json`.
+Sample goats and fiber are in `public/data/herd.json` and `public/data/shop.json`.
 
-## Architecture sketch
+## How it is built
 
 ```
 Browser
-  └── Cloudflare Pages (fibershare-dev)
-        ├── Static site (landing, map, shop)
-        ├── /data/*.json  (MVP catalog + herd placeholders)
+  └── Cloudflare Pages (project name fibershare-dev)
+        ├── Pages (home, map, shop)
+        ├── /data/*.json  (sample goats and fiber)
         └── Pages Functions
-              └── /api/health  (stub; future herd/shop APIs)
+              └── /api/health  (says the site is up)
 ```
 
-A later community build can swap the JSON files for D1 (or another store) behind Pages Functions. The OSS MVP stays static-first so anyone can run it without accounts.
+You can run it on your own server with the built files in `dist/`. You do not need an account to try the demo.
 
-## Contributing
+A later version can store data in D1, Cloudflare's database, behind Pages Functions. This demo stays as files so you can run it alone.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Small, well-scoped pull requests are welcome: map UI, catalog fields, accessibility, and docs.
+## Help out
+
+Joining is free. You need a GitHub account to send a change. Chat is free. You need a Discord account.
+
+Join the chat: [Discord](https://discord.gg/m3x8R3sF6N).
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Small pull requests are welcome. A pull request is the change you ask us to add.
+
+Start with the herd map, fiber fields, easier pages, or the docs.
 
 ## License
 
 [MIT](LICENSE) © 2026 BitPrairie LLC
+
+You may use, share, and change the code.

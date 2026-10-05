@@ -1,30 +1,36 @@
-# Contributing to FiberShare OSS
+# Contributing to FiberShare
 
-Thank you for helping with the community MVP.
+Thank you for helping build FiberShare.
 
 ## Ground rules
 
 - Keep this repository public-safe. Do not add API keys, operator emails, Mailjet config, or private ranch copy.
-- Do not import code from the paid US product, the Expo app, or private ranch repos.
+- Do not import code from the paid US product, the phone app, or private ranch repos.
 - Placeholder goats and shop items are fiction for the demo. Do not substitute a live production herd.
 
 ## Dev loop
 
-1. Fork and clone `steelhead99x/fibershare-oss`
-2. `npm install` then `npm run dev` (Node 20)
-3. Open a pull request against `main` with a short description of the change
+Joining is free. You need Node 20 and a GitHub account.
+
+1. On GitHub, click Fork to copy the repo, then clone it.
+2. Run `npm install`, then `npm run dev`.
+3. Open a pull request against `main`. Say what you changed in a few sentences.
+
+A pull request is the change you ask us to add.
 
 ## Good first contributions
 
 - Improve the herd map (keyboard focus, legends, more sample animals)
-- Extend `public/data/shop.json` with richer fiber fields
-- Accessibility and dark-theme polish
-- Docs: architecture notes, Pages deploy tips (still wrangler v3 on Node 20)
+- Add fiber fields in `public/data/shop.json`
+- Make the site easier to use, including the dark theme
+- Docs for how the site is built, and how to publish it (Wrangler v3 on Node 20)
 
 ## Code style
 
-Vanilla JS plus CSS, small files, no framework required.
+Use plain JavaScript and CSS. Keep files small. No framework is required.
 
-Visual direction is a **ranch journal / fiber catalog**: editorial and utilitarian, not a SaaS landing page. Prefer numbered lists and tables over soft card grids. Fonts are Source Serif 4 (headings) and IBM Plex Sans (UI/body).
+Make pages feel like a ranch notebook and a fiber list. Keep them plain and useful. Use numbered lists and tables.
 
-Palette: paper `#f4efe6`, ink `#1c1916`, leather `#5c4030`, pasture `#4f5d41`, muted `#6e675c`. Gold is a rare accent (rules, active states), not labels.
+Fonts are Source Serif 4 for headings and IBM Plex Sans for text.
+
+Colors: paper `#f4efe6`, ink `#1c1916`, leather `#5c4030`, pasture `#4f5d41`, muted `#6e675c`. Use gold rarely, for rules and the active state.

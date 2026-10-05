@@ -6,31 +6,31 @@ export const SITES = [
   {
     href: "https://fibershare.dev",
     name: "fibershare.dev",
-    blurb: "Live FiberShare ranch product (BitPrairie Pages host-aware site).",
+    blurb: "The live ranch site, hosted by BitPrairie.",
   },
   {
     href: "https://fibershare.us",
     name: "fibershare.us",
-    blurb: "Paid US FiberShare web product.",
+    blurb: "The paid shop for people in the US.",
   },
   {
     href: "https://fibershare.app",
     name: "fibershare.app",
-    blurb: "Expo shop and order app, built separately.",
+    blurb: "The phone app for the shop and orders.",
   },
   {
     href: "https://www.bitprairie.com/fibershare",
     name: "bitprairie.com/fibershare",
-    blurb: "Same ranch FiberShare product under the BitPrairie practice URL.",
+    blurb: "The same live ranch site, on the BitPrairie page.",
   },
   {
     href: DISCORD,
     name: "Discord",
-    blurb: "Community chat for ranchers, fiber artists, and contributors.",
+    blurb: "Free chat for ranchers, fiber makers, and helpers.",
   },
   {
     href: REPO,
     name: "fibershare-oss",
-    blurb: "This open-source community MVP (MIT).",
+    blurb: "This free demo. You can read the code and run a copy.",
   },
 ];

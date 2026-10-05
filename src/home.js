@@ -21,46 +21,56 @@ export function renderHome() {
     '<main class="wrap" id="main">' +
     '<section class="hero hero-split">' +
     '<div class="hero-title">' +
-    "<h1>Follow the herd. Support a ranch. Shop the fiber.</h1>" +
+    "<h1>FiberShare lets you follow a herd and support a ranch.</h1>" +
     "</div>" +
     '<div class="hero-aside">' +
-    '<p class="lede">Community MVP for ranch sponsorship, a sample collar map, and a stub fiber shop. Clone it, run it, contribute. This is not the paid US brand.</p>' +
+    '<p class="lede">It is for people who follow goats, work with fiber, or want the ranch to last.</p>' +
     '<div class="cta-row">' +
-    '<a class="btn btn-primary" href="' +
+    '<a class="btn btn-primary" href="#/map">Open the herd map</a>' +
+    "</div>" +
+    '<p class="fine-print">Sponsorship means you help pay for animals and pasture. You do not own a share of the ranch. You do not earn an investment return.</p>' +
+    "</div>" +
+    "</section>" +
+    '<section class="section" aria-label="What you can do">' +
+    '<h2 class="section-rule">What you can do</h2>' +
+    '<ol class="feature-list">' +
+    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>You see sample goats on a pasture drawing. The pins do not track live collars. <a href="#/map">Open the herd map</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>You can read how people support the herd. Support pays for animals and pasture. It is not a share of the ranch. You do not earn an investment return. <a href="https://www.bitprairie.com/fibershare"' +
+    EXT +
+    ">See how support works</a></p></div></li>" +
+    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber shop</h3><p>You can look through sample lots of fiber. You cannot buy them on this page. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
+    "</ol>" +
+    "</section>" +
+    '<section class="section" id="join">' +
+    '<h2 class="section-rule">Free demo</h2>' +
+    "<p>You can read the code, run your own copy, or help build it.</p>" +
+    "<p>This is free. You need a Discord account to chat. You need Node 20 to run a copy.</p>" +
+    "<p>" +
+    '<a href="' +
+    REPO +
+    '"' +
+    EXT +
+    ">View the code</a> · " +
+    '<a href="#get-started">Run it yourself</a> · ' +
+    '<a href="' +
     DISCORD +
     '"' +
     EXT +
-    ">Join Discord</a>" +
-    '<a class="btn btn-ghost" href="' +
-    REPO +
-    '"' +
-    EXT +
-    ">View on GitHub</a>" +
-    '<a class="btn btn-ghost" href="#/map">Open herd map</a>' +
-    "</div>" +
-    '<p class="fine-print">Sponsorship and ranch gifts are support for animals and pasture, not ownership shares and not an investment return.</p>' +
-    "</div>" +
-    "</section>" +
-    '<section class="section" aria-label="What this MVP includes">' +
-    '<h2 class="section-rule">In this journal</h2>' +
-    '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Collar map</h3><p>Sample goats on a pasture sketch. Placeholder pins, not live telemetry. <a href="#/map">Explore the map</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Sponsorship story</h3><p>A public frame for herds, fiber, and people who want a ranch to thrive. <a href="https://www.bitprairie.com/fibershare"' +
-    EXT +
-    ">See the ranch program</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber catalog</h3><p>Stub lots from JSON. Real ordering lives on fibershare.app and fibershare.us. <a href="#/shop">Browse the stub shop</a></p></div></li>' +
-    "</ol>" +
+    ">Help out</a></p>" +
     "</section>" +
     '<section class="section" id="get-started">' +
-    '<h2 class="section-rule">Run locally</h2>' +
+    '<h2 class="section-rule">Run a copy</h2>' +
+    "<p>This is free. You need Node 20 on your computer.</p>" +
     "<pre><code>git clone " +
     REPO +
     ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
-    '<p class="muted">Node 20. Vite serves http://localhost:5173. Sample data is in public/data/.</p>' +
+    '<p class="muted">When it starts, open http://localhost:5173.</p>' +
+    '<p class="muted">Sample goats and fiber are in the public/data folder.</p>' +
     "</section>" +
     '<section class="section">' +
-    '<h2 class="section-rule">Related links</h2>' +
-    '<p class="lede-tight">This repo is only the open-source community MVP. Live fibershare.dev is the BitPrairie-hosted ranch product.</p>' +
+    '<h2 class="section-rule">Other sites</h2>' +
+    '<p class="lede-tight">The live site at fibershare.dev is the ranch product from BitPrairie.</p>' +
+    '<p class="lede-tight">This page is a free demo you can read and run.</p>' +
     '<table class="link-table"><thead><tr><th scope="col">Site</th><th scope="col">What it is</th></tr></thead><tbody>' +
     related +
     "</tbody></table>" +

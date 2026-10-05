@@ -3,10 +3,12 @@ import { esc } from "./util.js";
 
 export async function renderMap() {
   let data;
+  let loadFailed = false;
   try {
     data = await (await fetch("/data/herd.json")).json();
   } catch {
-    data = { ranch: "Sample herd", goats: [], note: "Could not load sample herd data." };
+    loadFailed = true;
+    data = { ranch: "Sample herd", goats: [] };
   }
   const goats = data.goats || [];
   const pins = goats
@@ -62,15 +64,25 @@ export async function renderMap() {
     .join("");
   const body = goats.length
     ? '<div class="map-split">' +
-      '<div class="pasture" id="pasture" role="group" aria-label="Pasture with sample collar pins">' +
+      '<div class="pasture" id="pasture" role="group" aria-label="Pasture drawing with sample goat pins">' +
       pins +
       '<div class="pasture-legend">' +
       goats.length +
-      " sample pins · demo only</div></div>" +
+      " sample pins · not live collars</div></div>" +
       '<ol class="goat-list" aria-label="Sample herd">' +
       list +
       "</ol></div>"
-    : '<div class="empty">No sample goats loaded. Check public/data/herd.json.</div>';
+    : '<div class="empty">' +
+      (loadFailed
+        ? "Check public/data/herd.json, then reload this page."
+        : "No goats are listed yet. Add them in public/data/herd.json and reload.") +
+      "</div>";
+
+  const lede = loadFailed
+    ? "The herd list did not load."
+    : goats.length
+      ? "These are sample goats on a pasture drawing. The pins do not track live collars. This is not the Linden ranch herd."
+      : "This map is for sample goats. The pins do not track live collars.";
 
   return (
     nav("/map") +
@@ -79,7 +91,7 @@ export async function renderMap() {
     "<h1>" +
     esc(data.ranch || "Sample herd") +
     '</h1><p class="lede">' +
-    esc(data.note || "") +
+    lede +
     "</p></section>" +
     body +
     "</main>" +

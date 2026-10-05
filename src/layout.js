@@ -21,7 +21,7 @@ export function nav(active) {
     ["/", "Home"],
     ["/map", "Herd map"],
     ["/shop", "Fiber shop"],
-    ["/architecture", "Architecture"],
+    ["/architecture", "Build"],
   ]
     .map(([href, label]) => {
       const on = active === href;
@@ -35,9 +35,9 @@ export function nav(active) {
     '<header class="site-header"><div class="wrap">' +
     '<a class="brand" href="#/">' +
     MARK +
-    "FiberShare <span>OSS</span></a>" +
+    "FiberShare <span>Demo</span></a>" +
     '<button class="nav-toggle" type="button" data-nav-toggle aria-label="Toggle navigation menu" aria-expanded="false">' +
-    '<span aria-hidden="true">☰</span> Menu</button>' +
+    '<span aria-hidden="true">&#9776;</span> Menu</button>' +
     '<nav class="nav" id="primary-nav" aria-label="Primary">' +
     links +
     '<a href="' +
@@ -53,10 +53,11 @@ export function nav(active) {
 export function footer() {
   const items = SITES.map(
     (s) => '<a href="' + esc(s.href) + '"' + EXT + ">" + esc(s.name) + "</a>"
-  ).join(" · ");
+  ).join(" &middot; ");
   return (
     '<footer class="site-footer"><div class="wrap">' +
-    "<small>MIT © 2026 BitPrairie LLC · community MVP · sponsorship is support, not an investment</small><small>" +
+    "<small>&copy; 2026 BitPrairie LLC &middot; Sponsorship supports animals and pasture. It is not ownership or an investment return.</small>" +
+    "<small>AI, ML, SI: the labels keep changing. We build for what the work needs.</small><small>" +
     items +
     "</small></div></footer>"
   );

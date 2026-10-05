@@ -3,18 +3,20 @@ import { esc, EXT } from "./util.js";
 
 export async function renderShop() {
   let data;
+  let loadFailed = false;
   try {
     data = await (await fetch("/data/shop.json")).json();
   } catch {
-    data = { products: [], note: "Could not load the stub catalog." };
+    loadFailed = true;
+    data = { products: [] };
   }
   const products = data.products || [];
   const list = products
     .map((p, i) => {
       const n = String(i + 1).padStart(2, "0");
       const badge = p.inStock
-        ? '<span class="badge">in stock</span>'
-        : '<span class="badge out">sample only</span>';
+        ? '<span class="badge">sample</span>'
+        : '<span class="badge out">not for sale</span>';
       const usd = Number(p.usd);
       const price = Number.isFinite(usd) ? usd : esc(p.usd);
       return (
@@ -38,23 +40,35 @@ export async function renderShop() {
       );
     })
     .join("");
-  const body = products.length
-    ? '<ol class="catalog-list" aria-label="Stub fiber catalog">' + list + "</ol>"
-    : '<div class="empty">No stub products loaded. Check public/data/shop.json.</div>';
+  let lede;
+  let body;
+  if (loadFailed) {
+    lede = "The fiber list did not load.";
+    body =
+      '<div class="empty">Check public/data/shop.json, then reload this page.</div>';
+  } else if (!products.length) {
+    lede = "This page lists sample fiber.";
+    body =
+      '<div class="empty">No fiber lots are listed yet. Add them in public/data/shop.json and reload.</div>';
+  } else {
+    lede =
+      'These fiber lots are samples. You cannot buy them on this page. To order, use the <a href="https://fibershare.app"' +
+      EXT +
+      ">FiberShare app</a> or the <a href=\"https://fibershare.us\"" +
+      EXT +
+      ">US shop</a>.";
+    body =
+      '<ol class="catalog-list" aria-label="Sample fiber lots">' + list + "</ol>";
+  }
 
   return (
     nav("/shop") +
     '<main class="wrap" id="main">' +
     '<section class="page-head">' +
-    "<h1>Stub catalog</h1>" +
+    "<h1>Sample fiber</h1>" +
     '<p class="lede">' +
-    esc(data.note || "Demo lots for the OSS MVP.") +
-    ' Real ordering belongs on <a href="https://fibershare.app"' +
-    EXT +
-    ">fibershare.app</a> (Expo) and the paid US web at <a href="https://fibershare.us"' +
-    EXT +
-    ">fibershare.us</a>.</p>" +
-    "</section>" +
+    lede +
+    "</p></section>" +
     body +
     "</main>" +
     footer()
