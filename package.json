@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "vite": "^5.4.19",
-    "wrangler": "3.114.15"
+    "wrangler": "3.114.17"
   },
   "engines": {
     "node": ">=20 <21"
