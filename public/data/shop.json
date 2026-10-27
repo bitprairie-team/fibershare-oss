@@ -1,13 +1,11 @@
 {
-  "note": "Sample fiber for this demo. Prices are samples. You cannot check out here.",
-  "currency": "USD",
+  "note": "Sample fiber for this demo. You cannot check out here.",
   "products": [
     {
       "id": "roving-juniper",
       "name": "Juniper sample roving",
       "fiber": "Nigerian Dwarf",
       "grams": 50,
-      "usd": 12,
       "inStock": true
     },
     {
@@ -15,7 +13,6 @@
       "name": "Pasture-blend DK yarn",
       "fiber": "mixed ranch sample",
       "grams": 100,
-      "usd": 24,
       "inStock": true
     },
     {
@@ -23,7 +20,6 @@
       "name": "Bramble kid mohair locks",
       "fiber": "Angora",
       "grams": 40,
-      "usd": 16,
       "inStock": true
     },
     {
@@ -31,7 +27,6 @@
       "name": "Community collar kit (demo)",
       "fiber": "hardware sample",
       "grams": 80,
-      "usd": 18,
       "inStock": false
     }
   ]

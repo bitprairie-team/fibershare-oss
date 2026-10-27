@@ -56,7 +56,7 @@ export function footer() {
   ).join(" &middot; ");
   return (
     '<footer class="site-footer"><div class="wrap">' +
-    "<small>&copy; 2026 BitPrairie LLC &middot; Sponsorship supports animals and pasture. It is not ownership or an investment return.</small>" +
+    '<small>&copy; 2026 BitPrairie LLC, a California LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a> &middot; Sponsorship supports animals and pasture. It is not ownership or an investment return.</small>' +
     "<small>AI, ML, SI: the labels keep changing. We build for what the work needs.</small><small>" +
     items +
     "</small></div></footer>"

@@ -1,5 +1,5 @@
 import { nav, footer } from "./layout.js";
-import { esc, EXT } from "./util.js";
+import { esc } from "./util.js";
 
 export async function renderShop() {
   let data;
@@ -14,11 +14,6 @@ export async function renderShop() {
   const list = products
     .map((p, i) => {
       const n = String(i + 1).padStart(2, "0");
-      const badge = p.inStock
-        ? '<span class="badge">sample</span>'
-        : '<span class="badge out">not for sale</span>';
-      const usd = Number(p.usd);
-      const price = Number.isFinite(usd) ? usd : esc(p.usd);
       return (
         '<li class="catalog-row">' +
         '<span class="feature-num" aria-hidden="true">' +
@@ -31,12 +26,8 @@ export async function renderShop() {
         esc(p.fiber) +
         " · " +
         esc(p.grams) +
-        "g lot</p></div>" +
-        '<div class="catalog-meta"><strong>USD ' +
-        price +
-        "</strong> " +
-        badge +
-        "</div></li>"
+        'g lot</p></div>' +
+        '<div class="catalog-meta"><span class="badge">sample · not for sale</span></div></li>'
       );
     })
     .join("");
@@ -51,12 +42,7 @@ export async function renderShop() {
     body =
       '<div class="empty">No fiber lots are listed yet. Add them in public/data/shop.json and reload.</div>';
   } else {
-    lede =
-      'These fiber lots are samples. You cannot buy them on this page. To order, use the <a href="https://fibershare.app"' +
-      EXT +
-      ">FiberShare app</a> or the <a href=\"https://fibershare.us\"" +
-      EXT +
-      ">US shop</a>.";
+    lede = "These fiber lots are samples. You cannot buy them on this page.";
     body =
       '<ol class="catalog-list" aria-label="Sample fiber lots">' + list + "</ol>";
   }

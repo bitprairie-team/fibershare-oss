@@ -68,7 +68,7 @@ export async function renderMap() {
       pins +
       '<div class="pasture-legend">' +
       goats.length +
-      " sample pins · not live collars</div></div>" +
+      " sample pins · not a real ranch herd</div></div>" +
       '<ol class="goat-list" aria-label="Sample herd">' +
       list +
       "</ol></div>"
@@ -81,8 +81,8 @@ export async function renderMap() {
   const lede = loadFailed
     ? "The herd list did not load."
     : goats.length
-      ? "These are sample goats on a pasture drawing. The pins do not track live collars. This is not the Linden ranch herd."
-      : "This map is for sample goats. The pins do not track live collars.";
+      ? "These are sample goats on a pasture drawing. This is not a real ranch herd."
+      : "This map is for sample goats. This is not a real ranch herd.";
 
   return (
     nav("/map") +

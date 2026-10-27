@@ -1,4 +1,4 @@
-import { DISCORD, REPO, SITES } from "./sites.js";
+import { APP, DISCORD, REPO, SITES } from "./sites.js";
 import { nav, footer } from "./layout.js";
 import { esc, EXT } from "./util.js";
 
@@ -34,17 +34,19 @@ export function renderHome() {
     '<section class="section" aria-label="What you can do">' +
     '<h2 class="section-rule">What you can do</h2>' +
     '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>You see sample goats on a pasture drawing. The pins do not track live collars. <a href="#/map">Open the herd map</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>You can read how people support the herd. Support pays for animals and pasture. It is not a share of the ranch. You do not earn an investment return. <a href="https://www.bitprairie.com/fibershare"' +
+    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>You see sample goats on a pasture drawing. This is not a real ranch herd. <a href="#/map">Open the herd map</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>Support pays for animals and pasture. It is not a share of the ranch. You do not earn an investment return. This demo only explains that. <a href="' +
+    esc(APP) +
+    '"' +
     EXT +
-    ">See how support works</a></p></div></li>" +
+    ">FiberShare app</a></p></div></li>" +
     '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber shop</h3><p>You can look through sample lots of fiber. You cannot buy them on this page. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
     "</ol>" +
     "</section>" +
     '<section class="section" id="join">' +
-    '<h2 class="section-rule">Free demo</h2>' +
+    '<h2 class="section-rule">Open demo</h2>' +
     "<p>You can read the code, run your own copy, or help build it.</p>" +
-    "<p>This is free. You need a Discord account to chat. You need Node 20 to run a copy.</p>" +
+    "<p>You need a Discord account to chat. You need Node 20 to run a copy.</p>" +
     "<p>" +
     '<a href="' +
     REPO +
@@ -60,7 +62,7 @@ export function renderHome() {
     "</section>" +
     '<section class="section" id="get-started">' +
     '<h2 class="section-rule">Run a copy</h2>' +
-    "<p>This is free. You need Node 20 on your computer.</p>" +
+    "<p>You need Node 20 on your computer.</p>" +
     "<pre><code>git clone " +
     REPO +
     ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
@@ -69,8 +71,8 @@ export function renderHome() {
     "</section>" +
     '<section class="section">' +
     '<h2 class="section-rule">Other sites</h2>' +
-    '<p class="lede-tight">The live site at fibershare.dev is the ranch product from BitPrairie.</p>' +
-    '<p class="lede-tight">This page is a free demo you can read and run.</p>' +
+    '<p class="lede-tight">The FiberShare app is one product, at fibershare.app.</p>' +
+    '<p class="lede-tight">This page is a demo you can read and run. It is not that app.</p>' +
     '<table class="link-table"><thead><tr><th scope="col">Site</th><th scope="col">What it is</th></tr></thead><tbody>' +
     related +
     "</tbody></table>" +
