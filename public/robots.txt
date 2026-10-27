@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+Sitemap: https://github.com/steelhead99x/fibershare-oss/sitemap.xml
