@@ -21,31 +21,45 @@ export function renderHome() {
     '<main class="wrap" id="main">' +
     '<section class="hero hero-split">' +
     '<div class="hero-title">' +
-    "<h1>FiberShare lets you follow a herd and support a ranch.</h1>" +
+    "<h1>FiberShare starts with the community.</h1>" +
     "</div>" +
     '<div class="hero-aside">' +
-    '<p class="lede">It is for people who follow goats, work with fiber, or want the ranch to last.</p>' +
+    '<p class="lede">Local ranchers share gear, alerts, and know-how. The goal is safe animals and ranches that last.</p>' +
+    '<p class="lede">This is a demo, not the FiberShare app. It uses sample goats and sample fiber.</p>' +
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="#/map">Open the herd map</a>' +
+    '<a class="btn btn-ghost" href="#join">Take part</a>' +
     "</div>" +
-    '<p class="fine-print">Sponsorship means you help pay for animals and pasture. You do not own a share of the ranch. You do not earn an investment return.</p>' +
+    '<p class="fine-print">Support pays for animals and pasture. Support is not ownership or an investment return.</p>' +
     "</div>" +
     "</section>" +
-    '<section class="section" aria-label="What you can do">' +
-    '<h2 class="section-rule">What you can do</h2>' +
+    '<section class="section" id="join">' +
+    '<h2 class="section-rule">Three ways to take part</h2>' +
     '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>You see sample goats on a pasture drawing. This is not a real ranch herd. <a href="#/map">Open the herd map</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>Support pays for animals and pasture. It is not a share of the ranch. You do not earn an investment return. This demo only explains that. <a href="' +
+    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Join the community network</h3><p>Share with other ranchers through a self-hosted or co-op setup. This is the main part of the project. It is free for non-commercial and research use. <a href="' +
+    DISCORD +
+    '"' +
+    EXT +
+    ">Chat on Discord</a></p></div></li>" +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Run your own local system</h3><p>Use the open code and docs on your own land. It is free and open source. <a href="#get-started">Run a copy</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Use the commercial network</h3><p>BitPrairie offers hosting and ready-to-go gear. This part is small. It mainly covers hardware and hosting. <a href="' +
     esc(APP) +
     '"' +
     EXT +
     ">FiberShare app</a></p></div></li>" +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber shop</h3><p>You can look through sample lots of fiber. You cannot buy them on this page. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
     "</ol>" +
     "</section>" +
-    '<section class="section" id="join">' +
+    '<section class="section" aria-label="What this demo shows">' +
+    '<h2 class="section-rule">What this demo shows</h2>' +
+    '<ol class="feature-list">' +
+    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>Sample goats on a pasture drawing. This is not a real ranch herd. <a href="#/map">Open the herd map</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>Support pays for animals and pasture. Support is not ownership or an investment return. This demo only explains it.</p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber shop</h3><p>Sample lots of fiber. You cannot buy them here. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
+    "</ol>" +
+    "</section>" +
+    '<section class="section">' +
     '<h2 class="section-rule">Open demo</h2>' +
-    "<p>You can read the code, run your own copy, or help build it.</p>" +
+    "<p>Read the code, run your own copy, or help build it.</p>" +
     "<p>You need a Discord account to chat. You need Node 20 to run a copy.</p>" +
     "<p>" +
     '<a href="' +
@@ -71,8 +85,8 @@ export function renderHome() {
     "</section>" +
     '<section class="section">' +
     '<h2 class="section-rule">Other sites</h2>' +
-    '<p class="lede-tight">The FiberShare app is one product, at fibershare.app.</p>' +
-    '<p class="lede-tight">This page is a demo you can read and run. It is not that app.</p>' +
+    '<p class="lede-tight">The hosted FiberShare app is at fibershare.app.</p>' +
+    '<p class="lede-tight">This is a demo, not the FiberShare app.</p>' +
     '<table class="link-table"><thead><tr><th scope="col">Site</th><th scope="col">What it is</th></tr></thead><tbody>' +
     related +
     "</tbody></table>" +

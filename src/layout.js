@@ -56,8 +56,10 @@ export function footer() {
   ).join(" &middot; ");
   return (
     '<footer class="site-footer"><div class="wrap">' +
-    '<small>&copy; 2026 BitPrairie LLC, a California LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a> &middot; Sponsorship supports animals and pasture. It is not ownership or an investment return.</small>' +
-    "<small>AI, ML, SI: the labels keep changing. We build for what the work needs.</small><small>" +
+    '<small class="footer-brand"><img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />' +
+    '<span>&copy; 2026 BitPrairie LLC, a California LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></span></small>' +
+    "<small>This is a demo, not the FiberShare app. Support is not ownership or an investment return.</small>" +
+    "<small>Predator Watch and Wildfire Watch use intelligence systems trained by BitPrairie.</small><small>" +
     items +
     "</small></div></footer>"
   );

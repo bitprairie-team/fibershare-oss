@@ -8,17 +8,17 @@ export const SITES = [
   {
     href: APP,
     name: "fibershare.app",
-    blurb: "The FiberShare app from BitPrairie LLC. This demo is not that app.",
+    blurb: "The hosted FiberShare app from BitPrairie LLC. This is a demo, not the FiberShare app.",
   },
   {
     href: "https://www.bitprairie.com/fibershare",
     name: "bitprairie.com/fibershare",
-    blurb: "A deep link to the FiberShare app. The BitPrairie site does not host a copy.",
+    blurb: "BitPrairie's FiberShare project page. It links on to the hosted app.",
   },
   {
     href: "https://fibershare.dev",
     name: "fibershare.dev",
-    blurb: "Not this repository, and not a second product.",
+    blurb: "Part of the hosted FiberShare app. It needs sign-in. It is not this repository.",
   },
   {
     href: "https://fibershare.us",

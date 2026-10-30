@@ -29,7 +29,7 @@ export async function renderMap() {
         '" aria-label="' +
         name +
         " on the pasture" +
-        '"></button>'
+        '" aria-pressed="false"></button>'
       );
     })
     .join("");
@@ -99,10 +99,17 @@ export async function renderMap() {
   );
 }
 
+function reducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function bindMap(root) {
   const cards = root.querySelectorAll("[data-goat-card]");
   const clear = () => {
-    root.querySelectorAll(".goat.is-active").forEach((el) => el.classList.remove("is-active"));
+    root.querySelectorAll(".goat").forEach((el) => {
+      el.classList.remove("is-active");
+      el.setAttribute("aria-pressed", "false");
+    });
     cards.forEach((card) => {
       card.classList.remove("selected");
       card.setAttribute("aria-pressed", "false");
@@ -112,10 +119,11 @@ export function bindMap(root) {
     btn.addEventListener("click", () => {
       clear();
       btn.classList.add("is-active");
+      btn.setAttribute("aria-pressed", "true");
       const card = root.querySelector('[data-goat-card="' + btn.dataset.id + '"]');
       card?.classList.add("selected");
       card?.setAttribute("aria-pressed", "true");
-      card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      card?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "nearest" });
     });
   });
   cards.forEach((card) => {
@@ -125,6 +133,7 @@ export function bindMap(root) {
       card.setAttribute("aria-pressed", "true");
       const pin = root.querySelector('.goat[data-id="' + card.dataset.goatCard + '"]');
       pin?.classList.add("is-active");
+      pin?.setAttribute("aria-pressed", "true");
     });
   });
 }

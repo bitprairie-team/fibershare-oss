@@ -2,9 +2,6 @@ import "@fontsource/ibm-plex-sans/latin-400.css";
 import "@fontsource/ibm-plex-sans/latin-500.css";
 import "@fontsource/ibm-plex-sans/latin-600.css";
 import "@fontsource/ibm-plex-sans/latin-700.css";
-import "@fontsource/source-serif-4/latin-500.css";
-import "@fontsource/source-serif-4/latin-600.css";
-import "@fontsource/source-serif-4/latin-700.css";
 import "./style.css";
 import { bindTheme, nav, footer } from "./layout.js";
 import { renderHome } from "./home.js";
@@ -43,15 +40,55 @@ function renderNotFound() {
   );
 }
 
+let firstRender = true;
+
+/** Tell screen readers which page is now showing. */
+function announce(title) {
+  const region = document.getElementById("route-announcer");
+  if (!region) return;
+  region.textContent = "";
+  // A short delay makes screen readers read the new text.
+  setTimeout(() => {
+    region.textContent = title;
+  }, 50);
+}
+
+/** Move keyboard focus to the main content. */
+function focusMain() {
+  const main = document.getElementById("main");
+  if (!main) return;
+  if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+  main.focus({ preventScroll: true });
+  window.scrollTo(0, 0);
+}
+
 async function render() {
   const path = pathFromHash();
+  // The skip link points at #main. That is not a page, so just move focus.
+  if (path === "/main") {
+    focusMain();
+    return;
+  }
   const route = routes[path];
-  document.title = route ? route.title : "Page not found · FiberShare";
+  const title = route ? route.title : "Page not found · FiberShare";
+  document.title = title;
   const html = route ? await route.render() : renderNotFound();
   const app = document.getElementById("app");
   app.innerHTML = html;
   bindTheme(app);
   if (path === "/map") bindMap(app);
+  app.querySelector(".skip-link")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    focusMain();
+  });
+  // Leave focus alone on the first load. On every page change after that,
+  // move focus to the main content and announce the new page.
+  if (firstRender) {
+    firstRender = false;
+    return;
+  }
+  focusMain();
+  announce(title);
 }
 
 window.addEventListener("hashchange", render);
