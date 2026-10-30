@@ -1,29 +1,75 @@
 # FiberShare (open source)
 
-FiberShare is a ranch program from BitPrairie LLC. It is for people who follow goats, work with fiber, or want a ranch to last. Support pays for animals and pasture. It is not ownership or an investment return.
+FiberShare is a ranch program from BitPrairie LLC. It started with goats, fiber, and ranches that want to last. It is growing into a network of local ranchers in southern Oregon ranch country, plus practical gear on the ranch: collar trackers, paddock cameras, and predator and wildfire detection.
 
-This repository is a demo of that idea. It is for people who want to read the code, run a sample copy, or help improve the demo. You get a sample herd map and a sample fiber list. This repository is not the FiberShare app.
+The goal is simple. Help ranchers keep animals safe. Help local communities and local government programs get early warning. Keep local supply chains going.
+
+Support for a ranch pays for animals and pasture. It is not ownership or an investment return.
+
+This repository is a demo. It is for people who want to read the code, run a sample copy, or help improve it. It is not the FiberShare app at [fibershare.app](https://fibershare.app).
+
+## Three ways to take part
+
+1. **Run your own local system.** Use the open code and docs to set up a system on your own ranch or land. It is free and open source.
+2. **Join the community network.** Share with other ranchers through a self-hosted or co-op setup. This is the main part of the project. It is non-commercial, and it is fine for research use.
+3. **Join the commercial network.** Use BitPrairie's hosted services and ready-to-go gear. This part is small. It mainly covers the cost of hardware and hosting.
+
+## Three simple setups
+
+These match the setups on [bitprairie.com](https://www.bitprairie.com).
+
+| Setup | What it means |
+| --- | --- |
+| Your own hardware | You build or buy the gear and run it yourself. |
+| Hosted by us | BitPrairie runs the hosting for you. |
+| A mix of both | Your gear on the ranch, with BitPrairie hosting the parts you choose. |
+
+The gear is meant to hold up outside: 3D-printed ASA enclosures, modern solar panels, and LoRa radios.
+
+## What is open, and what BitPrairie offers
+
+| Community (free, open source) | Commercial (BitPrairie) |
+| --- | --- |
+| This demo | The hosted FiberShare app |
+| Open schemas (draft) | BitPrairie's own trained models |
+| Self-hosting docs | Hosted alerting and relay |
+| Non-commercial and research use | Ready-to-go hardware kits |
+| | Support |
+
+Only BitPrairie's own trained models stay private. The open public models it builds on keep their own licenses.
+
+## The wider project
+
+- **FiberShare app** at [fibershare.app](https://fibershare.app): ranch sponsorship, a live collar map, and a fiber shop. Basic records for animals, shearing, fleece, and fiber lots are in use, and the tools are being upgraded.
+- **Predator Watch** at [bitprairie.com/predator-watch](https://bitprairie.com/predator-watch/): early warning about predators near livestock, so ranchers can act without lethal force. Phase 3, training models on BitPrairie's own regional data, is in progress.
+- **Wildfire Watch** at [bitprairie.com/wildfire-watch](https://bitprairie.com/wildfire-watch/): early wildfire detection.
+- **moqFeeder**: a related project for paddock video over Media over QUIC.
+
+Predator Watch and Wildfire Watch share sensing modules on the same LoRa and solar edge platform.
+
+The feed of livestock movement and distress events from LoRa collars to Predator Watch is built and tested. The feed of ranch sensor readings to Wildfire Watch is still being built.
+
+Planned:
+
+- A wildfire relay to local and government alerting systems.
+
+An upload page at upload.bitprairie.com is coming soon. People on the [mailing list](https://bitprairie.com/predator-watch/#subscribe) will get upload access.
+
+## Your data
+
+- Location data is stripped or blurred. No one can tell where a photo or an animal was.
+- Training data stays on BitPrairie's own hardware. It is used for training and testing only. No one else sees it.
+- Each rancher's event history belongs to that rancher. It is shared only if they opt in.
+- Any sharing with agencies or researchers is aggregated or delayed, and has no exact locations.
 
 ## What this demo does
 
 - Shows sample goats on a pasture drawing. The pins are positions on the drawing. This is not a real ranch herd.
 - Lists sample fiber. You cannot check out.
-- Explains ranch support. Support pays for animals and pasture. It is not ownership or an investment return.
-- Runs on your computer with Node 20.
+- Explains ranch support.
+- Runs locally with Node 20.
 
 There are no secrets in this repo. No API keys. No mail settings. No real collar data.
-
-## The FiberShare app
-
-BitPrairie LLC has one FiberShare app, at [fibershare.app](https://fibershare.app).
-
-[bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) only deep-links to that app. It does not host a copy.
-
-[fibershare.dev](https://fibershare.dev) and [fibershare.us](https://fibershare.us) are not this repository, and they are not extra products. [fibershare.us](https://fibershare.us) leads to the FiberShare app.
-
-Do not open issues here about the FiberShare app, orders, or private herd data.
-
-More of this split is in [docs/DIRECTION.md](docs/DIRECTION.md).
 
 ## Quick start
 
@@ -40,34 +86,16 @@ Then open http://localhost:5173.
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Serves the local site at http://localhost:5173 |
+| `npm run dev` | Serves the local site with Vite at http://localhost:5173 |
 | `npm run build` | Builds the site into `dist/` |
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 3 on Node 20, including `/api/health` |
+| `npm run lint` | Checks the JavaScript files for syntax errors |
+| `npm test` | Runs the tests for the sample JSON files and `/api/health` |
 
 `npm run dev` serves the pages and the sample JSON. The `/api/health` function is included when you use `npm run pages:dev` after `npm run build`.
 
 Sample goats and fiber are in `public/data/herd.json` and `public/data/shop.json`.
-
-## Screenshots
-
-These pictures are from a local `npm run dev` run on 26 Oct 2026. They show this demo, not the FiberShare app.
-
-### Home
-
-![Home page of the FiberShare demo](docs/screenshots/home.png)
-
-### Herd map
-
-![Sample goats on a pasture drawing](docs/screenshots/herd-map.png)
-
-### Fiber list
-
-![Sample fiber list with no checkout](docs/screenshots/fiber-list.png)
-
-### How it is built
-
-![Page describing how the demo is built](docs/screenshots/build.png)
 
 ## How it is built
 
@@ -84,17 +112,23 @@ The project name `fibershare-dev` is a label for a copy of this demo. It is not 
 
 You can run the built files in `dist/` on your own server. You do not need an account to try the demo.
 
-A later store for this demo's sample data, behind Pages Functions, is Planned. This demo stays as files so you can run it alone. See [ROADMAP.md](ROADMAP.md).
+## Screenshots
+
+Screenshots will be retaken after the UI refresh.
+
+## Where things live
+
+[bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted FiberShare app. It is not this repository. [fibershare.dev](https://fibershare.dev) is part of the hosted FiberShare app, and it currently needs sign-in. It is not this repository. [fibershare.us](https://fibershare.us) leads to the FiberShare app.
+
+Do not open issues here about the FiberShare app, orders, or private herd data.
+
+More on this split is in [docs/DIRECTION.md](docs/DIRECTION.md). What is coming next is in [ROADMAP.md](ROADMAP.md).
 
 ## Help out
 
-You need a GitHub account to send a change. Chat is on Discord. You need a Discord account.
+Ranchers, hardware makers, and developers are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Join the chat: [Discord](https://discord.gg/m3x8R3sF6N).
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Small pull requests are welcome. A pull request is the change you ask us to add.
-
-Start with the herd map, fiber fields, easier pages, or the docs.
+Chat is on [Discord](https://discord.gg/m3x8R3sF6N). You need a Discord account. You need a GitHub account to send a change.
 
 ## License
 
