@@ -6,15 +6,29 @@ How this open-source repository fits into FiberShare and BitPrairie's wider work
 
 FiberShare is for ranchers, local communities, and local government programs in the western US, and for anyone who wants to run the same kind of system on their own land.
 
-The project is a network of local ranchers with gear on the ranch: collar trackers, paddock cameras and live video, and predator and wildfire detection. The network gives early warning to local communities and local government programs, and it helps keep local supply chains going.
+FiberShare has run since about 2020. The project is a network of local ranchers with gear on the ranch: collar trackers, paddock cameras and live video, and predator and wildfire detection.
 
-## Three ways to take part
+Planned: early warning from the network to local communities and local government programs, sent only with each rancher's consent.
 
-1. **Your own local system.** Free and open source. You run it.
-2. **The community network.** Non-commercial. Self-hosted or run as a co-op. This comes first. It is the main focus of this repository.
-3. **The commercial network.** BitPrairie's hosted services and gear. It is kept small. It mainly exists to cover the cost of hardware and hosting.
+## Two networks
 
-Each can use one of three setups: your own hardware, hosted by BitPrairie, or a mix of both.
+- **The community network** is non-commercial, self-hosted or run as a co-op. It comes first and is the main focus of this repository.
+- **The commercial network** is BitPrairie's hosted services and gear. It is kept small and mainly covers the cost of hardware and hosting.
+
+You can also run the code on your own ranch and share with no one. Any of these can use one of three setups: your own hardware, hosted by BitPrairie, or a mix. The [README](../README.md) has the tables.
+
+## What the loops do
+
+The automation is what sets FiberShare apart. Intelligence and realtime systems read tracker, sensor and camera data and turn it into alerts and suggestions. The rancher decides every time, and each answer is stored so the next suggestion fits that ranch better. Each loop does one job:
+
+- **Find an animal in trouble.** In use in the FiberShare app: alerts, and the rancher's confirm or dismiss. Built: the movement and distress feed to Predator Watch. Planned: learning from the rancher's answers.
+- **Catch a dying or silent tracker.** In use in the FiberShare app: low-battery and quiet-tracker alerts. Also in this demo with sample data. Planned: learning each device's normal pattern.
+- **Plan the next paddock move.** Planned.
+- **Plan a move ahead of fire or smoke.** Being built: the sensor feed to Wildfire Watch. Planned: move plans.
+- **Warn neighbors about predator activity.** Planned, for ranches that opt in, with delayed events on a coarse grid.
+- **Link fiber quality to breeding and grazing.** Records are in use. Planned: suggestions.
+
+The README has the full table: what each loop reads, what it suggests and how it improves.
 
 ## Community and commercial
 
@@ -39,7 +53,7 @@ Only BitPrairie's own trained models and datasets stay private, and they are not
 
 ## One FiberShare app
 
-BitPrairie LLC has one FiberShare app, at [fibershare.app](https://fibershare.app). It covers ranch sponsorship, a live collar map, and a fiber shop. Basic records for animals, shearing, fleece, and fiber lots are in use there, and the tools are being upgraded.
+BitPrairie LLC has one FiberShare app, at [fibershare.app](https://fibershare.app). It covers ranch support, a live collar map, and a fiber shop. Records for animals, shearing, fleece, and fiber lots are in use there.
 
 [bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted app. It is not a copy of the app, and it is not this repository.
 
@@ -51,20 +65,22 @@ The Wrangler file in this repo uses the Pages project name `fibershare-dev`. Tha
 
 These are described here only so the pieces make sense together. Details live on their own pages.
 
-- [Predator Watch](https://bitprairie.com/predator-watch/) gives early warning about predators near livestock, so ranchers can respond without lethal force. Phase 3, training models on BitPrairie's own regional data, is in progress. The feed of livestock movement and distress events from LoRa collars to Predator Watch is built and tested. [Subscribe for updates](https://bitprairie.com/predator-watch/#subscribe).
-- [Wildfire Watch](https://bitprairie.com/wildfire-watch/) looks for early signs of wildfire. The feed of ranch sensor readings from FiberShare to Wildfire Watch is still being built. A relay to local and government alerting systems is planned.
+- [Predator Watch](https://bitprairie.com/predator-watch/) gives earlier warning about predators near livestock, so the rancher hears sooner and decides what to do. Phase 3, training models on BitPrairie's own regional data, is in progress. The feed of livestock movement and distress events from LoRa collars to Predator Watch is built and tested. [Subscribe for updates](https://bitprairie.com/predator-watch/#subscribe).
+- [Wildfire Watch](https://bitprairie.com/wildfire-watch/) looks for early signs of wildfire. The feed of ranch sensor readings from FiberShare to Wildfire Watch is still being built. Planned: a relay to local and government alerting systems, with the rancher's consent.
 - moqFeeder is a related project for paddock video over Media over QUIC.
 
 Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch. The detection side uses intelligence systems trained by BitPrairie.
 
-An upload page at upload.bitprairie.com is coming soon. People on the mailing list will get upload access.
+Planned: a photo upload page for people on the mailing list.
 
 ## Your data
 
-- Location data is stripped or blurred, so no one can tell where a photo or an animal was.
+- Public pages never show where an animal is.
+- In this demo, tracker positions are hidden on the server unless the rancher signs in. Only the signed-in rancher sees their own trackers on a real map.
+- In the FiberShare app, positions are turned into a private virtual grid when they arrive, and the GPS coordinates are not stored.
 - Training data stays on BitPrairie's own hardware, for training and testing only. No one else sees it.
 - Each rancher's event history is theirs. It is shared only if they opt in.
-- Any sharing with agencies or researchers is aggregated or delayed, and has no exact locations.
+- Planned: anything shared with agencies or researchers will be aggregated or delayed, with no exact locations.
 
 ## What this repository is
 
@@ -73,12 +89,12 @@ An open-source demo for people who want to read the code, run a sample copy, or 
 It includes:
 
 - A home page that explains ranch support
-- A herd map of sample goats on a pasture drawing
+- A herd view of sample goats on a virtual paddock grid
 - A sample fiber list with no checkout
 - A page about how the demo is built
 - A Pages Function at `/api/health` that reports the demo is up
 
-The sample goats are not a real ranch herd. The pins are positions on a drawing.
+The sample goats are not a real ranch herd. The grid is a drawing, not GPS.
 
 This demo only explains ranch support. Support pays for animals and pasture. It is not ownership or an investment return.
 
@@ -116,7 +132,8 @@ Do not add keys, tokens, internal hostnames, or internal URLs. Do not add coordi
 ## Next steps
 
 1. Keep the public pages and docs describing this repository as the demo, and the FiberShare app as the one product.
-2. Tests for the sample JSON files and for `/api/health`, plus a lint step, exist (`npm test` and `npm run lint`), so a change can be tested without the private app. CI runs them and the build on every pull request.
-3. Planned: add a short guide for publishing your own copy of this demo. If a store for demo data is added later, it stays limited to sample or contributor-owned fictional herds.
-4. Planned: add demo pages that show the larger idea with fake data only. See [ROADMAP.md](../ROADMAP.md).
-5. The record format draft is posted in `docs/schemas/` for comment. Planned: post the other open interfaces above as drafts and ask for comment.
+2. Planned: add a short guide for publishing your own copy of this demo. If a store for demo data is added later, it stays limited to sample or contributor-owned fictional herds.
+3. Planned: add demo pages that show the larger idea with fake data only. See [ROADMAP.md](../ROADMAP.md).
+4. Planned: post the other open interfaces above as drafts and ask for comment. The record format draft is already in `docs/schemas/`.
+
+Tests, a lint step and CI on every pull request are already in place (`npm test`, `npm run lint`), so a change can be checked without the private app.

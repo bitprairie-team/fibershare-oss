@@ -107,11 +107,11 @@ A full file (`FIBERSHARE_HIDE_TRACKERS=0`) is written with owner-only permission
 
 ## Checked, and not checked yet
 
-The REST and MQTT sources have run against a real chirpstack-docker stack with SenseCAP T1000 trackers: 4 MQTT uplinks in 20 minutes, each with a position. Other ChirpStack versions or marshaler settings may differ.
+The REST and MQTT sources have run against a real chirpstack-docker stack with LoRaWAN collar trackers: 4 MQTT uplinks in 20 minutes, each with a position. Other ChirpStack versions or marshaler settings may differ.
 
 These parts were built from the ChirpStack v4 API definitions and tested with made-up replies:
 
 - The `start` and `end` query format for link metrics (RFC 3339 timestamps), and whether `rxPackets` counts each uplink once when several radio receivers hear it.
 - Listing tenants with a key that is not an admin key. If it fails, set `CHIRPSTACK_TENANT_ID`.
-- The names of the decoded T1000 fields. The script looks for plain keys (`latitude`, `temperature`, ...) and for lists of `{ type, measurementValue }` readings, which is how the SenseCAP T1000 codec reports them. SOS, light, and motion names may differ by codec version.
-- What a battery level of 0 means for a T1000. ChirpStack uses -1 or a missing value for no reading, and those show as not reported.
+- The names of the decoded tracker fields. The script looks for plain keys (`latitude`, `temperature`, ...) and for lists of `{ type, measurementValue }` readings, which is how the codec on the tested trackers reports them. SOS, light, and motion names may differ by codec version.
+- What a battery level of 0 means for a given tracker. ChirpStack uses -1 or a missing value for no reading, and those show as not reported.
