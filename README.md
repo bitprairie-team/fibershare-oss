@@ -69,6 +69,7 @@ An upload page at upload.bitprairie.com is coming soon. People on the [mailing l
 - **Fleece to fiber lot.** Follow the sample goat Bramble from her shearing to her fleece to the `mohair-bramble` lot, using the draft records in `docs/schemas/examples/`. Switch between rancher, buyer, and public to see what each record shares.
 - **Three setups.** Your own hardware, hosted by BitPrairie, or a mix, side by side.
 - **Your own trackers, if you want.** Read your trackers from your own ChirpStack v4 server. See [docs/chirpstack.md](docs/chirpstack.md).
+- **Rancher sign-in and a real map.** The public always gets hidden tracker data. A signed-in rancher gets real names and positions on a map with public map layers: imagery, topo, and street basemaps, wildfire perimeters and incidents, weather warnings, fire weather, smoke, air quality, federal land ownership, and any ArcGIS or GeoJSON layer you add. See [docs/rancher-access.md](docs/rancher-access.md).
 - Lists sample fiber. You cannot check out.
 - Explains ranch support.
 - Runs locally with Node 20, and works offline from the bundled sample data.
@@ -95,8 +96,11 @@ Then open http://localhost:5173.
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 4 (needs Node 22 or newer), including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Runs the tests for the sample data, the record schemas, the herd view, the ChirpStack pull, and `/api/health` |
+| `npm test` | Runs the tests for the sample data, the record schemas, the herd view, the ChirpStack pull, rancher sign-in, the map layers, and `/api/health` |
 | `npm run chirpstack:pull` | Reads your trackers from your own ChirpStack server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
+| `npm run rancher:passphrase` | Sets the rancher sign-in passphrase for local mode. See [docs/rancher-access.md](docs/rancher-access.md) |
+| `npm run serve:local` | Serves `dist/` and the API on your own hardware at http://127.0.0.1:4174 |
+| `npm run layers:check` | Checks that every map layer still answers |
 
 `npm run dev` serves the pages and the sample JSON. The `/api/health` function is included when you use `npm run pages:dev` after `npm run build`.
 
@@ -104,11 +108,11 @@ Sample goats, the sample day of events, and fiber are in `public/data/herd.json`
 
 ## Live data from your own ChirpStack
 
-If you run ChirpStack v4 for LoRa trackers, `npm run chirpstack:pull` reads your devices on your own hardware and writes `.local/live.json`, which git ignores. `npm run dev` then shows a **Live from your ChirpStack** badge with a **Hide tracker details** setting next to it. The setting is on by default: aliases such as Tracker 3, no device IDs, tags, or positions, and grid cells from a hash. Turn it off to see real names, IDs, and positions, marked **Private: only on your own hardware**.
+If you run ChirpStack v4 for LoRa trackers, `npm run chirpstack:pull` reads your devices on your own hardware and writes `.local/live.json`, which git ignores. `npm run dev` then shows a **Live from your ChirpStack** badge, how long ago the data was pulled, and a **Hide tracker details** setting. Use `--watch=120` to keep pulling.
 
-The pull hides tracker details before it writes, unless you set `FIBERSHARE_HIDE_TRACKERS=0`, so by default the file holds no real names, IDs, or positions at all. The live file is only served by `npm run dev` and `npm run preview`. It is never part of `npm run build`.
+The page gets the data from `/api/live`, never from the file. Everyone gets the hidden view: aliases such as Tracker 3, no device IDs, tags, or positions, and grid cells from a hash. Only a signed-in rancher gets real values, and only if the pull ran with `FIBERSHARE_HIDE_TRACKERS=0`. Sign-in is a passphrase on your own hardware, or Cloudflare Access on Pages, where `--push` sends the data to a KV namespace. The live file is never part of `npm run build`.
 
-Setup, settings, and what is not checked yet: [docs/chirpstack.md](docs/chirpstack.md).
+Setup: [docs/chirpstack.md](docs/chirpstack.md) for the pull, including a podman command for the compose network, and [docs/rancher-access.md](docs/rancher-access.md) for sign-in, the map layers, and their terms.
 
 ## How it is built
 
@@ -118,12 +122,15 @@ Browser
         ├── Pages (home, herd view, fleece to lot, shop, setups)
         ├── /data/*.json  (sample goats, events, and fiber)
         └── Pages Functions
-              └── /api/health  (says the site is up)
+              ├── /api/health  (says the site is up)
+              ├── /api/live    (hidden data, or full data for a signed-in rancher, from KV)
+              ├── /api/session and /api/rancher/login  (Cloudflare Access sign-in)
+              └── /api/push    (your pull sends data here with a token)
 ```
 
 The project name `fibershare-dev` is a label for a copy of this demo. It is not the FiberShare app.
 
-On your own hardware only, `npm run dev` also serves `.local/live.json` at `/live/live.json` when it exists.
+On your own hardware, `npm run dev`, `npm run preview`, and `npm run serve:local` answer the same `/api/live` and `/api/session` from `.local/`. The shared rule for who gets what is in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
 
 You can run the built files in `dist/` on your own server. You do not need an account to try the demo.
 
@@ -152,6 +159,6 @@ Chat is on [Discord](https://discord.gg/m3x8R3sF6N). You need a Discord account.
 
 ## License
 
-[MIT](LICENSE) © 2026 BitPrairie LLC, a California LLC · legal@bitprairie.com
+[MIT](LICENSE) © 2026 BitPrairie LLC · legal@bitprairie.com
 
 You may use, share, and change the code.

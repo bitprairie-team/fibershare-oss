@@ -29,7 +29,10 @@
     "pages:dev": "wrangler pages dev dist",
     "lint": "node scripts/lint.js",
     "test": "node --test test/*.test.js",
-    "chirpstack:pull": "node scripts/chirpstack/pull.js"
+    "chirpstack:pull": "node scripts/chirpstack/pull.js",
+    "serve:local": "node scripts/serve-local.js",
+    "rancher:passphrase": "node scripts/rancher-passphrase.js",
+    "layers:check": "node scripts/check-layers.js"
   },
   "devDependencies": {
     "@fontsource/ibm-plex-sans": "^5.3.0",
@@ -42,5 +45,9 @@
   },
   "engines": {
     "node": ">=20.9"
+  },
+  "dependencies": {
+    "esri-leaflet": "^3.0.19",
+    "leaflet": "^1.9.4"
   }
 }

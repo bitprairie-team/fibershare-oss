@@ -13,6 +13,17 @@ function expandHome(path, home) {
   return path;
 }
 
+/**
+ * Plain http is fine for localhost, and for a container name on the same
+ * compose network (a host with no dot, such as the REST gateway's service
+ * name). CHIRPSTACK_ALLOW_HTTP=1 turns the warning off for other hosts.
+ */
+export function plainHttpOk(hostname, env = {}) {
+  if (["localhost", "127.0.0.1", "[::1]", "::1"].includes(hostname)) return true;
+  if (["1", "true", "yes", "on"].includes(String(env.CHIRPSTACK_ALLOW_HTTP || "").trim().toLowerCase())) return true;
+  return !hostname.includes(".") && !hostname.includes(":") && !hostname.startsWith("[");
+}
+
 function list(value) {
   return String(value || "")
     .split(",")
@@ -40,9 +51,8 @@ export function readConfig(env = process.env, io = {}) {
     const url = new URL(rawUrl);
     if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("bad protocol");
     baseUrl = url.origin + url.pathname.replace(/\/+$/, "");
-    const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-    if (url.protocol === "http:" && !loopback) {
-      warnings.push("CHIRPSTACK_URL uses plain http to another host. The token crosses the network unencrypted. Use https, or run the pull on the same hardware as ChirpStack.");
+    if (url.protocol === "http:" && !plainHttpOk(url.hostname, env)) {
+      warnings.push("CHIRPSTACK_URL uses plain http to another host. The token crosses the network unencrypted. Use https, run the pull on the same hardware or compose network as ChirpStack, or set CHIRPSTACK_ALLOW_HTTP=1 if the link is private.");
     }
   } catch {
     errors.push("CHIRPSTACK_URL is not a valid http or https URL.");

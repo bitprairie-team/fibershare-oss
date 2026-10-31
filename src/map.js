@@ -23,7 +23,9 @@ const FILTERS = [
   ["checkin", "Check-ins"],
 ];
 
+const STALE_MINUTES = 15;
 let view = null;
+let rancherMap = null;
 
 function timeOf(iso) {
   const date = new Date(iso);
@@ -62,6 +64,33 @@ function matchesFilter(event, filter) {
   return true;
 }
 
+function stage(data, animals, live, cells) {
+  if (data.rancherMap) {
+    const placed = animals.filter((a) => Number.isFinite(a.details?.position?.latitude)).length;
+    return (
+      '<div class="rancher-map" data-rancher-map role="region" aria-label="Map of tracker positions"><p class="muted map-loading">Loading the map…</p></div>' +
+      '<p class="pasture-legend map-legend">Real positions · ' + placed + " of " + animals.length + " trackers have one · layers from public agency services</p>"
+    );
+  }
+  const legend = data.mapSpan
+    ? "Local map from tracker positions · about " + data.mapSpan + " m across · north is up" +
+      (animals.some((a) => !a.onMap) ? " · " + animals.filter((a) => !a.onMap).length + " without a position yet" : "")
+    : live
+      ? data.privateView
+        ? "No tracker has sent a position yet · grid cells from a hash"
+        : "Grid cells come from a hash · not GPS"
+      : "Virtual grid · not GPS · sample herd";
+  return (
+    (data.mapSpan
+      ? '<div class="paddock paddock-map" id="paddock" role="group" aria-label="Local map of tracker positions">'
+      : '<div class="paddock" id="paddock" role="group" aria-label="Virtual paddock grid, 6 by 4 cells">' +
+        '<div class="paddock-cells" aria-hidden="true">' + cells + "</div>") +
+    '<div class="paddock-haze" data-haze hidden></div>' +
+    "<div data-pins></div>" +
+    '<div class="pasture-legend">' + legend + "</div></div>"
+  );
+}
+
 export async function renderMap() {
   const data = await loadHerd();
   const events = sortEvents(data.events);
@@ -77,15 +106,20 @@ export async function renderMap() {
   view.selected = (animals.find((a) => a.id === "bramble") || animals[0] || {}).id || null;
   const live = data.mode === "live";
 
+  const pulledMinutes = live ? Math.max(0, Math.round((Date.now() - new Date(data.pulledAt).getTime()) / 60000)) : 0;
+  const stale = live && pulledMinutes > STALE_MINUTES;
   const sourceBadge = live
     ? '<div class="source-line"><span class="badge badge-live">Live from your ChirpStack</span>' +
-      '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + " /> Hide tracker details</label></div>" +
-      (data.privateView ? '<span class="badge badge-private">Private: only on your own hardware</span>' : "") +
-      (!data.hide && data.exportHidden
-        ? '<p class="fine-print source-note">This file was written with tracker details hidden, so there is nothing more to show. Run the pull with FIBERSHARE_HIDE_TRACKERS=0 on your own hardware to see real values.</p>'
+      '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label></div>" +
+      (data.rancher
+        ? '<span class="badge badge-private">Signed in as the rancher</span>'
+        : '<p class="fine-print source-note">The server sends hidden data to the public. <a href="#/rancher">Rancher sign-in</a></p>') +
+      (data.rancher && !data.hide && data.exportHidden
+        ? '<p class="fine-print source-note">This file was written with tracker details hidden, so there is nothing more to show. Run the pull with FIBERSHARE_HIDE_TRACKERS=0 to see real values.</p>'
         : "") +
-      '<div class="source-line"><span class="muted source-time">Pulled at ' + esc(timeOf(data.generatedAt)) + (data.sources?.includes("mqtt") ? " · REST and MQTT" : " · REST") + "</span>" +
-      '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>'
+      '<div class="source-line"><span class="muted source-time" data-pulled>Pulled ' + esc(pulledMinutes < 1 ? "just now" : pulledMinutes + " min ago") + " (" + esc(timeOf(data.pulledAt)) + ")" + (data.sources?.includes("mqtt") ? " · REST and MQTT" : " · REST") + "</span>" +
+      '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>' +
+      (stale ? '<p class="fine-print source-note stale-note">This file is more than ' + STALE_MINUTES + " minutes old. Keep it fresh with <code>npm run chirpstack:pull -- --watch=120</code>.</p>" : "")
     : '<span class="badge">Sample data</span>' +
       (data.liveAvailable
         ? '<button type="button" class="btn btn-ghost btn-small" data-source="live">Show live data</button>'
@@ -93,8 +127,8 @@ export async function renderMap() {
 
   const lede = live
     ? data.privateView
-      ? "Your own trackers with their real names, device IDs, tags, and positions, read from your ChirpStack server. This page runs on your own hardware and sends none of it anywhere."
-      : "Your own trackers, read from your ChirpStack server. Names, device IDs, tags, and positions are hidden. Each tracker sits on a grid cell picked by a hash, not by where it is."
+      ? "Your trackers with their real names, device IDs, tags, and positions, read from your ChirpStack server. Only a signed-in rancher gets this view."
+      : "Trackers read from a ChirpStack server. Names, device IDs, tags, and positions are hidden. Each tracker sits on a grid cell picked by a hash, not by where it is."
     : data.loadFailed
       ? "The herd list did not load. Check public/data/herd.json, then reload this page."
       : "Sample goats on a virtual paddock grid. The grid is a drawing, not a map, and this is not a real ranch herd.";
@@ -108,24 +142,7 @@ export async function renderMap() {
       '<div class="herd-layout">' +
       '<div class="herd-main">' +
       '<div class="paddock-banner" data-banner hidden></div>' +
-      (data.mapSpan
-        ? '<div class="paddock paddock-map" id="paddock" role="group" aria-label="Local map of tracker positions">'
-        : '<div class="paddock" id="paddock" role="group" aria-label="Virtual paddock grid, 6 by 4 cells">' +
-          '<div class="paddock-cells" aria-hidden="true">' +
-          cells +
-          "</div>") +
-      '<div class="paddock-haze" data-haze hidden></div>' +
-      '<div data-pins></div>' +
-      '<div class="pasture-legend">' +
-      (data.mapSpan
-        ? "Local map from tracker positions · about " + data.mapSpan + " m across · north is up" +
-          (animals.some((a) => !a.onMap) ? " · " + animals.filter((a) => !a.onMap).length + " without a position yet" : "")
-        : live
-          ? data.privateView
-            ? "No tracker has sent a position yet · grid cells from a hash"
-            : "Grid cells come from a hash · not GPS"
-          : "Virtual grid · not GPS · sample herd") +
-      "</div></div>" +
+      stage(data, animals, live, cells) +
       (events.length
         ? '<div class="playback">' +
           '<button type="button" class="btn btn-primary btn-small" data-play>Play the day</button>' +
@@ -216,7 +233,8 @@ function renderPins(root, state) {
 function renderStats(root, state) {
   const holder = root.querySelector("[data-stats]");
   if (!holder) return;
-  const now = new Date(clockIso()).getTime();
+  // Live data counts from the real clock; the sample day from its own clock.
+  const now = view.data.mode === "live" ? Date.now() : new Date(clockIso()).getTime();
   const recent = state.animals.filter((a) => a.lastSeen && now - new Date(a.lastSeen).getTime() <= 3600000).length;
   const low = state.animals.filter((a) => Number.isFinite(a.battery) && a.battery < LOW_BATTERY).length;
   const alerts = state.alertCells.length + (state.smoke ? 1 : 0) + state.animals.filter((a) => a.silent || a.sos).length;
@@ -343,8 +361,10 @@ function renderDetail(root, state) {
     (lots.length
       ? '<p class="detail-link"><a class="btn btn-ghost btn-small" href="#/trace">Follow ' + esc(animal.name) + "'s fleece to the " + esc(lots[0]) + " lot</a></p>"
       : "") +
-    (live && !full ? '<p class="fine-print">Tracker details are hidden. Turn off Hide tracker details to see the real name, ID, and position on your own hardware.</p>' : "") +
-    (full ? '<p class="fine-print">Private: only on your own hardware. Do not share a screenshot of this view.</p>' : "");
+    (live && !full
+      ? '<p class="fine-print">' + (view.data.rancher ? "Tracker details are hidden. Turn off Hide tracker details to see the real name, ID, and position." : "Tracker details are hidden. Only a signed-in rancher can see them.") + "</p>"
+      : "") +
+    (full ? '<p class="fine-print">Private: you are signed in as the rancher. Do not share a screenshot of this view.</p>' : "");
 }
 
 function renderList(root, state) {
@@ -415,6 +435,27 @@ function draw(root) {
 function select(root, id) {
   view.selected = id;
   draw(root);
+  rancherMap?.select(id);
+}
+
+// Load Leaflet only for a signed-in rancher with details showing. If it
+// cannot load, fall back to the small local map with no tiles.
+async function mountMap(root) {
+  const el = root.querySelector("[data-rancher-map]");
+  if (!el) return;
+  try {
+    const { mountRancherMap } = await import("./rancher-map.js");
+    if (!document.body.contains(el)) return;
+    rancherMap = mountRancherMap(el, {
+      animals: view.data.animals,
+      apiKey: view.data.arcgisApiKey,
+      now: view.data.now,
+      onSelect: (id) => select(root, id),
+    });
+    rancherMap.select(view.selected);
+  } catch {
+    el.innerHTML = '<p class="muted map-loading">The map did not load. Showing positions as coordinates in the tracker details.</p>';
+  }
 }
 
 function stop(root) {
@@ -442,6 +483,7 @@ export function bindMap(root) {
   });
   if (!view.data.animals.length) return;
   draw(root);
+  if (view.data.rancherMap) mountMap(root);
   const scrub = root.querySelector("[data-scrub]");
   scrub?.addEventListener("input", () => {
     stop(root);
@@ -483,4 +525,6 @@ export function bindMap(root) {
 export function leaveMap() {
   if (view?.timer) clearInterval(view.timer);
   if (view) view.timer = null;
+  rancherMap?.destroy();
+  rancherMap = null;
 }

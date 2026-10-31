@@ -10,6 +10,7 @@ import { renderTrace, bindTrace } from "./trace.js";
 import { renderSetups } from "./setups.js";
 import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
+import { renderRancher, bindRancher } from "./rancher.js";
 
 const routes = {
   "/": { render: renderHome, title: "Home · FiberShare" },
@@ -17,6 +18,7 @@ const routes = {
   "/trace": { render: renderTrace, title: "Fleece to fiber lot · FiberShare" },
   "/setups": { render: renderSetups, title: "Three setups · FiberShare" },
   "/shop": { render: renderShop, title: "Sample fiber · FiberShare" },
+  "/rancher": { render: renderRancher, title: "Rancher sign-in · FiberShare" },
   "/architecture": {
     render: renderArchitecture,
     title: "How it is built · FiberShare",
@@ -24,7 +26,7 @@ const routes = {
 };
 
 function pathFromHash() {
-  const raw = location.hash.replace(/^#/, "") || "/";
+  const raw = location.hash.replace(/^#/, "").split("?")[0] || "/";
   return raw.startsWith("/") ? raw : "/" + raw;
 }
 
@@ -83,6 +85,7 @@ async function render() {
   bindTheme(app);
   if (path === "/map") bindMap(app);
   if (path === "/trace") bindTrace(app);
+  if (path === "/rancher") bindRancher(app);
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {
     event.preventDefault();
     focusMain();

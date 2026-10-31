@@ -24,6 +24,7 @@ export function nav(active) {
     ["/shop", "Fiber shop"],
     ["/setups", "Setups"],
     ["/architecture", "Build"],
+    ["/rancher", "Rancher"],
   ]
     .map(([href, label]) => {
       const on = active === href;
@@ -59,7 +60,7 @@ export function footer() {
   return (
     '<footer class="site-footer"><div class="wrap">' +
     '<small class="footer-brand"><img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />' +
-    '<span>&copy; 2026 BitPrairie LLC, a California LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></span></small>' +
+    '<span>&copy; 2026 BitPrairie LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></span></small>' +
     "<small>This is a demo, not the FiberShare app. Support is not ownership or an investment return.</small>" +
     "<small>Predator Watch and Wildfire Watch use intelligence systems trained by BitPrairie.</small><small>" +
     items +

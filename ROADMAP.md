@@ -9,10 +9,12 @@ This list covers the open demo and its open docs. It is not a plan for the Fiber
 - A herd view on a virtual paddock grid, with day playback and clearly simulated predator and smoke alerts
 - A fleece-to-fiber-lot page that follows the sample goat Bramble through the draft records, as a rancher, buyer, or the public sees it
 - A page comparing the three setups: your own hardware, hosted by BitPrairie, or a mix of both
-- An optional, local-only pull from your own ChirpStack v4 server, over REST and MQTT, with tracker details hidden by default (see `docs/chirpstack.md`)
+- An optional pull from your own ChirpStack v4 server, over REST and MQTT, with tracker details hidden by default, and a `--watch` mode to keep it fresh (see `docs/chirpstack.md`)
+- Rancher sign-in checked on the server: a passphrase on your own hardware, or Cloudflare Access on Pages with data pushed to KV. The public always gets hidden data (see `docs/rancher-access.md`)
+- A rancher map with public map layers: USGS and OpenStreetMap basemaps, Esri basemaps with your own key, wildfire, weather, smoke, air quality, and federal land layers, plus your own ArcGIS or GeoJSON layer
 - Light and dark theme, and a menu for small screens
 - `/api/health` when the Pages Function is running
-- Tests for the sample JSON files, the herd view, the ChirpStack pull with made-up replies, a scan of committed files for DevEUIs and coordinates, and `/api/health` (`npm test`), and a lint step (`npm run lint`)
+- Tests for the sample JSON files, the herd view, the ChirpStack pull with made-up replies, rancher sign-in and the map layer list, a scan of committed files for DevEUIs and coordinates, and `/api/health` (`npm test`), and a lint step (`npm run lint`)
 - A Discord chat link for people working on the demo
 - CI that runs lint, tests, and the build on every pull request
 - A draft of the FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`, with fake examples only. It is posted for comment and is not final.
@@ -21,6 +23,11 @@ This list covers the open demo and its open docs. It is not a plan for the Fiber
 
 - A guide for publishing your own copy of this demo
 - An optional store for this demo's own sample herd and fiber list, with no payment setup and no real tracker data
+
+## Planned: rancher map
+
+- Storing the full copy in R2 instead of KV, for a larger herd
+- More than one rancher, each seeing only their own trackers
 
 ## Planned: demo pages
 

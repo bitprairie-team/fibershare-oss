@@ -10,6 +10,7 @@ import { assignAliases, decodeObject, deviceKey, gridPosition, leakProblems, sig
 import { collectUplinks, connectPacket, parsePublish, parseUplinkEvent, readPackets, subscribePacket, uplinkTopics } from "../scripts/chirpstack/mqtt.js";
 import { hiddenExportProblems, main, parseArgs } from "../scripts/chirpstack/pull.js";
 import { hideTrackerDetails, isLiveData } from "../src/live-format.js";
+import { KV_FULL, KV_HIDDEN, postPush } from "../server/pages.js";
 import { FAKE_TOKEN, NOW, allDevices, applications, fakeEui, fakeFetch, fakePosition, uplinkEvent } from "./fixtures/chirpstack.js";
 
 const baseConfig = { baseUrl: DEFAULT_URL, token: FAKE_TOKEN, accessId: null, accessSecret: null, tenantIds: [], applicationIds: [] };
@@ -288,4 +289,37 @@ test("npm run chirpstack:pull writes a hidden file by default and prints counts 
     assert.ok(!printed.includes(device.devEui) && !printed.includes(device.name));
   }
   assert.match(printed, /8 tracker\(s\)/);
+});
+
+test("npm run chirpstack:pull -- --push sends both files to a Pages copy, which stores them", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "fibershare-push-"));
+  const out = join(dir, "live.json");
+  const pushToken = "fake-push-token-" + "q".repeat(24);
+  const stored = new Map();
+  const kv = { get: async (k) => stored.get(k) ?? null, put: async (k, v) => stored.set(k, v) };
+  const logs = [];
+  const original = { fetch: globalThis.fetch, log: console.log, warn: console.warn, error: console.error };
+  const chirpstack = fakeFetch();
+  globalThis.fetch = async (url, init) =>
+    String(url).startsWith("https://copy.example/api/push")
+      ? postPush({ request: new Request(url, init), env: { FIBERSHARE_LIVE: kv, PUSH_TOKEN: pushToken } })
+      : chirpstack(url, init);
+  console.log = console.warn = console.error = (...args) => logs.push(args.join(" "));
+  try {
+    const env = { CHIRPSTACK_API_TOKEN: FAKE_TOKEN, FIBERSHARE_HIDE_TRACKERS: "0", FIBERSHARE_PUSH_URL: "https://copy.example/api/push" };
+    assert.equal(await main(["--out=" + out, "--push"], env), 1, "no push token: stops before pulling");
+    assert.equal(stored.size, 0);
+    assert.equal(await main(["--out=" + out, "--push"], { ...env, FIBERSHARE_PUSH_TOKEN: "wrong-token-" + "w".repeat(24) }), 1);
+    assert.equal(await main(["--out=" + out, "--push"], { ...env, FIBERSHARE_PUSH_TOKEN: pushToken }), 0);
+    assert.equal(JSON.parse(stored.get(KV_HIDDEN)).hidden, true);
+    assert.equal(JSON.parse(stored.get(KV_FULL)).hidden, false);
+    assert.ok(!stored.get(KV_HIDDEN).includes(fakeEui(1)));
+  } finally {
+    Object.assign(console, { log: original.log, warn: original.warn, error: original.error });
+    globalThis.fetch = original.fetch;
+    rmSync(dir, { recursive: true, force: true });
+  }
+  const printed = logs.join("\n");
+  assert.ok(!printed.includes(pushToken) && !printed.includes(FAKE_TOKEN));
+  assert.match(printed, /pushed 8 tracker\(s\)/);
 });

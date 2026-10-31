@@ -11,17 +11,21 @@
 //   --mqtt-seconds=N     How long to listen for uplinks when CHIRPSTACK_MQTT_URL is set (default 60)
 //   --hours=N            How many hours of link metrics to read (default 24)
 //   --out=PATH           Where to write (default .local/live.json)
-//   --watch=N            Pull again every N seconds (at least 30)
-//   --dry-run            Pull and check, but do not write a file
+//   --watch=N            Pull again every N seconds (at least 30). The way to
+//                        keep the file fresh
+//   --push               Also send the hidden and full files to a Pages copy
+//                        (FIBERSHARE_PUSH_URL and FIBERSHARE_PUSH_TOKEN)
+//   --dry-run            Pull and check, but do not write or push
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync, chmodSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readConfig } from "./config.js";
 import { pullRaw, redact } from "./client.js";
-import { leakProblems, summarize, toLiveData } from "./map.js";
+import { summarize, toLiveData } from "./map.js";
 import { collectUplinks, parseMqttUrl, uplinkTopics } from "./mqtt.js";
+import { pushLive, readPushConfig } from "./push.js";
 import { hideTrackerDetails } from "../../src/live-format.js";
-import { committedTextProblems, privateDataProblems } from "../private-data.js";
+import { hiddenProblems } from "../../server/push-check.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -33,6 +37,7 @@ export function parseArgs(argv, env = {}) {
     mqttSeconds: 60,
     out: join(ROOT, ".local", "live.json"),
     watch: 0,
+    push: false,
     dryRun: false,
   };
   for (const arg of argv) {
@@ -40,6 +45,7 @@ export function parseArgs(argv, env = {}) {
     if (flag === "--hide") options.hide = true;
     else if (flag === "--no-hide") options.hide = false;
     else if (flag === "--dry-run") options.dryRun = true;
+    else if (flag === "--push") options.push = true;
     else if (flag === "--hours") options.hours = Math.min(168, Math.max(1, Number(value) || 24));
     else if (flag === "--mqtt-seconds") options.mqttSeconds = Math.min(3600, Math.max(5, Number(value) || 60));
     else if (flag === "--out" && value) options.out = resolve(value);
@@ -51,13 +57,7 @@ export function parseArgs(argv, env = {}) {
 }
 
 /** Problems that would stop a hidden export from being written. */
-export function hiddenExportProblems(hidden, full) {
-  const found = [];
-  privateDataProblems(hidden, "live", found);
-  committedTextProblems(JSON.stringify(hidden, null, 2), "live", found);
-  const leaks = leakProblems(hidden, full);
-  return [...new Set([...found.map((p) => p.replace(/^live[^:]*: /, "").replace(/^\d+: /, "")), ...leaks])];
-}
+export const hiddenExportProblems = hiddenProblems;
 
 function readAliases(path) {
   try {
@@ -82,6 +82,12 @@ function writeAtomic(path, text, mode) {
 
 async function once(options, env) {
   const { config, warnings, errors } = readConfig(env);
+  let push = null;
+  if (options.push) {
+    const result = readPushConfig(env);
+    errors.push(...result.errors);
+    push = result.push;
+  }
   for (const warning of warnings) console.warn("chirpstack:pull: " + warning);
   if (errors.length) {
     for (const error of errors) console.error("chirpstack:pull: " + error);
@@ -103,10 +109,11 @@ async function once(options, env) {
   const { data: full, aliases } = toLiveData(raw, { knownAliases: readAliases(aliasFile) });
   const output = options.hide ? hideTrackerDetails(full) : full;
 
-  if (options.hide) {
-    const problems = hiddenExportProblems(output, full);
+  const hidden = options.hide ? output : hideTrackerDetails(full);
+  if (options.hide || push) {
+    const problems = hiddenExportProblems(hidden, full);
     if (problems.length) {
-      console.error("chirpstack:pull: stopped. The hidden export still had " + problems.length + " kind(s) of private data: " + problems.join(", ") + ". Nothing was written.");
+      console.error("chirpstack:pull: stopped. The hidden export still had " + problems.length + " kind(s) of private data: " + problems.join(", ") + ". Nothing was written or pushed.");
       return 1;
     }
   }
@@ -137,10 +144,18 @@ async function once(options, env) {
     "chirpstack:pull: wrote " + where + (options.hide ? " with tracker details hidden." : " with full tracker details. Private: keep it on your own hardware.")
   );
   if (!where.startsWith(".local")) console.warn("chirpstack:pull: that file is outside .local/, so git does not ignore it. Do not commit it.");
+  if (push) {
+    const result = await pushLive(push, hidden, full);
+    if (!result.ok) {
+      console.error("chirpstack:pull: push failed with HTTP " + result.status + (result.error ? ": " + result.error : "") + ".");
+      return 1;
+    }
+    console.log("chirpstack:pull: pushed " + result.trackers + " tracker(s), hidden and full, to your Pages copy.");
+  }
   return 0;
 }
 
-const HELP = `Usage: npm run chirpstack:pull -- [--hide | --no-hide] [--hours=24] [--mqtt-seconds=60] [--out=.local/live.json] [--watch=60] [--dry-run]
+const HELP = `Usage: npm run chirpstack:pull -- [--hide | --no-hide] [--hours=24] [--mqtt-seconds=60] [--out=.local/live.json] [--watch=60] [--push] [--dry-run]
 
 Settings come from the environment (or a .env file in this folder):
   CHIRPSTACK_URL             REST API gateway, default http://localhost:8090
@@ -151,7 +166,14 @@ Settings come from the environment (or a .env file in this folder):
   CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET  optional, for a Cloudflare Access service token
   CHIRPSTACK_MQTT_URL        optional, such as mqtt://localhost:1883, for decoded uplinks
   CHIRPSTACK_MQTT_USERNAME / CHIRPSTACK_MQTT_PASSWORD  optional
-  FIBERSHARE_HIDE_TRACKERS   1 (default) hides tracker details, 0 keeps them`;
+  CHIRPSTACK_ALLOW_HTTP      1 turns off the plain-http warning for a private link
+  FIBERSHARE_HIDE_TRACKERS   1 (default) hides tracker details, 0 keeps them.
+                             Use 0 for rancher sign-in: the server hides data for the public.
+  FIBERSHARE_PUSH_URL        for --push, such as https://<your copy>/api/push
+  FIBERSHARE_PUSH_TOKEN      for --push, or FIBERSHARE_PUSH_TOKEN_FILE
+                             (default ~/.config/fibershare/push-token)
+
+Keep the file fresh with --watch, for example --watch=120.`;
 
 export async function main(argv = process.argv.slice(2), env = process.env) {
   const envFile = join(ROOT, ".env");

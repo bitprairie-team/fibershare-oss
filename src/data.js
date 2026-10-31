@@ -13,17 +13,19 @@ async function getJson(url) {
   return response.json();
 }
 
-// The live file only exists on your own hardware, under npm run dev or
-// npm run preview. A hosted copy never has it, so it does not ask.
-function onOwnHardware() {
-  return ["localhost", "127.0.0.1", "[::1]", "::1"].includes(window.location.hostname);
-}
-
+// Ask the server for live data. The server decides what you get: hidden data
+// for the public, full data only with a valid rancher session. A static copy
+// with no /api answers HTML or 404, and the page uses the samples.
 async function loadLive() {
-  if (!onOwnHardware()) return null;
   try {
-    const data = await getJson("/live/live.json");
-    return isLiveData(data) ? data : null;
+    const body = await getJson("/api/live");
+    if (!body || !isLiveData(body.live)) return null;
+    const rancher = body.view === "rancher";
+    return {
+      live: body.live,
+      rancher,
+      arcgisApiKey: rancher && typeof body.arcgisApiKey === "string" ? body.arcgisApiKey : null,
+    };
   } catch {
     return null;
   }
@@ -46,7 +48,10 @@ export function setPreferSample(value) {
   }
 }
 
-/** The "Hide tracker details" setting. On unless you turned it off. */
+/**
+ * The "Hide tracker details" setting. On unless you turned it off. For the
+ * public it changes nothing: the server only sends hidden data.
+ */
 export function hideTrackers() {
   try {
     return localStorage.getItem(HIDE_KEY) !== "0";
@@ -68,6 +73,7 @@ export function setHideTrackers(value) {
  * Place trackers that have a position on a small local map: metres east and
  * north of the middle of the group, scaled to fit the box. No map tiles and
  * no outside requests. Returns the span in metres, or null with no positions.
+ * The herd view falls back to this when the rancher map cannot load.
  */
 export function localMap(animals) {
   const placed = animals.filter((a) => Number.isFinite(a.details?.position?.latitude));
@@ -88,10 +94,15 @@ export function localMap(animals) {
   return Math.round(half * 2);
 }
 
-function liveView(live) {
-  const hide = hideTrackers();
+function hasPosition(animal) {
+  return Number.isFinite(animal.details?.position?.latitude) && Number.isFinite(animal.details?.position?.longitude);
+}
+
+function liveView({ live, rancher, arcgisApiKey }) {
   const exportHidden = live.hidden !== false;
-  const privateView = !hide && !exportHidden;
+  // Only a rancher can turn hiding off. The public toggle stays on.
+  const hide = rancher ? hideTrackers() : true;
+  const privateView = rancher && !hide && !exportHidden;
   const shown = privateView ? structuredClone(live) : hideTrackerDetails(live);
   let events = shown.events;
   if (privateView) {
@@ -101,25 +112,40 @@ function liveView(live) {
       text: String(event.text).replace(/Tracker \d+(?!\d)/g, (alias) => names.get(alias) || alias),
     }));
   }
-  const mapSpan = privateView ? localMap(shown.animals) : null;
-  return { hide, exportHidden, privateView, mapSpan, animals: shown.animals, events, sources: shown.sources || ["rest"] };
+  const rancherMap = privateView && shown.animals.some(hasPosition);
+  return {
+    rancher,
+    hide,
+    exportHidden,
+    privateView,
+    rancherMap,
+    arcgisApiKey: privateView ? arcgisApiKey : null,
+    mapSpan: privateView ? localMap(shown.animals) : null,
+    animals: shown.animals,
+    events,
+    sources: shown.sources || ["rest"],
+  };
 }
 
 /**
- * Load the herd and its events. Uses .local/live.json (served by the dev
- * server at /live/live.json) when it exists, otherwise the bundled samples.
+ * Load the herd and its events. Uses /api/live when the server has a live
+ * file, otherwise the bundled samples.
  */
 export async function loadHerd() {
   const live = await loadLive();
   if (live && !preferSample()) {
+    const pulledAt = live.live.pulledAt || live.live.generatedAt;
     return {
       mode: "live",
       liveAvailable: true,
       ranch: "Your trackers",
       ...liveView(live),
-      generatedAt: live.generatedAt,
-      now: live.generatedAt,
-      windowHours: live.windowHours || 24,
+      generatedAt: live.live.generatedAt,
+      pulledAt,
+      // "Last seen" and "checked in, last hour" count from the real clock,
+      // not from when the file was pulled.
+      now: new Date().toISOString(),
+      windowHours: live.live.windowHours || 24,
     };
   }
   let herd = { ranch: "Sample herd", goats: [] };

@@ -351,6 +351,7 @@ export function toLiveData(raw, { knownAliases = {}, staleHours = STALE_HOURS } 
       source: LIVE_SOURCE,
       hidden: false,
       generatedAt: now,
+      pulledAt: now,
       windowHours: hours,
       note: "Full tracker details from your own ChirpStack server. Keep this file on your own hardware.",
       sources: raw.uplinks ? ["rest", "mqtt"] : ["rest"],
@@ -361,38 +362,8 @@ export function toLiveData(raw, { knownAliases = {}, staleHours = STALE_HOURS } 
   };
 }
 
-/**
- * Strings and numbers from the full records that must never show up in a
- * hidden export. Returns a list of problem kinds, never the values.
- */
-export function leakProblems(hiddenData, fullData) {
-  const text = JSON.stringify(hiddenData).toLowerCase();
-  const problems = new Set();
-  for (const animal of fullData.animals || []) {
-    const d = animal.details || {};
-    const strings = [
-      ["device name", d.deviceName],
-      ["DevEUI", d.devEui],
-      ["profile name", d.profile],
-      ["description", d.description],
-      ...Object.entries(d.tags || {}).flatMap(([k, v]) => [["tag", k], ["tag", v]]),
-    ];
-    for (const [kind, value] of strings) {
-      if (typeof value !== "string") continue;
-      const v = value.trim().toLowerCase();
-      if (v.length < 4 || /^tracker \d+$/.test(v)) continue;
-      if (text.includes(JSON.stringify(v).slice(1, -1))) problems.add(kind);
-    }
-    if (d.position) {
-      for (const n of [d.position.latitude, d.position.longitude]) {
-        const digits = String(n).split(".")[1] || "";
-        if (digits.length >= 3 && text.includes(String(n))) problems.add("position");
-      }
-    }
-  }
-  if (/"details"|"deveui"|"latitude"|"longitude"|"tags"/.test(text)) problems.add("detail field");
-  return [...problems];
-}
+// leakProblems lives in src/live-format.js so the Pages push endpoint can use it too.
+export { leakProblems } from "../../src/live-format.js";
 
 /** Counts for the pull summary. No names, IDs, or values. */
 export function summarize(data) {

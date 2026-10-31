@@ -4,3 +4,13 @@
 name = "fibershare-dev"
 compatibility_date = "2026-10-01"
 pages_build_output_dir = "dist"
+
+# Rancher sign-in on Pages (optional, see docs/rancher-access.md).
+# Make a KV namespace, then uncomment and paste its id. The id is not a secret,
+# but each copy of the demo has its own.
+# [[kv_namespaces]]
+# binding = "FIBERSHARE_LIVE"
+# id = "<your KV namespace id>"
+#
+# Set these in the Pages dashboard or with `npx wrangler pages secret put`,
+# never in this file: ACCESS_TEAM_DOMAIN, ACCESS_AUD, PUSH_TOKEN, ARCGIS_API_KEY.

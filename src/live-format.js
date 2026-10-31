@@ -1,6 +1,7 @@
 // The shape of .local/live.json, written by `npm run chirpstack:pull`.
-// Shared by the browser and the Node script so both agree on what is valid,
-// and on what "Hide tracker details" removes.
+// Shared by the browser, the Node scripts, the local server, and the Pages
+// Functions, so all of them agree on what is valid and on what "Hide tracker
+// details" removes. No Node-only imports here.
 
 export const LIVE_SOURCE = "chirpstack";
 
@@ -77,10 +78,44 @@ export function hideTrackerDetails(data) {
     source: LIVE_SOURCE,
     hidden: true,
     generatedAt: String(data.generatedAt),
+    pulledAt: String(data.pulledAt || data.generatedAt),
     windowHours: finite(data.windowHours) ?? 24,
     note: "Tracker details were hidden: aliases in place of names, no device IDs, tags, or positions, and grid cells from a hash.",
     sources: Array.isArray(data.sources) ? data.sources.filter((s) => s === "rest" || s === "mqtt") : ["rest"],
     animals,
     events,
   };
+}
+
+/**
+ * Strings and numbers from the full records that must never show up in a
+ * hidden export. Returns a list of problem kinds, never the values.
+ */
+export function leakProblems(hiddenData, fullData) {
+  const text = JSON.stringify(hiddenData).toLowerCase();
+  const problems = new Set();
+  for (const animal of fullData.animals || []) {
+    const d = animal.details || {};
+    const strings = [
+      ["device name", d.deviceName],
+      ["DevEUI", d.devEui],
+      ["profile name", d.profile],
+      ["description", d.description],
+      ...Object.entries(d.tags || {}).flatMap(([k, v]) => [["tag", k], ["tag", v]]),
+    ];
+    for (const [kind, value] of strings) {
+      if (typeof value !== "string") continue;
+      const v = value.trim().toLowerCase();
+      if (v.length < 4 || /^tracker \d+$/.test(v)) continue;
+      if (text.includes(JSON.stringify(v).slice(1, -1))) problems.add(kind);
+    }
+    if (d.position) {
+      for (const n of [d.position.latitude, d.position.longitude]) {
+        const digits = String(n).split(".")[1] || "";
+        if (digits.length >= 3 && text.includes(String(n))) problems.add("position");
+      }
+    }
+  }
+  if (/"details"|"deveui"|"latitude"|"longitude"|"tags"/.test(text)) problems.add("detail field");
+  return [...problems];
 }
