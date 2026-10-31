@@ -17,12 +17,17 @@ const ROUTES = ["/", "/map", "/trace", "/setups", "/shop", "/rancher", "/archite
 const BANNED = [
   /is designed to/i,
   /intended to/i,
+  /helps? you/i,
   /seamless/i,
   /empower/i,
   /robust/i,
   /\bproducers?\b/i,
   /\bAI\b/,
   /leverag/i,
+  /unlock/i,
+  /at a glance/i,
+  /peace of mind/i,
+  /real[- ]?time insights?/i,
   /cutting[- ]edge/i,
   /game[- ]chang/i,
   /revolution/i,
@@ -30,19 +35,50 @@ const BANNED = [
   /world[- ]class/i,
   /state[- ]of[- ]the[- ]art/i,
   /effortless/i,
-  /peace of mind/i,
-  /unlock/i,
   /\bdelve/i,
   /look no further/i,
+  /supercharge/i,
+  /streamline/i,
+  /harness/i,
+  /elevate/i,
+  /\bjourney\b/i,
+  /single pane/i,
+  /\u2014/, // em dash
+  /\u2013/, // en dash
+  /Predator Watch|Wildfire Watch/, // feature nicknames stay off the demo pages
+  /Simulated day|In the demo|Partly built|Checkout planned/,
 ];
 
+// Place names: the copy says "the western US" and nothing more specific.
+const PLACES = /\b(Alaska|Arizona|California|Colorado|Idaho|Montana|Nevada|New Mexico|Oregon|Texas|Utah|Wyoming|Washington State|Dakota|Nebraska|Kansas|Oklahoma)\b/;
+
+// Emoji and pictographs.
+const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
+
 function copyProblems(text) {
-  return BANNED.filter((re) => re.test(text)).map(String);
+  const found = BANNED.filter((re) => re.test(text)).map(String);
+  if (PLACES.test(text)) found.push("place name " + text.match(PLACES)[0]);
+  if (EMOJI.test(text)) found.push("emoji");
+  return found;
+}
+
+// Visible text of a rendered page: tags and entities out, spaces folded.
+function textOf(html) {
+  return html
+    .replace(/<(script|style|pre)[\s\S]*?<\/\1>/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function headings(html) {
+  return [...html.matchAll(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/g)].map((m) => textOf(m[2]));
 }
 
 test("tour: every step opens a known route and points at a target on that page", () => {
   const pageOf = { "/": "home.js", "/map": "map.js", "/trace": "trace.js", "/setups": "setups.js", "/rancher": "rancher.js" };
-  assert.ok(TOUR_STEPS.length >= 6 && TOUR_STEPS.length <= 9);
+  assert.ok(TOUR_STEPS.length >= 4 && TOUR_STEPS.length <= 6, "the tour has about 5 steps");
   for (const step of TOUR_STEPS) {
     assert.ok(ROUTES.includes(step.route), step.id + " route");
     assert.match(step.target, /^[a-z-]+$/);
@@ -50,7 +86,9 @@ test("tour: every step opens a known route and points at a target on that page",
     assert.ok(file, step.id + " has a page file");
     assert.ok(src[file].includes('data-tour="' + step.target + '"'), step.id + " target is in " + file);
     assert.ok(step.title && step.body, step.id + " has copy");
-    assert.ok(step.body.length < 260, step.id + " body is short");
+    assert.ok(step.body.length < 180, step.id + " body is short");
+    assert.ok(step.title.split(" ").length <= 3 && !/[.!:]$/.test(step.title), step.id + " title is a short label");
+    assert.ok(!step.body.includes("!"), step.id + " has no exclamation point");
   }
 });
 
@@ -65,7 +103,7 @@ test("tour: ids are unique and the order is herd, alert, fleece trace, rancher m
 
 test("tour: only the alert steps are marked simulated, and they say so", () => {
   const simulated = TOUR_STEPS.filter((s) => s.simulated).map((s) => s.id);
-  assert.deepEqual(simulated, ["smoke", "predator"]);
+  assert.deepEqual(simulated, ["predator"]);
   for (const step of TOUR_STEPS.filter((s) => s.simulated)) assert.match(step.body, /simulated/i);
   for (const step of TOUR_STEPS) assert.ok(!step.herd || !step.herd.moment || ["smoke", "predator", "end"].includes(step.herd.moment));
 });
@@ -97,11 +135,40 @@ test("copy: page source and sample data use no banned words", () => {
   }
 });
 
-test("copy: the demo line and the support line are kept", () => {
+test("copy: one demo line site-wide, one Planned note, and the support line wherever support comes up", () => {
   const all = Object.values(src).join("\n");
-  assert.match(all, /This is a demo, not the FiberShare app/);
-  assert.match(all, /Support is not ownership or an investment return/);
-  assert.match(src["home.js"], /badge-planned/);
+  assert.equal(all.split("This is a demo, not the FiberShare app").length - 1, 1, "one demo line, in the header");
+  assert.match(src["layout.js"], /This is a demo, not the FiberShare app/);
+  assert.equal(all.split('class="tag">Planned<').length - 1, 1, "one Planned note");
+  assert.ok(!/class="badge/.test(all), "no badge pills");
+  for (const [file, text] of Object.entries(src)) {
+    if (/ranch support|support pays/i.test(text)) assert.match(text, /Support is not ownership or an investment return/, file);
+  }
+  assert.match(read("README.md"), /Support is not ownership or an investment return/);
+  // "intelligence and realtime systems" at most once in the demo copy.
+  assert.ok(all.split(/intelligence and realtime systems/).length - 1 <= 1);
+  assert.ok(!/intelligence systems/.test(all.replace(/intelligence and realtime systems/g, "")));
+});
+
+test("copy: pages render plain headings, one primary button on home, and a bare footer", async () => {
+  const { renderHome } = await import("../src/home.js");
+  const { renderSetups } = await import("../src/setups.js");
+  const { renderArchitecture } = await import("../src/architecture.js");
+  const { footer } = await import("../src/layout.js");
+  const pages = { home: renderHome(), setups: renderSetups(), architecture: renderArchitecture() };
+  for (const [name, html] of Object.entries(pages)) {
+    const text = textOf(html);
+    assert.deepEqual(copyProblems(text), [], name);
+    assert.ok(!text.includes("!"), name + " has no exclamation point");
+    assert.ok(!/\b[A-Z][a-z]+: [A-Z]/.test(text), name + " has no colon-label lines");
+    for (const h of headings(html)) {
+      assert.ok(!/[.!?:]$/.test(h), name + " heading is a label, not a sentence: " + h);
+      assert.ok(h.split(" ").length <= 6, name + " heading is short: " + h);
+    }
+    assert.equal((html.match(/<h1[ >]/g) || []).length, 1, name + " has one h1");
+  }
+  assert.equal((pages.home.match(/btn-primary/g) || []).length, 1, "home has one primary button");
+  assert.equal(textOf(footer()), "BitPrairie LLC");
 });
 
 test("icons: every icon used in src exists and has no title unless labelled", () => {

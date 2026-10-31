@@ -13,8 +13,6 @@ export function skeleton(kind) {
       '<div class="stat-row" aria-hidden="true">' + block("5.25rem").repeat(4) + "</div>" +
       '<div class="herd-layout" aria-hidden="true"><div class="herd-main"><span class="skel skel-block skel-paddock"></span>' + line("100%") + "</div>" +
       '<div class="detail-skel">' + block("26rem") + "</div></div>";
-  } else if (kind === "grid") {
-    body = '<div class="product-grid" aria-hidden="true">' + block("20rem").repeat(4) + "</div>";
   } else {
     body = '<div class="rancher-grid" aria-hidden="true">' + block("16rem") + block("16rem") + "</div>";
   }

@@ -8,24 +8,21 @@ import { renderHome } from "./home.js";
 import { renderMap, bindMap, leaveMap } from "./map.js";
 import { renderTrace, bindTrace } from "./trace.js";
 import { renderSetups } from "./setups.js";
-import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 import { renderRancher, bindRancher } from "./rancher.js";
 import { tourAfterRender } from "./tour.js";
 import { skeleton } from "./skeleton.js";
-import { icon } from "./icons.js";
 
+const trace = { render: renderTrace, title: "Fleece trace · FiberShare" };
 const routes = {
-  "/": { render: renderHome, title: "Home · FiberShare" },
+  "/": { render: renderHome, title: "FiberShare demo" },
   "/map": { render: renderMap, title: "Herd view · FiberShare", skeleton: "herd" },
-  "/trace": { render: renderTrace, title: "Fleece to fiber lot · FiberShare" },
-  "/setups": { render: renderSetups, title: "Three setups · FiberShare" },
-  "/shop": { render: renderShop, title: "Sample fiber · FiberShare", skeleton: "grid" },
+  "/trace": trace,
+  // The fiber list is now part of the fleece trace page. Old links still work.
+  "/shop": trace,
+  "/setups": { render: renderSetups, title: "Setups · FiberShare" },
   "/rancher": { render: renderRancher, title: "Rancher sign-in · FiberShare", skeleton: "panel" },
-  "/architecture": {
-    render: renderArchitecture,
-    title: "How it is built · FiberShare",
-  },
+  "/architecture": { render: renderArchitecture, title: "How it works · FiberShare" },
 };
 
 function pathFromHash() {
@@ -37,14 +34,11 @@ function renderNotFound() {
   return (
     nav("") +
     '<main class="wrap" id="main">' +
-    '<section class="page-head"><div class="state">' +
-    '<span class="state-icon">' + icon("map", { size: 22 }) + "</span>" +
+    '<section class="page-head">' +
     "<h1>Page not found</h1>" +
-    "<p>There is no page at this address. Try the herd view or go back home.</p>" +
-    '<div class="cta-row">' +
-    '<a class="btn btn-primary" href="#/">Home</a>' +
-    '<a class="btn btn-ghost" href="#/map">Herd view</a>' +
-    "</div></div></section></main>" +
+    '<p class="lede">Nothing is at this address.</p>' +
+    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a class="btn btn-ghost" href="#/map">Herd view</a></div>' +
+    "</section></main>" +
     footer()
   );
 }
@@ -95,7 +89,7 @@ async function render() {
   app.innerHTML = html;
   bindTheme(app);
   if (path === "/map") bindMap(app);
-  if (path === "/trace") bindTrace(app);
+  if (path === "/trace" || path === "/shop") bindTrace(app);
   if (path === "/rancher") bindRancher(app);
   app.querySelectorAll("[data-retry]").forEach((btn) => btn.addEventListener("click", () => render()));
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {

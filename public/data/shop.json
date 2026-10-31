@@ -1,5 +1,5 @@
 {
-  "note": "Sample fiber for this demo. You cannot check out here.",
+  "note": "Sample fiber lots for this demo. Nothing is for sale.",
   "products": [
     {
       "id": "roving-juniper",
@@ -11,7 +11,7 @@
     {
       "id": "yarn-pasture",
       "name": "Pasture-blend DK yarn",
-      "fiber": "mixed ranch sample",
+      "fiber": "Mixed herd",
       "grams": 100,
       "inStock": true
     },
@@ -21,13 +21,6 @@
       "fiber": "Angora",
       "grams": 40,
       "inStock": true
-    },
-    {
-      "id": "collar-kit",
-      "name": "Community collar kit (demo)",
-      "fiber": "hardware sample",
-      "grams": 80,
-      "inStock": false
     }
   ]
 }

@@ -60,7 +60,7 @@ function trackerPopup(animal, now) {
 
 function fieldValue(value) {
   if (typeof value === "number" && value > 1e11 && value < 1e14) return new Date(value).toLocaleString();
-  return value === null || value === undefined || value === "" ? "–" : String(value);
+  return value === null || value === undefined || value === "" ? "not given" : String(value);
 }
 
 function featurePopup(layer, feature) {
@@ -163,7 +163,7 @@ function panelHtml(layers, hasKey, state, custom) {
     '<input name="name" type="text" placeholder="Name, such as Paddocks" maxlength="60" />' +
     '<button type="submit" class="btn btn-ghost btn-small">Add</button>' +
     '<p class="layer-error" data-add-error hidden></p></form>' +
-    '<p class="layer-note">' + (hasKey ? "Using your ArcGIS key for Esri basemaps." : "No ArcGIS key set: Esri basemaps are off. Every other layer works without one.") + "</p>" +
+    '<p class="layer-note">' + (hasKey ? "Using your ArcGIS key for Esri basemaps." : "No ArcGIS key is set, so Esri basemaps are off. The other layers work without one.") + "</p>" +
     "</details>"
   );
 }

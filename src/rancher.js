@@ -22,21 +22,18 @@ function mockMap() {
     .join("");
   return (
     '<div class="rancher-callout" data-tour="rancher-map">' +
-    "<h2>" + icon("map", { size: 22 }) + "What a signed-in rancher sees</h2>" +
+    "<h2>Rancher map</h2>" +
     '<div class="mock-map" role="img" aria-label="Drawing of the rancher map: tracker dots on a basemap, a dashed fire perimeter, and a layer list">' +
     '<span class="zone" style="left:66%;top:12%;width:26%;height:30%"></span>' + dots +
     '<span class="layer-chip"><strong>Layers</strong><span>Wildfire perimeters</span><span>Smoke from satellite</span><span>Federal land ownership</span></span></div>' +
-    "<p>Real tracker positions on a map, with layers from public agency services. Names, device IDs, and positions stay on the server until a rancher signs in.</p>" +
-    '<p class="fine-print">This is a drawing. The real map needs your own trackers and a sign-in.</p>' +
+    "<p>After sign-in, trackers appear at their real positions, with map layers from public agencies.</p>" +
+    '<p class="fine-print">Drawing only. The live map needs your own trackers.</p>' +
     "</div>"
   );
 }
 
 function card(iconName, title, html, kind = "") {
-  return (
-    '<div class="rancher-callout' + (kind ? " state-" + kind : "") + '">' +
-    '<h2><span class="state-icon">' + icon(iconName, { size: 20 }) + "</span>" + title + "</h2>" + html + "</div>"
-  );
+  return '<div class="rancher-callout' + (kind ? " state-" + kind : "") + '">' + "<h2>" + title + "</h2>" + html + "</div>";
 }
 
 export async function renderRancher() {
@@ -46,9 +43,9 @@ export async function renderRancher() {
   if (session.signedIn) {
     body = card(
       "check",
-      'Signed in <span class="badge badge-private">Rancher</span>',
-      "<p>The herd view now gets full tracker data from the server: real names, device IDs, and positions on a real map. Turn off <strong>Hide tracker details</strong> there to see them.</p>" +
-        '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view' + icon("arrowRight", { size: 18 }) + "</a>" +
+      "Signed in",
+      "<p>The herd view now gets full tracker data from the server. Turn off <strong>Hide tracker details</strong> there to see names, device IDs and positions.</p>" +
+        '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view</a>' +
         (session.mode === "local" ? '<button type="button" class="btn btn-ghost" data-sign-out>Sign out</button>' : "") +
         "</div>" +
         (session.mode === "access" ? '<p class="fine-print">Signed in through Cloudflare Access. Sign out from your Access app launcher.</p>' : ""),
@@ -63,48 +60,45 @@ export async function renderRancher() {
         '<input id="passphrase" name="passphrase" type="password" autocomplete="current-password" required minlength="12" aria-describedby="passphrase-help" />' +
         '<p class="form-error" role="alert" data-error hidden></p>' +
         '<button type="submit" class="btn btn-primary">Sign in</button>' +
-        '<p class="fine-print" id="passphrase-help">The server on your own hardware checks the passphrase and sets a session cookie the page cannot read. It lasts 12 hours.</p>' +
+        '<p class="fine-print" id="passphrase-help">The server checks the passphrase and sets a session cookie for 12 hours.</p>' +
         "</form>"
     );
   } else if (session.mode === "local") {
     body = card(
       "lock",
-      "Set a passphrase first",
-      "<p>No rancher passphrase is set on this server yet. On the hardware that runs it:</p>" +
-        "<pre><code>npm run rancher:passphrase</code></pre><p>Then reload this page.</p>",
+      "No passphrase set",
+      "<p>Set a rancher passphrase on the machine that runs this server, then reload this page.</p>" +
+        "<pre><code>npm run rancher:passphrase</code></pre>",
       "warn"
     );
   } else if (session.mode === "access") {
     body = card(
       "lock",
       "Sign in with Cloudflare Access",
-      "<p>This copy uses Cloudflare Access. Sign in with the account your Access policy allows.</p>" +
-        (error === "access" ? '<p class="form-error" role="alert">' + icon("alert", { size: 16 }) + "<span>Access did not let that sign-in through. Check the policy and try again.</span></p>" : "") +
+      "<p>Sign in with an account your Access policy allows.</p>" +
+        (error === "access" ? '<p class="form-error" role="alert">' + icon("alert", { size: 16 }) + "<span>Access refused that sign-in. Check the policy and try again.</span></p>" : "") +
         '<div class="cta-row"><a class="btn btn-primary" href="' + esc(session.loginUrl || "/api/rancher/login") + '">Sign in with Cloudflare Access</a></div>'
     );
   } else if (session.noServer) {
     body = card(
       "wifiOff",
-      "The sign-in server did not answer",
-      "<p>This copy has no server routes, or the local server is not running. The rest of the demo works without it, on sample data.</p>" +
-        "<p>To sign in on your own hardware, start <code>npm run dev</code> or <code>npm run serve:local</code>.</p>" +
-        '<div class="cta-row"><button type="button" class="btn btn-ghost" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>" +
-        '<a class="btn btn-text" href="#/map">Open the sample herd</a></div>',
+      "No sign-in server",
+      "<p>The sign-in server is not running. The rest of the demo works without it. Start it with <code>npm run dev</code> or <code>npm run serve:local</code>.</p>" +
+        '<div class="cta-row"><button type="button" class="btn btn-ghost" data-retry>Try again</button></div>',
       "warn"
     );
   } else {
     body = card(
       "info",
-      "Sign-in is not set up here",
-      "<p>Everyone sees the hidden view on this copy.</p>" +
-        "<p>On your own hardware, run <code>npm run rancher:passphrase</code>, then <code>npm run dev</code> or <code>npm run serve:local</code>. On Cloudflare Pages, set up Access as in docs/rancher-access.md.</p>"
+      "Sign-in not set up",
+      "<p>Everyone sees the hidden view on this copy. To add sign-in, run <code>npm run rancher:passphrase</code> on your own hardware, or set up Cloudflare Access on Pages as in docs/rancher-access.md.</p>"
     );
   }
   return (
     nav("/rancher") +
     '<main class="wrap" id="main">' +
     '<section class="page-head"><h1>Rancher sign-in</h1>' +
-    '<p class="lede">The public sees trackers with the details hidden: aliases, grid cells from a hash, no device IDs or positions. A signed-in rancher gets the real data. The server checks on every request.</p></section>' +
+    '<p class="lede">Public visitors see trackers without names, device IDs or positions. A signed-in rancher sees the full data. The server checks the session on every request.</p></section>' +
     '<div class="rancher-grid">' + body + mockMap() + "</div>" +
     "</main>" +
     footer()

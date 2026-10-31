@@ -83,7 +83,7 @@ export function trackerAlerts(animals, now, rules = ALERT_RULES) {
   return out;
 }
 
-/** Predator Watch and Wildfire Watch alerts from the events shown so far. */
+/** Predator and smoke alerts from the events shown so far. */
 export function eventAlerts(events) {
   const out = [];
   const list = events || [];
@@ -95,7 +95,7 @@ export function eventAlerts(events) {
       id: "event:" + e.id,
       kind: e.type,
       eventId: e.id,
-      title: e.type === "predator" ? "Predator Watch: activity near " + (e.cell || "the herd") : "Wildfire Watch: smoke upwind",
+      title: e.type === "predator" ? "Predator report near " + (e.cell || "the herd") : "Smoke upwind",
       detail: String(e.text || ""),
       time: e.time,
       cleared,

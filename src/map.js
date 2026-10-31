@@ -15,8 +15,8 @@ const ALERT_KIND = {
   battery: ["battery", "Low battery"],
   quiet: ["wifiOff", "Quiet tracker"],
   sos: ["alert", "SOS"],
-  predator: ["paw", "Predator Watch"],
-  smoke: ["smoke", "Wildfire Watch"],
+  predator: ["paw", "Predator report"],
+  smoke: ["smoke", "Smoke report"],
 };
 const EVENT_LABELS = {
   checkin: "Check-in",
@@ -100,7 +100,7 @@ function stage(data, animals, live, cells) {
       (animals.some((a) => !a.onMap) ? " · " + animals.filter((a) => !a.onMap).length + " without a position yet" : "")
     : live
       ? data.privateView
-        ? "No tracker has sent a position yet · grid cells from a hash"
+        ? "No positions yet · grid cells from a hash"
         : "Grid cells come from a hash · not GPS"
       : "Virtual grid, not a map";
   return (
@@ -121,25 +121,22 @@ function hours(minutes) {
 function alertsSection(data, live) {
   return (
     '<section class="section alerts-section" data-tour="alerts" aria-labelledby="alerts-title">' +
-    '<div class="feed-head"><h2 class="section-rule" id="alerts-title">Alerts</h2>' +
-    (live ? '<span class="badge badge-live">From your trackers</span>' : '<span class="badge badge-sim">Sample day</span>') +
-    "</div>" +
-    '<p class="muted feed-note">Low battery: below ' + ALERT_RULES.lowBatteryPercent + "% and not on outside power. Quiet tracker: nothing heard for over " + hours(ALERT_RULES.quietMinutes) + "." +
-    (live ? "" : " Predator Watch and Wildfire Watch alerts here are simulated.") +
-    " Confirm an alert if it is real. Dismiss it if it is not.</p>" +
+    '<div class="feed-head"><h2 class="section-rule" id="alerts-title">Alerts</h2></div>' +
+    '<p class="muted feed-note">A battery alert means below ' + ALERT_RULES.lowBatteryPercent + "% with no outside power. A quiet alert means no check-in for over " + hours(ALERT_RULES.quietMinutes) + "." +
+    (live ? "" : " The predator and smoke reports on the sample day are simulated.") +
+    " Confirm each alert or dismiss it.</p>" +
     '<p class="notice notice-warn alert-error" data-alert-error role="alert" hidden></p>' +
     '<p class="visually-hidden" data-alert-status role="status"></p>' +
     '<div class="alerts-cols" data-alerts>' +
     '<div><h3 class="alerts-sub">Open <span class="count" data-open-count></span></h3><ol class="alert-list" data-alert-open></ol></div>' +
     '<div><h3 class="alerts-sub">History</h3><ol class="alert-list alert-history" data-alert-history></ol></div>' +
     "</div>" +
-    '<p class="fine-print alerts-foot"><span data-alert-where></span> Each answer is kept as a feedback record with the rule that raised the alert. ' +
-    '<span class="badge badge-planned">Planned</span> Tuning the rules from these answers.</p>' +
+    '<p class="fine-print alerts-foot"><span data-alert-where></span> Each answer is stored with the rule that raised the alert.</p>' +
     "</section>"
   );
 }
 
-const PLAY = icon("play", { size: 16 }) + "<span>Play the day</span>";
+const PLAY = icon("play", { size: 16 }) + "<span>Play</span>";
 const PAUSE = icon("pause", { size: 16 }) + "<span>Pause</span>";
 
 function stateBox(kind, iconName, title, text, action) {
@@ -166,10 +163,10 @@ function moments(events) {
   return (
     '<div class="moments" role="group" aria-label="Jump to a moment in the day"><span class="label">Jump to</span>' +
     list
-      .map((m) => '<button type="button" class="chip" data-moment="' + m.id + '">' + icon(m.id === "smoke" ? "smoke" : "paw", { size: 14 }) + esc(m.label) + " " + esc(timeOf(m.time)) + "</button>")
+      .map((m) => '<button type="button" class="chip" data-moment="' + m.id + '">' + esc(m.label) + " " + esc(timeOf(m.time)) + "</button>")
       .join("") +
     '<button type="button" class="chip" data-moment="end">End of day</button>' +
-    '<button type="button" class="btn btn-text btn-small" data-herd-reset>' + icon("reset", { size: 14 }) + "Reset</button></div>"
+    '<button type="button" class="btn btn-text btn-small" data-herd-reset>Reset</button></div>'
   );
 }
 
@@ -196,13 +193,13 @@ export async function renderMap() {
   const pulledMinutes = live ? Math.max(0, Math.round((Date.now() - new Date(data.pulledAt).getTime()) / 60000)) : 0;
   const stale = live && pulledMinutes > STALE_MINUTES;
   const sourceBadge = live
-    ? '<div class="source-line"><span class="badge badge-live">Live from your ChirpStack</span>' +
+    ? '<div class="source-line"><span class="source-label">Live from your ChirpStack server</span>' +
       '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label></div>" +
       (data.rancher
-        ? '<span class="badge badge-private">Signed in as the rancher</span>'
-        : '<p class="fine-print source-note">The server sends hidden data to the public. <a href="#/rancher">Rancher sign-in</a></p>') +
+        ? '<p class="fine-print source-note">Signed in as the rancher.</p>'
+        : '<p class="fine-print source-note">Public view, with tracker details hidden. <a href="#/rancher">Rancher sign-in</a></p>') +
       (data.rancher && !data.hide && data.exportHidden
-        ? '<p class="fine-print source-note">This file was written with tracker details hidden, so there is nothing more to show. Run the pull with FIBERSHARE_HIDE_TRACKERS=0 to see real values.</p>'
+        ? '<p class="fine-print source-note">This file was written with tracker details hidden. Run the pull with FIBERSHARE_HIDE_TRACKERS=0 to see real values.</p>'
         : "") +
       '<div class="source-line"><span class="muted source-time" data-pulled>Pulled ' + esc(pulledMinutes < 1 ? "just now" : pulledMinutes + " min ago") + " (" + esc(timeOf(data.pulledAt)) + ")" + (data.sources?.includes("mqtt") ? " · REST and MQTT" : " · REST") + "</span>" +
       '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>' +
@@ -213,9 +210,9 @@ export async function renderMap() {
 
   const lede = live
     ? data.privateView
-      ? "Your trackers with their real names, device IDs, tags, and positions, read from your ChirpStack server. Only a signed-in rancher gets this view."
-      : "Trackers read from a ChirpStack server. Names, device IDs, tags, and positions are hidden. Each tracker sits on a grid cell picked by a hash, not by where it is."
-    : "Eight sample goats on a paddock grid. The grid is a drawing, not a map. Play the day to see the alerts.";
+      ? "Your trackers with real names, device IDs, tags and positions. Only a signed-in rancher gets this view."
+      : "Trackers from a ChirpStack server, with names, device IDs, tags and positions hidden. Each grid cell comes from a hash, not a position."
+    : "8 sample goats on a 6 by 4 paddock grid. The grid is a drawing, not a map. Press Play to step through the sample day.";
 
   const cells = cellLabels()
     .map((label) => '<div class="cell" data-cell="' + label + '"><span>' + label + "</span></div>")
@@ -248,12 +245,10 @@ export async function renderMap() {
       (live ? "Trackers" : "Herd") +
       '</h2><ol class="goat-list" data-list></ol></section>' +
       '<section class="section feed-section" aria-labelledby="feed-title">' +
-      '<div class="feed-head" data-tour="feed"><h2 class="section-rule" id="feed-title">Event feed</h2>' +
-      (live ? '<span class="badge badge-live">Live</span>' : '<span class="badge badge-sim">Simulated</span>') +
-      "</div>" +
+      '<div class="feed-head" data-tour="feed"><h2 class="section-rule" id="feed-title">Event log</h2></div>' +
       (live
-        ? '<p class="muted feed-note">Check-ins, battery readings, and SOS from your ChirpStack server. Predator and smoke alerts are not part of the live pull.</p>'
-        : '<p class="muted feed-note">One made-up day for the sample herd. None of it happened.</p>') +
+        ? '<p class="muted feed-note">Check-ins, battery readings and SOS from your ChirpStack server. The live pull has no predator or smoke reports.</p>'
+        : '<p class="muted feed-note">One made-up day for the sample herd.</p>') +
       '<div class="chips" role="group" aria-label="Filter the event feed">' +
       FILTERS.map(
         ([key, label]) =>
@@ -263,18 +258,16 @@ export async function renderMap() {
       '<ol class="feed" data-feed></ol></section>' +
       "</div>"
     : data.loadFailed
-      ? stateBox("error", "alert", "The herd did not load", "The page could not read public/data/herd.json. Check that the file is there and is valid JSON, then try again.", '<button type="button" class="btn btn-primary" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>")
-      : stateBox("empty", "herd", "No animals yet", "Add goats to public/data/herd.json, then reload this page.", "");
+      ? stateBox("error", "alert", "The herd did not load", "The page could not read public/data/herd.json. Check that it is valid JSON, then try again.", '<button type="button" class="btn btn-primary" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>")
+      : stateBox("empty", "herd", "No animals yet", "Add goats to public/data/herd.json, then reload.", "");
 
   return (
     nav("/map") +
     '<main class="wrap wrap-wide herd-page" id="main">' +
     '<section class="page-head head-row"><div>' +
-    '<div class="title-row"><h1>' +
+    "<h1>" +
     esc(data.ranch) +
-    "</h1>" +
-    (live ? "" : '<span class="badge badge-sim">Sample data</span>') +
-    '</div><p class="lede">' +
+    '</h1><p class="lede">' +
     (data.loadFailed && !animals.length ? "The herd view needs the sample herd file." : lede) +
     '</p></div><div class="source-box">' +
     sourceBadge +
@@ -367,7 +360,7 @@ function renderStats(root, state, alerts) {
     [open, open === 1 ? "open alert" : "open alerts", "alert", open > 0 ? " stat-warn" : ""],
   ];
   holder.innerHTML = stats
-    .map(([n, label, iconName, cls]) => '<div class="stat' + cls + '"><span class="stat-icon">' + icon(iconName) + "</span><div><strong>" + n + "</strong><span>" + label + "</span></div></div>")
+    .map(([n, label, , cls]) => '<div class="stat' + cls + '"><strong>' + n + "</strong><span>" + label + "</span></div>")
     .join("");
 }
 
@@ -386,14 +379,13 @@ function renderGrid(root, state, alerts) {
       const f = a && answers.get(a.id);
       return f && f.answer !== "reopened" ? f.answer : "";
     };
-    for (const cell of state.alertCells) cards.push(["paw", "", "Predator alert near " + cell, "Predator Watch · the herd is moving away", answerOf("predator", cell)]);
-    if (state.smoke) cards.push(["smoke", " is-smoke", "Smoke haze upwind", "Wildfire Watch · no fire reported nearby", answerOf("smoke")]);
+    for (const cell of state.alertCells) cards.push(["paw", "", "Predator report near " + cell, "The herd is moving away", answerOf("predator", cell)]);
+    if (state.smoke) cards.push(["smoke", " is-smoke", "Smoke haze upwind", "No fire reported nearby", answerOf("smoke")]);
     const html = cards
       .map(
         ([name, cls, title, sub, answer]) =>
           '<div class="alert-card' + cls + '" role="status"><span class="alert-icon">' + icon(name, { size: 18 }) + "</span><span><strong>" + esc(title) + "</strong><small>" + esc(sub) + "</small></span>" +
-          (answer ? '<span class="badge ' + (answer === "confirmed" ? "badge-warn" : "badge-quiet") + '">' + (answer === "confirmed" ? "Confirmed" : "Dismissed") + "</span>" : "") +
-          (view.data.mode === "live" ? "" : '<span class="badge badge-sim">Simulated</span>') +
+          (answer ? '<span class="alert-state">' + (answer === "confirmed" ? "Confirmed" : "Dismissed") + "</span>" : "") +
           "</div>"
       )
       .join("");
@@ -423,9 +415,9 @@ function uplinkChart(values, hours) {
   const bars = values
     .map((v) => '<span style="height:' + Math.round((v / max) * 100) + '%" title="' + v + '"></span>')
     .join("");
-  const span = view.data.mode === "live" ? "the last " + hours + " hours" : "the sample day, one bar per hour";
+  const span = view.data.mode === "live" ? "the last " + hours + " hours" : "the sample day";
   return (
-    '<div class="uplinks"><p class="row-meta">Check-ins across ' + esc(span) + "</p>" +
+    '<div class="uplinks"><p class="row-meta">Check-ins per hour, ' + esc(span) + "</p>" +
     '<div class="bars" role="img" aria-label="Check-ins per hour: ' + values.join(", ") + '">' + bars + "</div></div>"
   );
 }
@@ -467,7 +459,7 @@ function sensorRows(animal) {
   if (Number.isFinite(s.temperature)) rows.push(["Temperature", esc(String(s.temperature)) + " °C"]);
   if (Number.isFinite(s.light)) rows.push(["Light", esc(String(s.light))]);
   if (Number.isFinite(s.motion)) rows.push(["Motion", esc(String(s.motion))]);
-  if (s.sos || animal.sos) rows.push(["SOS", '<span class="badge badge-warn">SOS sent</span>']);
+  if (s.sos || animal.sos) rows.push(["SOS", "SOS sent"]);
   return rows;
 }
 
@@ -502,8 +494,8 @@ function renderDetail(root, state, alerts) {
       alerts.open.some((a) => a.animalId === animal.id)
         ? alerts.open
             .filter((a) => a.animalId === animal.id)
-            .map((a) => '<span class="badge ' + (a.kind === "quiet" ? "badge-quiet" : a.kind === "sos" ? "badge-alert" : "badge-warn") + '">' + esc(ALERT_KIND[a.kind][1]) + "</span>")
-            .join(" ") + ' <button type="button" class="btn-link" data-jump-alerts>Answer</button>'
+            .map((a) => esc(ALERT_KIND[a.kind][1]))
+            .join(", ") + ' <button type="button" class="btn-link" data-jump-alerts>Answer</button>'
         : '<span class="muted">none open</span>',
     ],
   ];
@@ -513,17 +505,16 @@ function renderDetail(root, state, alerts) {
   }
   holder.innerHTML =
     '<div class="detail-top"><span class="avatar" aria-hidden="true">' + esc(initials(animal.alias || animal.name)) + "</span><div>" +
-    '<p class="detail-kicker">' + (live ? (full ? "Tracker · private" : "Tracker") : "Animal") + "</p>" +
     "<h2>" + esc(animal.name) + "</h2></div></div>" +
     '<dl class="facts">' + rows.map(([k, v]) => "<dt>" + k + "</dt><dd>" + v + "</dd>").join("") + "</dl>" +
     uplinkChart(animal.uplinks, view.data.windowHours) +
     (lots.length
-      ? '<p class="detail-link"><a class="btn btn-ghost btn-small" href="#/trace"><span>Follow ' + esc(animal.name) + "'s fleece to the " + esc(lots[0]) + " lot</span>" + icon("arrowRight", { size: 16 }) + "</a></p>"
+      ? '<p class="detail-link"><a href="#/trace">Trace ' + esc(animal.name) + "'s fleece to the " + esc(lots[0]) + " lot</a></p>"
       : "") +
     (live && !full
-      ? '<p class="fine-print">' + (view.data.rancher ? "Tracker details are hidden. Turn off Hide tracker details to see the real name, ID, and position." : "Tracker details are hidden. Only a signed-in rancher can see them.") + "</p>"
+      ? '<p class="fine-print">' + (view.data.rancher ? "Tracker details are hidden. Turn off Hide tracker details to see them." : "Tracker details are hidden. Only a signed-in rancher can see them.") + "</p>"
       : "") +
-    (full ? '<p class="fine-print">Private: you are signed in as the rancher. Do not share a screenshot of this view.</p>' : "");
+    (full ? '<p class="fine-print">This view shows private data. Do not share screenshots of it.</p>' : "");
 }
 
 function renderList(root, state, alerts) {
@@ -540,9 +531,9 @@ function renderList(root, state, alerts) {
         '<li><button type="button" class="goat-row' + (on ? " selected" : "") + '" data-goat-card="' + esc(animal.id) + '" aria-pressed="' + on + '">' +
         '<span class="avatar" aria-hidden="true">' + esc(initials(animal.alias || animal.name)) + "</span>" +
         "<div><h3>" + esc(animal.name) +
-        (alerts.all.some((a) => a.animalId === animal.id && a.kind === "battery") ? ' <span class="badge badge-warn">Low battery</span>' : "") +
-        (animal.silent || alerts.all.some((a) => a.animalId === animal.id && a.kind === "quiet") ? ' <span class="badge badge-quiet">Quiet</span>' : "") +
-        (animal.sos || animal.sensors?.sos ? ' <span class="badge badge-alert">SOS</span>' : "") +
+        (alerts.all.some((a) => a.animalId === animal.id && a.kind === "battery") ? ' <span class="flag flag-warn">Low battery</span>' : "") +
+        (animal.silent || alerts.all.some((a) => a.animalId === animal.id && a.kind === "quiet") ? ' <span class="flag">Quiet</span>' : "") +
+        (animal.sos || animal.sensors?.sos ? ' <span class="flag flag-alert">SOS</span>' : "") +
         '</h3><p class="row-meta">' + meta.filter(Boolean).map(esc).join(" · ") + "</p></div></button></li>"
       );
     })
@@ -558,7 +549,7 @@ function renderFeed(root, state) {
   const names = new Map(view.data.animals.map((a) => [a.id, a.name]));
   const items = [...state.shown].reverse().filter((event) => matchesFilter(event, view.filter));
   if (!items.length) {
-    holder.innerHTML = '<li class="feed-empty">' + (state.shown.length ? "Nothing matches this filter yet." : "Nothing yet. Press Play the day to start.") + "</li>";
+    holder.innerHTML = '<li class="feed-empty">' + (state.shown.length ? "No events match this filter." : "No events yet. Press Play to start.") + "</li>";
     return;
   }
   holder.innerHTML = items
@@ -566,22 +557,24 @@ function renderFeed(root, state) {
     .map((event) => {
       const kind = event.type === "predator" || event.type === "smoke" || event.type === "sos" || event.severity === "alert" ? "is-alert" : isAlert(event) ? "is-watch" : "";
       const who = names.get(event.animalId);
-      return (
-        '<li class="feed-item ' + kind + '"' + (event.animalId ? ' data-event-animal="' + esc(event.animalId) + '" tabindex="0" role="button" aria-label="Show ' + esc(who && view.data.mode !== "live" ? who : "this animal") + ": " + esc(event.text) + '"' : "") + ">" +
+      const label = EVENT_LABELS[event.type] || event.type;
+      const inner =
         '<span class="feed-icon" aria-hidden="true">' + icon(EVENT_ICONS[event.type] || "info", { size: 16 }) + "</span>" +
         '<time datetime="' + esc(event.time) + '">' + esc(timeOf(event.time)) + "</time>" +
-        '<div><span class="feed-type">' + esc(EVENT_LABELS[event.type] || event.type) + (who && view.data.mode !== "live" ? " · " + esc(who) : "") + "</span>" +
-        "<p>" + esc(event.text) + "</p></div></li>"
+        '<span class="feed-text"><span class="feed-type">' + esc(label) + (who && view.data.mode !== "live" ? " · " + esc(who) : "") + "</span>" +
+        '<span class="feed-body">' + esc(event.text) + "</span></span>";
+      // A row with an animal is a button that selects it. Its name is the visible text.
+      return (
+        '<li class="feed-item ' + kind + '">' +
+        (event.animalId
+          ? '<button type="button" class="feed-row" data-event-animal="' + esc(event.animalId) + '">' + inner + "</button>"
+          : '<div class="feed-row">' + inner + "</div>") +
+        "</li>"
       );
     })
     .join("");
   holder.querySelectorAll("[data-event-animal]").forEach((item) => {
     item.addEventListener("click", () => select(root, item.dataset.eventAnimal));
-    item.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      select(root, item.dataset.eventAnimal);
-    });
   });
 }
 
@@ -595,7 +588,7 @@ function isEvent(kind) {
   return kind === "predator" || kind === "smoke";
 }
 
-function openItem(alert, simulated) {
+function openItem(alert) {
   const [iconName, label] = ALERT_KIND[alert.kind];
   const noteId = "note-" + alert.id.replace(/[^A-Za-z0-9_-]/g, "-");
   const who = alert.animalId ? view.data.animals.find((a) => a.id === alert.animalId) : null;
@@ -604,11 +597,10 @@ function openItem(alert, simulated) {
     '<span class="alert-icon" aria-hidden="true">' + icon(iconName, { size: 18 }) + "</span>" +
     '<div class="alert-body">' +
     '<p class="alert-title"><strong>' + esc(alert.title) + "</strong>" +
-    (simulated ? ' <span class="badge badge-sim">Simulated</span>' : "") +
-    (alert.cleared ? ' <span class="badge badge-quiet">Cleared</span>' : "") +
     "</p>" +
-    '<p class="alert-detail">' + esc(alert.detail.replace(/^(Predator|Wildfire) Watch:\s*(.)/, (m, w, c) => c.toUpperCase())) + "</p>" +
+    '<p class="alert-detail">' + esc(alert.detail) + "</p>" +
     '<p class="row-meta">' + (isEvent(alert.kind) ? "" : esc(label) + " · ") + '<time datetime="' + esc(alert.time) + '">' + esc(timeOf(alert.time)) + "</time>" +
+    (alert.cleared ? " · cleared" : "") +
     (who ? ' · <button type="button" class="btn-link" data-alert-animal="' + esc(who.id) + '">Show ' + esc(who.name) + "</button>" : "") +
     "</p>" +
     '<div class="alert-answer">' +
@@ -627,7 +619,7 @@ function historyItem(entry) {
     '<li class="alert-item is-answered kind-' + esc(entry.kind) + '" data-alert="' + esc(entry.alertId) + '">' +
     '<span class="alert-icon" aria-hidden="true">' + icon(iconName, { size: 18 }) + "</span>" +
     '<div class="alert-body">' +
-    '<p class="alert-title"><span class="badge ' + (confirmed ? "badge-warn" : "badge-quiet") + '">' + (confirmed ? "Confirmed" : "Dismissed") + "</span> <strong>" + esc(entry.title || label) + "</strong></p>" +
+    '<p class="alert-title"><strong>' + esc(entry.title || label) + '</strong> <span class="alert-state">' + (confirmed ? "Confirmed" : "Dismissed") + "</span></p>" +
     (entry.note ? '<p class="alert-detail alert-note-text">“' + esc(entry.note) + "”</p>" : "") +
     '<p class="row-meta">' + [isEvent(entry.kind) ? "" : label, entry.alertTime ? "alert at " + timeOf(entry.alertTime) : "", "answered " + answeredAt(entry.at)].filter(Boolean).map(esc).join(" · ") +
     ' · <button type="button" class="btn-link" data-reopen>Reopen</button></p>' +
@@ -648,7 +640,6 @@ function renderAlerts(root, alerts) {
   if (where) where.textContent = view.store.where;
   const count = root.querySelector("[data-open-count]");
   if (count) count.textContent = String(alerts.open.length);
-  const live = view.data.mode === "live";
   const key = JSON.stringify([alerts.open.map((a) => a.id + a.cleared), alerts.history.map((f) => f.alertId + f.answer + f.at), view.feedbackReady, view.saving]);
   // Redraw only when the lists change, so a note being typed is kept.
   if (openList.dataset.key === key) return;
@@ -661,9 +652,9 @@ function renderAlerts(root, alerts) {
     return;
   }
   openList.innerHTML = alerts.open.length
-    ? alerts.open.map((a) => openItem(a, !live && (a.kind === "predator" || a.kind === "smoke"))).join("")
-    : '<li class="feed-empty">' + (view.step < view.events.length ? "No open alerts at this point in the day." : "No open alerts.") + "</li>";
-  historyList.innerHTML = alerts.history.length ? alerts.history.slice(0, 40).map(historyItem).join("") : '<li class="feed-empty">No answers yet. Confirmed and dismissed alerts move here.</li>';
+    ? alerts.open.map((a) => openItem(a)).join("")
+    : '<li class="feed-empty">' + (view.step < view.events.length ? "No open alerts at this time of day." : "No open alerts.") + "</li>";
+  historyList.innerHTML = alerts.history.length ? alerts.history.slice(0, 40).map(historyItem).join("") : '<li class="feed-empty">No answered alerts yet.</li>';
   for (const li of openList.querySelectorAll("[data-alert]")) {
     const input = li.querySelector("[data-alert-note]");
     if (input && notes.get(li.dataset.alert)) input.value = notes.get(li.dataset.alert);

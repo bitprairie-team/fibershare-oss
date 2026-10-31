@@ -1,5 +1,3 @@
-import { DISCORD, SITES } from "./sites.js";
-import { esc, EXT } from "./util.js";
 import { icon } from "./icons.js";
 
 const MARK =
@@ -20,11 +18,10 @@ const MARK =
 export const NAV_LINKS = [
   ["/", "Home"],
   ["/map", "Herd view"],
-  ["/trace", "Fleece to lot"],
-  ["/shop", "Fiber shop"],
+  ["/trace", "Fleece trace"],
   ["/setups", "Setups"],
-  ["/architecture", "Build"],
-  ["/rancher", "Rancher"],
+  ["/architecture", "How it works"],
+  ["/rancher", "Rancher sign-in"],
 ];
 
 export function nav(active) {
@@ -34,11 +31,12 @@ export function nav(active) {
   }).join("");
   return (
     '<a class="skip-link" href="#main">Skip to content</a>' +
-    '<header class="site-header"><div class="wrap header-row">' +
-    '<a class="brand" href="#/">' + MARK + '<span class="brand-name">FiberShare</span><span class="brand-tag">Demo</span></a>' +
+    '<header class="site-header"><p class="demo-bar">This is a demo, not the FiberShare app. It runs on sample data.</p>' +
+    '<div class="wrap header-row">' +
+    '<a class="brand" href="#/">' + MARK + '<span class="brand-name">FiberShare</span></a>' +
     '<nav class="nav" id="primary-nav" aria-label="Primary">' + links + "</nav>" +
     '<div class="header-actions">' +
-    '<button class="btn btn-tour" type="button" data-tour-start>' + icon("tour", { size: 18 }) + "<span>Tour</span></button>" +
+    '<button class="btn btn-tour" type="button" data-tour-start>Tour</button>' +
     '<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">' + icon("moon", { cls: "i-moon" }) + icon("sun", { cls: "i-sun" }) + "</button>" +
     '<button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">' + icon("menu", { cls: "i-open" }) + icon("close", { cls: "i-close" }) + "</button>" +
     "</div></div></header>"
@@ -46,14 +44,10 @@ export function nav(active) {
 }
 
 export function footer() {
-  const items = SITES.map((s) => '<li><a href="' + esc(s.href) + '"' + EXT + ">" + esc(s.name) + "</a></li>").join("");
   return (
-    '<footer class="site-footer"><div class="wrap footer-grid">' +
-    '<div class="footer-brand"><img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />' +
-    '<p>&copy; 2026 BitPrairie LLC<br /><a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></p></div>' +
-    '<div class="footer-notes"><p>This is a demo, not the FiberShare app. Support is not ownership or an investment return.</p>' +
-    "<p>Predator Watch and Wildfire Watch use intelligence systems trained by BitPrairie.</p></div>" +
-    '<ul class="footer-links" aria-label="Related sites">' + items + "</ul>" +
+    '<footer class="site-footer"><div class="wrap footer-row">' +
+    '<img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="" width="28" height="28" />' +
+    "<p>BitPrairie LLC</p>" +
     "</div></footer>"
   );
 }
