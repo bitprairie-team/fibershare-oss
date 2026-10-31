@@ -64,7 +64,7 @@ test("quiet rule: over 2 hours opens an alert, a new uplink starts a new one, ne
   assert.equal(trackerAlerts(animal("2026-09-06T10:00:00Z"), "2026-09-06T12:30:00Z").length, 1);
 });
 
-test("SOS, predator and smoke alerts; a cleared event stays until answered", () => {
+test("SOS, Predator Watch and Wildfire Watch alerts; a cleared event stays until answered", () => {
   const sos = trackerAlerts([{ id: "t2", name: "Tracker 2", lastSeen: "2026-09-06T12:00:00Z", sensors: { sos: true } }], "2026-09-06T12:05:00Z");
   assert.equal(sos[0].kind, "sos");
   const events = [
@@ -74,7 +74,7 @@ test("SOS, predator and smoke alerts; a cleared event stays until answered", () 
   ];
   const out = eventAlerts(events);
   assert.deepEqual(out.map((a) => [a.id, a.kind, a.cleared]), [["event:p1", "predator", true], ["event:s1", "smoke", false]]);
-  assert.deepEqual(out.map((a) => a.title), ["Predator report near A1", "Smoke upwind"]);
+  assert.deepEqual(out.map((a) => a.title), ["Predator Watch reported activity near A1", "Wildfire Watch reported smoke upwind"]);
 });
 
 test("sample day: the alerts follow the story, from the hourly check-ins", () => {

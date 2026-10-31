@@ -10,8 +10,8 @@ Ranch support pays for animals and pasture. Support is not ownership or an inves
 
 ## What the demo shows
 
-- **Herd view.** 8 sample goats on a 6 by 4 paddock grid. The grid is a drawing, not GPS. Select a goat to see its breed, fiber, tracker battery, last check-in and check-ins per hour. Press Play to step through one made-up day of 28 events.
-- **Alerts.** Confirm or dismiss each alert, with an optional note, and reopen it from History. On sample data the answers stay in your browser.
+- **Herd view.** 8 sample goats on a paddock grid. The grid is a drawing, not GPS. Three numbers sit above it: trackers reporting in the last hour, open alerts and the last check-in. Select a goat to see its breed, battery, last check-in and grid cell. Play steps through one made-up day of 28 events, and Show all events opens the full log.
+- **Alerts.** Open alerts come from the trackers and from Predator Watch and Wildfire Watch. On the sample day the Predator Watch and Wildfire Watch reports are simulated. Confirm or dismiss each alert, with an optional note, and reopen it under Answered alerts. On sample data the answers stay in your browser.
 - **Fleece trace.** The `mohair-bramble` lot traced back through its fleece and shearing to the goat Bramble, using the draft records in `docs/schemas/examples/`. Switch the viewer between rancher, buyer and public to see what each record shares. The page also lists the sample fiber lots. Nothing is for sale.
 - **Setups.** Your own hardware, hosted by BitPrairie, or a mix, side by side.
 - **Rancher sign-in and map.** The public always gets hidden tracker data. A signed-in rancher gets real names and positions on a map with public map layers. See [docs/rancher-access.md](docs/rancher-access.md).
@@ -28,8 +28,8 @@ Ranch support pays for animals and pasture. Support is not ownership or an inves
 | Flags tracker batteries below 20% | Trackers on outside power are skipped |
 | Flags trackers that stop reporting | No check-in for over 2 hours |
 | Raises an alert when a tracker sends an SOS | The alert names the animal |
-| Lists predator reports near the herd | The sample day has one simulated report |
-| Lists smoke reports upwind of the herd | The rancher map adds public fire, smoke and air quality layers |
+| Lists Predator Watch reports near the herd | The sample day has one simulated report |
+| Lists Wildfire Watch smoke reports upwind | The rancher map adds public fire, smoke and air quality layers |
 | Traces a fiber lot back to the goat | Through the fleece and shearing records |
 
 The thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
@@ -46,7 +46,7 @@ The planned work covers grazing records for each paddock, learning each tracker'
 | Hosted by BitPrairie | BitPrairie runs the server and can supply the trackers. |
 | A mix | Your gateway and server on the ranch, with hosted alerts from BitPrairie. |
 
-The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. It is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted predator and smoke alerts run on BitPrairie's intelligence and realtime systems.
+The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. It is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's intelligence and realtime systems.
 
 | Open source (free) | BitPrairie (commercial) |
 | --- | --- |

@@ -111,3 +111,24 @@ export function keyMoments(events) {
   add("predator", "Predator", "predator", "predator-clear");
   return out.sort((a, b) => a.step - b.step);
 }
+
+/**
+ * The few numbers the herd view shows above the paddock. At most three, so
+ * the page stays easy to scan in a live demo.
+ * animals: [{ lastSeen }], openAlerts: count, nowMs: the clock to measure from.
+ * Returns [{ id, value, label, warn }]; value for "last" is an ISO time or "".
+ */
+export function herdStats({ animals = [], openAlerts = 0, nowMs = Date.now() } = {}) {
+  const seen = animals.map((a) => (a.lastSeen ? new Date(a.lastSeen).getTime() : NaN)).filter(Number.isFinite);
+  const reporting = seen.filter((t) => t <= nowMs && nowMs - t <= 3600000).length;
+  const latest = animals
+    .filter((a) => a.lastSeen && new Date(a.lastSeen).getTime() <= nowMs)
+    .map((a) => a.lastSeen)
+    .sort()
+    .pop();
+  return [
+    { id: "reporting", value: reporting + " of " + animals.length, label: "reporting in the last hour", warn: reporting < animals.length },
+    { id: "open", value: String(openAlerts), label: openAlerts === 1 ? "open alert" : "open alerts", warn: openAlerts > 0 },
+    { id: "last", value: latest || "", label: "last check-in", warn: false },
+  ];
+}

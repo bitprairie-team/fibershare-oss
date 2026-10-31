@@ -45,9 +45,11 @@ const BANNED = [
   /single pane/i,
   /\u2014/, // em dash
   /\u2013/, // en dash
-  /Predator Watch|Wildfire Watch/, // feature nicknames stay off the demo pages
   /Simulated day|In the demo|Partly built|Checkout planned/,
 ];
+
+// Real BitPrairie product names. They are allowed, spelled this way only.
+const PRODUCTS = ["Predator Watch", "Wildfire Watch"];
 
 // Place names: the copy says "the western US" and nothing more specific.
 const PLACES = /\b(Alaska|Arizona|California|Colorado|Idaho|Montana|Nevada|New Mexico|Oregon|Texas|Utah|Wyoming|Washington State|Dakota|Nebraska|Kansas|Oklahoma)\b/;
@@ -256,4 +258,36 @@ test("spreadPins: pins drawn at least the gap apart, inside the paddock, data un
     }
   assert.deepEqual(spreadPins(points.slice(0, 1), 340, 340), [{ id: "a", x: 66, y: 52 }]);
   assert.deepEqual(spreadPins(points, 0, 0).map((p) => p.x), [66, 70, 70, 1]);
+});
+
+test("copy: Predator Watch and Wildfire Watch are allowed and named where their alerts show", async () => {
+  const { eventAlerts } = await import("../src/alerts.js");
+  for (const name of PRODUCTS) assert.deepEqual(copyProblems(name + " reported activity"), [], name);
+  const titles = eventAlerts([
+    { id: "p", type: "predator", cell: "A1", time: "2026-09-06T16:40:00", text: "x" },
+    { id: "s", type: "smoke", time: "2026-09-06T12:30:00", text: "y" },
+  ]).map((a) => a.title);
+  assert.deepEqual(titles, ["Predator Watch reported activity near A1", "Wildfire Watch reported smoke upwind"]);
+  for (const t of titles) assert.ok(!/^[A-Z][\w ]+: /.test(t), "no colon label: " + t);
+  assert.match(src["map.js"], /Predator Watch/);
+  assert.match(src["map.js"], /Wildfire Watch/);
+  // Misspellings or nicknames of the products are not.
+  assert.ok(!/PredatorWatch|WildfireWatch|Predator watch|Wildfire watch/.test(Object.values(src).join("\n")));
+});
+
+test("herd view: at most 3 stats, and they are the ones a rancher scans", async () => {
+  const { herdStats } = await import("../src/herd-state.js");
+  const animals = herd.goats.map((g) => ({ lastSeen: g.lastSeen }));
+  const stats = herdStats({ animals, openAlerts: 4, nowMs: new Date("2026-09-06T18:05:00").getTime() });
+  assert.ok(stats.length <= 3, "at most 3 stats");
+  assert.deepEqual(stats.map((s) => s.id), ["reporting", "open", "last"]);
+  assert.equal(stats[0].value, "7 of 8");
+  assert.equal(stats[1].value, "4");
+  assert.match(stats[2].value, /T17:55/);
+  assert.deepEqual(herdStats().map((s) => s.value), ["0 of 0", "0", ""]);
+  // The page draws only what herdStats returns, with no icons.
+  assert.match(src["map.js"], /herdStats\(/);
+  assert.ok(!/stat-icon|feed-icon|alert-icon/.test(src["map.js"]), "no stat, event or alert icons");
+  assert.ok(!/data-moment|data-filter|data-herd-reset/.test(src["map.js"]), "one playback control, no jump-to chips or filters");
+  assert.match(src["map.js"], /<details class="disclosure feed-section"[^>]*><summary>Show all events/);
 });

@@ -8,8 +8,8 @@ export const JOBS = [
   { id: "battery", name: "Flags tracker batteries below " + ALERT_RULES.lowBatteryPercent + "%", detail: "Trackers on outside power are skipped." },
   { id: "quiet", name: "Flags trackers that stop reporting", detail: "An alert after " + quietHours + " hours with no check-in." },
   { id: "sos", name: "Raises an alert when a tracker sends an SOS", detail: "The alert names the animal." },
-  { id: "predator", name: "Lists predator reports near the herd", detail: "The sample day has one made-up report." },
-  { id: "smoke", name: "Lists smoke reports upwind of the herd", detail: "The rancher map also shows public fire, smoke and air quality layers." },
+  { id: "predator", name: "Lists Predator Watch reports near the herd", detail: "The sample day has one made-up report." },
+  { id: "smoke", name: "Lists Wildfire Watch smoke reports upwind", detail: "The rancher map also shows public fire, smoke and air quality layers." },
   { id: "trace", name: "Traces a fiber lot back to the goat", detail: "Through the fleece and shearing records." },
 ];
 
