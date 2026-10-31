@@ -43,7 +43,7 @@ BitPrairie LLC has one FiberShare app, at [fibershare.app](https://fibershare.ap
 
 [bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted app. It is not a copy of the app, and it is not this repository.
 
-[fibershare.dev](https://fibershare.dev) is part of the hosted FiberShare app, and it currently needs sign-in. [fibershare.us](https://fibershare.us) leads to the FiberShare app. Neither is this repository. This demo is a separate copy you run on your own hardware.
+The app needs sign-in. [fibershare.dev](https://fibershare.dev) leads to the bitprairie.com FiberShare page, and [fibershare.us](https://fibershare.us) leads to the app. Neither is this repository. This demo is a separate copy you run on your own hardware.
 
 The Wrangler file in this repo uses the Pages project name `fibershare-dev`. That is a label for publishing a copy of this demo. It is not the hosted FiberShare app, and it is not a second ranch site.
 

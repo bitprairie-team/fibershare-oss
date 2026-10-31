@@ -121,8 +121,9 @@ Screenshots will be retaken after the UI refresh.
 None of these sites is this repository:
 
 - [bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted FiberShare app.
-- [fibershare.dev](https://fibershare.dev) is part of the hosted FiberShare app. It currently needs sign-in.
+- [fibershare.dev](https://fibershare.dev) leads to the bitprairie.com FiberShare page.
 - [fibershare.us](https://fibershare.us) leads to the FiberShare app.
+- The FiberShare app at [fibershare.app](https://fibershare.app) needs sign-in.
 
 Do not open issues here about the FiberShare app, orders, or private herd data.
 
