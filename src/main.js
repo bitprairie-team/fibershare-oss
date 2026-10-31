@@ -10,7 +10,7 @@ import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 
 const routes = {
-  "/": { render: renderHome, title: "FiberShare · follow a herd" },
+  "/": { render: renderHome, title: "Home · FiberShare" },
   "/map": { render: renderMap, title: "Herd map · FiberShare" },
   "/shop": { render: renderShop, title: "Sample fiber · FiberShare" },
   "/architecture": {

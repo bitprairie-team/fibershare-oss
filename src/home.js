@@ -21,10 +21,10 @@ export function renderHome() {
     '<main class="wrap" id="main">' +
     '<section class="hero hero-split">' +
     '<div class="hero-title">' +
-    "<h1>FiberShare starts with the community.</h1>" +
+    "<h1>FiberShare is a community of local ranchers.</h1>" +
     "</div>" +
     '<div class="hero-aside">' +
-    '<p class="lede">Local ranchers share gear, alerts, and know-how. The goal is safe animals and ranches that last.</p>' +
+    '<p class="lede">Local ranchers share gear, alerts, and know-how to keep animals safe and keep ranches going.</p>' +
     '<p class="lede">This is a demo, not the FiberShare app. It uses sample goats and sample fiber.</p>' +
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="#/map">Open the herd map</a>' +
@@ -76,7 +76,7 @@ export function renderHome() {
     "</section>" +
     '<section class="section" id="get-started">' +
     '<h2 class="section-rule">Run a copy</h2>' +
-    "<p>You need Node 20 on your computer.</p>" +
+    "<p>You need Node 20 or newer.</p>" +
     "<pre><code>git clone " +
     REPO +
     ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +

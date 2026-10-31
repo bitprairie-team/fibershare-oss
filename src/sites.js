@@ -8,7 +8,7 @@ export const SITES = [
   {
     href: APP,
     name: "fibershare.app",
-    blurb: "The hosted FiberShare app from BitPrairie LLC. This is a demo, not the FiberShare app.",
+    blurb: "The hosted FiberShare app from BitPrairie LLC.",
   },
   {
     href: "https://www.bitprairie.com/fibershare",

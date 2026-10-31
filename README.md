@@ -1,8 +1,8 @@
 # FiberShare (open source)
 
-FiberShare is a ranch program from BitPrairie LLC. It started with goats, fiber, and ranches that want to last. It is growing into a network of local ranchers in southern Oregon ranch country, plus practical gear on the ranch: collar trackers, paddock cameras, and predator and wildfire detection.
+FiberShare is a ranch program from BitPrairie LLC. It started with goats, fiber, and keeping ranches going. It is growing into a network of local ranchers in southern Oregon ranch country, with gear on the ranch: collar trackers, paddock cameras, and predator and wildfire detection.
 
-The goal is simple. Help ranchers keep animals safe. Help local communities and local government programs get early warning. Keep local supply chains going.
+The aim is to keep animals safe, give local communities and local government programs early warning, and keep local supply chains going.
 
 Support for a ranch pays for animals and pasture. It is not ownership or an investment return.
 
@@ -14,17 +14,17 @@ This repository is a demo. It is for people who want to read the code, run a sam
 2. **Join the community network.** Share with other ranchers through a self-hosted or co-op setup. This is the main part of the project. It is non-commercial, and it is fine for research use.
 3. **Join the commercial network.** Use BitPrairie's hosted services and ready-to-go gear. This part is small. It mainly covers the cost of hardware and hosting.
 
-## Three simple setups
+## Three setups
 
 These match the setups on [bitprairie.com](https://www.bitprairie.com).
 
 | Setup | What it means |
 | --- | --- |
 | Your own hardware | You build or buy the gear and run it yourself. |
-| Hosted by us | BitPrairie runs the hosting for you. |
+| Hosted by BitPrairie | BitPrairie runs the hosting for you. |
 | A mix of both | Your gear on the ranch, with BitPrairie hosting the parts you choose. |
 
-The gear is meant to hold up outside: 3D-printed ASA enclosures, modern solar panels, and LoRa radios.
+The gear is meant to hold up outside: 3D-printed ASA cases, solar panels, and LoRa radios.
 
 ## What is open, and what BitPrairie offers
 
@@ -45,7 +45,7 @@ Only BitPrairie's own trained models stay private. The open public models it bui
 - **Wildfire Watch** at [bitprairie.com/wildfire-watch](https://bitprairie.com/wildfire-watch/): early wildfire detection.
 - **moqFeeder**: a related project for paddock video over Media over QUIC.
 
-Predator Watch and Wildfire Watch share sensing modules on the same LoRa and solar edge platform.
+Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch.
 
 The feed of livestock movement and distress events from LoRa collars to Predator Watch is built and tested. The feed of ranch sensor readings to Wildfire Watch is still being built.
 
@@ -69,7 +69,7 @@ An upload page at upload.bitprairie.com is coming soon. People on the [mailing l
 - Explains ranch support.
 - Runs locally with Node 20.
 
-There are no secrets in this repo. No API keys. No mail settings. No real collar data.
+This repo has no secrets: no API keys, no mail settings, and no real collar data.
 
 ## Quick start
 
@@ -118,7 +118,11 @@ Screenshots will be retaken after the UI refresh.
 
 ## Where things live
 
-[bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted FiberShare app. It is not this repository. [fibershare.dev](https://fibershare.dev) is part of the hosted FiberShare app, and it currently needs sign-in. It is not this repository. [fibershare.us](https://fibershare.us) leads to the FiberShare app.
+None of these sites is this repository:
+
+- [bitprairie.com/fibershare](https://www.bitprairie.com/fibershare) is BitPrairie's FiberShare project page. It explains the program and links on to the hosted FiberShare app.
+- [fibershare.dev](https://fibershare.dev) is part of the hosted FiberShare app. It currently needs sign-in.
+- [fibershare.us](https://fibershare.us) leads to the FiberShare app.
 
 Do not open issues here about the FiberShare app, orders, or private herd data.
 

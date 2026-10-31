@@ -28,7 +28,7 @@ Do not post device IDs, gateway sites, or where cameras or microphones are place
 ### Developers
 
 - Improve the demo pages, the herd map, and the sample data.
-- Help set up the planned CI that runs lint, tests, and the build on every pull request.
+- Keep CI passing. It runs lint, tests, and the build on every pull request, on Node 20 and 22.
 - Help build the planned fake-data demo pages. See [ROADMAP.md](ROADMAP.md).
 - Comment on the draft schemas and interfaces once they are posted.
 
@@ -83,7 +83,7 @@ A pull request is the change you ask us to add.
 
 - Herd map keyboard focus, legends, or more sample animals
 - Fiber fields in `public/data/shop.json`, with no prices
-- Easier pages, including the dark theme
+- Pages that are easier to read and use, including in the dark theme
 - Docs for how the demo is built, and how to publish a copy
 
 ## Code style

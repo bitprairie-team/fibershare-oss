@@ -6,12 +6,12 @@ How this open-source repository fits into FiberShare and BitPrairie's wider work
 
 FiberShare is for ranchers, local communities, and local government programs in southern Oregon ranch country. It is also for anyone who wants to run the same kind of system on their own land.
 
-The project brings together a network of local ranchers and practical gear on the ranch: collar trackers, paddock cameras and live video, and predator and wildfire detection. That network supports public infrastructure and local supply chains that can last.
+The project is a network of local ranchers with gear on the ranch: collar trackers, paddock cameras and live video, and predator and wildfire detection. The network gives early warning to local communities and local government programs, and it helps keep local supply chains going.
 
 ## Three ways to take part
 
 1. **Your own local system.** Free and open source. You run it.
-2. **The community network.** Non-commercial. Self-hosted or run as a co-op. This comes first, and it is the main story of this repository.
+2. **The community network.** Non-commercial. Self-hosted or run as a co-op. This comes first. It is the main focus of this repository.
 3. **The commercial network.** BitPrairie's hosted services and gear. It is kept small. It mainly exists to cover the cost of hardware and hosting.
 
 Each can use one of three setups: your own hardware, hosted by BitPrairie, or a mix of both.
@@ -35,7 +35,7 @@ Each can use one of three setups: your own hardware, hosted by BitPrairie, or a 
 
 Only BitPrairie's own trained models and datasets stay private, and they are not published in this repository. The open public models BitPrairie builds on keep their own licenses.
 
-> **Open question for the owner:** The license stays MIT. Should the community and commercial split ever call for a different license on some parts? Nothing is decided. This note is only a placeholder for that discussion.
+> **License:** The license stays MIT. Whether some parts should ever use a different license is an open question. Nothing is decided.
 
 ## One FiberShare app
 
@@ -55,11 +55,11 @@ These are described here only so the pieces make sense together. Details live on
 - [Wildfire Watch](https://bitprairie.com/wildfire-watch/) looks for early signs of wildfire. The feed of ranch sensor readings from FiberShare to Wildfire Watch is still being built. A relay to local and government alerting systems is planned.
 - moqFeeder is a related project for paddock video over Media over QUIC.
 
-Predator Watch and Wildfire Watch share sensing modules on the same LoRa and solar edge platform. The detection side uses intelligence systems trained by BitPrairie.
+Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch. The detection side uses intelligence systems trained by BitPrairie.
 
 An upload page at upload.bitprairie.com is coming soon. People on the mailing list will get upload access.
 
-## Data and trust
+## Your data
 
 - Location data is stripped or blurred, so no one can tell where a photo or an animal was.
 - Training data stays on BitPrairie's own hardware, for training and testing only. No one else sees it.
@@ -80,7 +80,7 @@ It includes:
 
 The sample goats are not a real ranch herd. The pins are positions on a drawing.
 
-Ranch support, on this demo, is an explanation only. Support pays for animals and pasture. It is not ownership or an investment return.
+This demo only explains ranch support. Support pays for animals and pasture. It is not ownership or an investment return.
 
 ## What stays open
 
@@ -94,11 +94,11 @@ Ranch support, on this demo, is an explanation only. Support pays for animals an
 
 These are proposed. None is final, and each will start as a draft for comment.
 
-- Draft: the FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`
-- Draft: event and alert schemas
-- Draft: a LoRa uplink payload format
-- Draft: an alert-routing plugin interface, so alerts can go to the tools a community already uses
-- Draft: a bring-your-own-model hook, so a self-hosted system can use its own intelligence systems
+- The FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`
+- Event and alert schemas
+- A LoRa uplink payload format
+- An alert-routing plugin interface, so alerts can go to the tools a community already uses
+- A bring-your-own-model hook, so a self-hosted system can use its own intelligence systems
 
 ## What stays private
 
@@ -116,7 +116,7 @@ Do not add keys, tokens, internal hostnames, or internal URLs. Do not add coordi
 ## Next steps
 
 1. Keep the public pages and docs describing this repository as the demo, and the FiberShare app as the one product.
-2. Tests for the sample JSON files and for `/api/health`, plus a lint step, already exist (`npm test` and `npm run lint`), so a change can be tested without the private app. Planned: run them automatically on every pull request (CI).
+2. Tests for the sample JSON files and for `/api/health`, plus a lint step, exist (`npm test` and `npm run lint`), so a change can be tested without the private app. CI runs them and the build on every pull request.
 3. Planned: add a short guide for publishing your own copy of this demo. If a store for demo data is added later, it stays limited to sample or contributor-owned fictional herds.
 4. Planned: add demo pages that show the larger idea with fake data only. See [ROADMAP.md](../ROADMAP.md).
 5. Planned: post the open interfaces above as drafts and ask for comment.
