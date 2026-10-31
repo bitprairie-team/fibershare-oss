@@ -28,7 +28,8 @@
     "preview": "vite preview",
     "pages:dev": "wrangler pages dev dist",
     "lint": "node scripts/lint.js",
-    "test": "node --test"
+    "test": "node --test test/*.test.js",
+    "chirpstack:pull": "node scripts/chirpstack/pull.js"
   },
   "devDependencies": {
     "@fontsource/ibm-plex-sans": "^5.3.0",

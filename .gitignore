@@ -7,3 +7,6 @@ dist/
 .env
 .env.*
 !.env.example
+# Live data from your own ChirpStack server. Never commit it.
+.local/
+!.env.example

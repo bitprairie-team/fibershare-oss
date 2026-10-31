@@ -5,13 +5,17 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./style.css";
 import { bindTheme, nav, footer } from "./layout.js";
 import { renderHome } from "./home.js";
-import { renderMap, bindMap } from "./map.js";
+import { renderMap, bindMap, leaveMap } from "./map.js";
+import { renderTrace, bindTrace } from "./trace.js";
+import { renderSetups } from "./setups.js";
 import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 
 const routes = {
   "/": { render: renderHome, title: "Home · FiberShare" },
-  "/map": { render: renderMap, title: "Herd map · FiberShare" },
+  "/map": { render: renderMap, title: "Herd view · FiberShare" },
+  "/trace": { render: renderTrace, title: "Fleece to fiber lot · FiberShare" },
+  "/setups": { render: renderSetups, title: "Three setups · FiberShare" },
   "/shop": { render: renderShop, title: "Sample fiber · FiberShare" },
   "/architecture": {
     render: renderArchitecture,
@@ -30,10 +34,10 @@ function renderNotFound() {
     '<main class="wrap" id="main">' +
     '<section class="page-head">' +
     "<h1>Page not found</h1>" +
-    '<p class="lede">This page isn\'t on FiberShare. Try Herd map, Fiber shop, or Home.</p>' +
+    '<p class="lede">This page isn\'t on FiberShare. Try the herd view, the fiber shop, or Home.</p>' +
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="#/">Home</a>' +
-    '<a class="btn btn-ghost" href="#/map">Herd map</a>' +
+    '<a class="btn btn-ghost" href="#/map">Herd view</a>' +
     '<a class="btn btn-ghost" href="#/shop">Fiber shop</a>' +
     "</div></section></main>" +
     footer()
@@ -72,11 +76,13 @@ async function render() {
   const route = routes[path];
   const title = route ? route.title : "Page not found · FiberShare";
   document.title = title;
+  leaveMap();
   const html = route ? await route.render() : renderNotFound();
   const app = document.getElementById("app");
   app.innerHTML = html;
   bindTheme(app);
   if (path === "/map") bindMap(app);
+  if (path === "/trace") bindTrace(app);
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {
     event.preventDefault();
     focusMain();

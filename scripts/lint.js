@@ -2,7 +2,7 @@ import { readdirSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-const roots = ["src", "functions"];
+const roots = ["src", "functions", "scripts"];
 
 function javascriptFiles(directory) {
   const files = [];

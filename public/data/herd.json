@@ -1,6 +1,6 @@
 {
   "ranch": "Community sample herd",
-  "note": "Sample goats for this demo. This is not a real ranch herd.",
+  "note": "Sample goats for this demo. This is not a real ranch herd. Positions are cells on a virtual paddock grid, not places on a map.",
   "updated": "2026-09-06",
   "goats": [
     {
@@ -9,9 +9,13 @@
       "breed": "Nigerian Dwarf",
       "color": "buckskin",
       "status": "on pasture",
-      "x": 28,
-      "y": 42,
-      "fiber": "fine, high-crimp"
+      "x": 34,
+      "y": 44,
+      "fiber": "fine, high-crimp",
+      "tracker": "Tracker 1",
+      "battery": 78,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 3, 2, 2, 3, 2, 2, 3, 4, 3, 2]
     },
     {
       "id": "thistle",
@@ -21,7 +25,11 @@
       "status": "near barn",
       "x": 62,
       "y": 35,
-      "fiber": "soft dual-coat"
+      "fiber": "soft dual-coat",
+      "tracker": "Tracker 2",
+      "battery": 64,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2]
     },
     {
       "id": "clover",
@@ -31,7 +39,11 @@
       "status": "creek side",
       "x": 48,
       "y": 68,
-      "fiber": "long staple mohair-blend"
+      "fiber": "long staple mohair-blend",
+      "tracker": "Tracker 3",
+      "battery": 71,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2]
     },
     {
       "id": "bramble",
@@ -41,7 +53,67 @@
       "status": "oak shade",
       "x": 72,
       "y": 58,
-      "fiber": "lustrous kid mohair"
+      "fiber": "lustrous kid mohair",
+      "tracker": "Tracker 4",
+      "battery": 83,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 3, 2, 2, 2, 3, 2, 2, 2, 5, 3, 2]
+    },
+    {
+      "id": "sage",
+      "name": "Sage",
+      "breed": "Pygora",
+      "color": "fawn",
+      "status": "oak shade",
+      "x": 80,
+      "y": 66,
+      "fiber": "fine cashmere-type down",
+      "tracker": "Tracker 5",
+      "battery": 58,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 2, 2, 2, 2, 3, 2, 2, 4, 2, 2]
+    },
+    {
+      "id": "willow",
+      "name": "Willow",
+      "breed": "Angora",
+      "color": "cream",
+      "status": "creek side",
+      "x": 55,
+      "y": 80,
+      "fiber": "curly adult mohair",
+      "tracker": "Tracker 6",
+      "battery": 69,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2]
+    },
+    {
+      "id": "pippin",
+      "name": "Pippin",
+      "breed": "Nigerian Dwarf",
+      "color": "black and white",
+      "status": "on pasture",
+      "x": 40,
+      "y": 30,
+      "fiber": "short, for felting",
+      "tracker": "Tracker 7",
+      "battery": 47,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 0, 0, 2, 2, 2, 2, 2, 4, 2, 2]
+    },
+    {
+      "id": "hazel",
+      "name": "Hazel",
+      "breed": "Angora mix",
+      "color": "brown",
+      "status": "near barn",
+      "x": 66,
+      "y": 52,
+      "fiber": "medium mohair-blend",
+      "tracker": "Tracker 8",
+      "battery": 19,
+      "lastSeen": "2026-09-06T17:55:00",
+      "uplinks": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
     }
   ]
 }

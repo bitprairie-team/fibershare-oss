@@ -64,12 +64,16 @@ An upload page at upload.bitprairie.com is coming soon. People on the [mailing l
 
 ## What this demo does
 
-- Shows sample goats on a pasture drawing. The pins are positions on the drawing. This is not a real ranch herd.
+- **Herd view.** Eight sample goats on a virtual paddock grid, 6 by 4 cells. The grid is a drawing, not GPS. Pick a goat to see its breed, fiber, tracker battery, last check-in, and check-ins per hour.
+- **A day of events.** A made-up day of tracker check-ins, a low battery, a quiet tracker, a wildfire smoke alert, and a predator alert. Every event is marked simulated. Press Play the day to step through it.
+- **Fleece to fiber lot.** Follow the sample goat Bramble from her shearing to her fleece to the `mohair-bramble` lot, using the draft records in `docs/schemas/examples/`. Switch between rancher, buyer, and public to see what each record shares.
+- **Three setups.** Your own hardware, hosted by BitPrairie, or a mix, side by side.
+- **Your own trackers, if you want.** Read your trackers from your own ChirpStack v4 server. See [docs/chirpstack.md](docs/chirpstack.md).
 - Lists sample fiber. You cannot check out.
 - Explains ranch support.
-- Runs locally with Node 20.
+- Runs locally with Node 20, and works offline from the bundled sample data.
 
-This repo has no secrets: no API keys, no mail settings, and no real collar data.
+This repo has no secrets: no API keys, no mail settings, and no real collar data. A test checks every committed file for DevEUI-like hex strings and coordinates.
 
 ## Quick start
 
@@ -91,24 +95,35 @@ Then open http://localhost:5173.
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 4 (needs Node 22 or newer), including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Runs the tests for the sample data, the record schemas, and `/api/health` |
+| `npm test` | Runs the tests for the sample data, the record schemas, the herd view, the ChirpStack pull, and `/api/health` |
+| `npm run chirpstack:pull` | Reads your trackers from your own ChirpStack server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
 
 `npm run dev` serves the pages and the sample JSON. The `/api/health` function is included when you use `npm run pages:dev` after `npm run build`.
 
-Sample goats and fiber are in `public/data/herd.json` and `public/data/shop.json`.
+Sample goats, the sample day of events, and fiber are in `public/data/herd.json`, `public/data/events.json`, and `public/data/shop.json`.
+
+## Live data from your own ChirpStack
+
+If you run ChirpStack v4 for LoRa trackers, `npm run chirpstack:pull` reads your devices on your own hardware and writes `.local/live.json`, which git ignores. `npm run dev` then shows a **Live from your ChirpStack** badge with a **Hide tracker details** setting next to it. The setting is on by default: aliases such as Tracker 3, no device IDs, tags, or positions, and grid cells from a hash. Turn it off to see real names, IDs, and positions, marked **Private: only on your own hardware**.
+
+The pull hides tracker details before it writes, unless you set `FIBERSHARE_HIDE_TRACKERS=0`, so by default the file holds no real names, IDs, or positions at all. The live file is only served by `npm run dev` and `npm run preview`. It is never part of `npm run build`.
+
+Setup, settings, and what is not checked yet: [docs/chirpstack.md](docs/chirpstack.md).
 
 ## How it is built
 
 ```
 Browser
   └── Cloudflare Pages (project name fibershare-dev)
-        ├── Pages (home, map, shop)
-        ├── /data/*.json  (sample goats and fiber)
+        ├── Pages (home, herd view, fleece to lot, shop, setups)
+        ├── /data/*.json  (sample goats, events, and fiber)
         └── Pages Functions
               └── /api/health  (says the site is up)
 ```
 
 The project name `fibershare-dev` is a label for a copy of this demo. It is not the FiberShare app.
+
+On your own hardware only, `npm run dev` also serves `.local/live.json` at `/live/live.json` when it exists.
 
 You can run the built files in `dist/` on your own server. You do not need an account to try the demo.
 

@@ -25,9 +25,9 @@ export function renderHome() {
     "</div>" +
     '<div class="hero-aside">' +
     '<p class="lede">Local ranchers share gear, alerts, and know-how to keep animals safe and keep ranches going.</p>' +
-    '<p class="lede">This is a demo, not the FiberShare app. It uses sample goats and sample fiber.</p>' +
+    '<p class="lede">This is a demo, not the FiberShare app. It uses sample goats and sample fiber, and can read your own ChirpStack server if you run one.</p>' +
     '<div class="cta-row">' +
-    '<a class="btn btn-primary" href="#/map">Open the herd map</a>' +
+    '<a class="btn btn-primary" href="#/map">Open the herd view</a>' +
     '<a class="btn btn-ghost" href="#join">Take part</a>' +
     "</div>" +
     '<p class="fine-print">Support pays for animals and pasture. Support is not ownership or an investment return.</p>' +
@@ -52,9 +52,17 @@ export function renderHome() {
     '<section class="section" aria-label="What this demo shows">' +
     '<h2 class="section-rule">What this demo shows</h2>' +
     '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd map</h3><p>Sample goats on a pasture drawing. This is not a real ranch herd. <a href="#/map">Open the herd map</a></p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Ranch support</h3><p>Support pays for animals and pasture. Support is not ownership or an investment return. This demo only explains it.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fiber shop</h3><p>Sample lots of fiber. You cannot buy them here. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Herd view</h3><p>Sample goats on a virtual paddock grid, with tracker battery and check-ins for each one. The grid is a drawing, not a map. <a href="#/map">Open the herd view</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>A day of events</h3><p>Play back a simulated day: check-ins, a weak battery, a tracker that goes quiet, a wildfire smoke alert, and a predator alert. None of it happened.</p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Fleece to fiber lot</h3><p>Follow the mohair-bramble lot back to Bramble the goat, and see what a buyer or the public may see of each record. <a href="#/trace">Follow the fleece</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">04</span><div><h3>Three setups</h3><p>Your own hardware, hosted by BitPrairie, or a mix. <a href="#/setups">Compare the setups</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">05</span><div><h3>Your own trackers, if you have them</h3><p>Point the demo at your own ChirpStack server and it shows your trackers in the herd view. Tracker details are hidden by default, and real names and positions only show on your own hardware. <a href="' +
+    REPO +
+    '/blob/main/docs/chirpstack.md"' +
+    EXT +
+    ">How to hook it up</a></p></div></li>" +
+    '<li><span class="feature-num" aria-hidden="true">06</span><div><h3>Fiber shop</h3><p>Sample lots of fiber. You cannot buy them here. <a href="#/shop">Browse sample fiber</a></p></div></li>' +
+    '<li><span class="feature-num" aria-hidden="true">07</span><div><h3>Ranch support</h3><p>Support pays for animals and pasture. Support is not ownership or an investment return. This demo only explains it.</p></div></li>' +
     "</ol>" +
     "</section>" +
     '<section class="section">' +

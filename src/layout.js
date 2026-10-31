@@ -19,8 +19,10 @@ const MARK =
 export function nav(active) {
   const links = [
     ["/", "Home"],
-    ["/map", "Herd map"],
+    ["/map", "Herd view"],
+    ["/trace", "Fleece to lot"],
     ["/shop", "Fiber shop"],
+    ["/setups", "Setups"],
     ["/architecture", "Build"],
   ]
     .map(([href, label]) => {

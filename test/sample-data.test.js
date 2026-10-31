@@ -120,7 +120,8 @@ test("location, device, and radio keys are rejected in any case or form", () => 
     { goats: [{ Latitude: 0, gps: { lng: 0 } }], node: { gatewayId: "", devEUI: "", RSSI: 0 } },
     "sample"
   );
-  assert.equal(found.length, 5);
+  // Latitude, gps, lng, gatewayId, devEUI, RSSI
+  assert.equal(found.length, 6);
 
   const sourceFound = privateSourceProblems(
     'export const pin = { lat: 1, "gateway_id": "g", devEui: "d" };\npin.rssi = -90;',

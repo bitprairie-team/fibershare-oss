@@ -1,5 +1,8 @@
 import { nav, footer } from "./layout.js";
 import { esc } from "./util.js";
+import { RECORDS } from "./records-data.js";
+
+const TRACEABLE = new Set(RECORDS.lots.map((lot) => lot.id));
 
 export async function renderShop() {
   let data;
@@ -26,7 +29,9 @@ export async function renderShop() {
         esc(p.fiber) +
         " · " +
         esc(p.grams) +
-        'g lot</p></div>' +
+        " g</p>" +
+        (TRACEABLE.has(p.id) ? '<p><a href="#/trace">Trace this lot back to the goat</a></p>' : "") +
+        "</div>" +
         '<div class="catalog-meta"><span class="badge">sample · not for sale</span></div></li>'
       );
     })
