@@ -53,7 +53,7 @@ You need Node 20 and a GitHub account.
 3. Run `npm run dev`.
 4. Open http://localhost:5173.
 
-`npm run build` writes the site to `dist/`. `npm run preview` serves that build. `npm run pages:dev` serves `dist/` with Wrangler 3, on Node 20, and answers `/api/health`.
+`npm run build` writes the site to `dist/`. `npm run preview` serves that build. `npm run pages:dev` serves `dist/` with Wrangler 4, which needs Node 22 or newer, and answers `/api/health`.
 
 Sample goats and fiber are in `public/data/herd.json` and `public/data/shop.json`.
 

@@ -1,6 +1,6 @@
 # Pages project name for a copy of this demo. This is not the FiberShare app.
-# Node 20: use wrangler v3 (wrangler v4 requires a newer Node).
-# CLI: npx wrangler@3 pages deploy dist --project-name=fibershare-dev
+# Wrangler 4 is a dev dependency. It needs Node 22 or newer.
+# CLI: npx wrangler pages deploy dist --project-name=fibershare-dev
 name = "fibershare-dev"
-compatibility_date = "2024-09-23"
+compatibility_date = "2026-10-01"
 pages_build_output_dir = "dist"

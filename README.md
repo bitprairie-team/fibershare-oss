@@ -73,7 +73,7 @@ There are no secrets in this repo. No API keys. No mail settings. No real collar
 
 ## Quick start
 
-You need Node 20.
+You need Node 20 or newer. `npm run pages:dev` needs Node 22 or newer.
 
 ```bash
 git clone https://github.com/steelhead99x/fibershare-oss.git
@@ -89,7 +89,7 @@ Then open http://localhost:5173.
 | `npm run dev` | Serves the local site with Vite at http://localhost:5173 |
 | `npm run build` | Builds the site into `dist/` |
 | `npm run preview` | Serves the built site |
-| `npm run pages:dev` | Serves `dist/` with Wrangler 3 on Node 20, including `/api/health` |
+| `npm run pages:dev` | Serves `dist/` with Wrangler 4 (needs Node 22 or newer), including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
 | `npm test` | Runs the tests for the sample JSON files and `/api/health` |
 
