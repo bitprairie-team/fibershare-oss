@@ -4,7 +4,7 @@ How this open-source repository fits into FiberShare and BitPrairie's wider work
 
 ## Who this is for
 
-FiberShare is for ranchers, local communities, and local government programs in southern Oregon ranch country. It is also for anyone who wants to run the same kind of system on their own land.
+FiberShare is for ranchers, local communities, and local government programs in the western US, and for anyone who wants to run the same kind of system on their own land.
 
 The project is a network of local ranchers with gear on the ranch: collar trackers, paddock cameras and live video, and predator and wildfire detection. The network gives early warning to local communities and local government programs, and it helps keep local supply chains going.
 

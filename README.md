@@ -1,6 +1,6 @@
 # FiberShare (open source)
 
-FiberShare is a ranch program from BitPrairie LLC. It started with goats, fiber, and keeping ranches going. It is growing into a network of local ranchers in southern Oregon ranch country, with gear on the ranch: collar trackers, paddock cameras, and predator and wildfire detection.
+FiberShare is a ranch program from BitPrairie LLC. It started with goats and fiber, and with keeping ranches going. Now it's growing into a network of local ranchers across the western US, with collar trackers, paddock cameras, and predator and wildfire detection on the ranch.
 
 The aim is to keep animals safe, give local communities and local government programs early warning, and keep local supply chains going.
 
