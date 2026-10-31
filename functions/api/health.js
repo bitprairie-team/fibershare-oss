@@ -1,7 +1,9 @@
-export async function onRequestGet() {
+export async function onRequestGet(context) {
+  const env = context?.env || {};
   return Response.json({
     ok: true,
     project: "fibershare-oss",
-    note: "Pages Function stub. Sample data stays in the JSON files. A store is planned.",
+    mode: "pages",
+    store: Boolean(env.FIBERSHARE_LIVE),
   });
 }

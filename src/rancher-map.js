@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { dynamicMapLayer, featureLayer } from "esri-leaflet";
 import { availableLayers, customLayer, DEFAULT_BASEMAP, KEYED_DEFAULT_BASEMAP, LAYERS, tileUrl } from "./map-layers.js";
 import { esc } from "./util.js";
+import { ALERT_RULES } from "./alert-config.js";
 
 const STATE_KEY = "fs-rancher-map";
 const CUSTOM_KEY = "fs-rancher-layers";
@@ -169,7 +170,7 @@ function panelHtml(layers, hasKey, state, custom) {
 
 /**
  * Show the map in el. options: { animals, apiKey, now, onSelect }.
- * Returns { select(id), destroy() }.
+ * Returns { select(id), setAlerts(ids), destroy() }.
  */
 export function mountRancherMap(el, { animals, apiKey, now, onSelect }) {
   const hasKey = Boolean(apiKey);
@@ -293,7 +294,7 @@ export function mountRancherMap(el, { animals, apiKey, now, onSelect }) {
     const latlng = [pos.latitude, pos.longitude];
     points.push(latlng);
     const classes = ["rancher-pin"];
-    if (Number.isFinite(animal.battery) && animal.battery < 25) classes.push("is-low");
+    if (Number.isFinite(animal.battery) && animal.battery < ALERT_RULES.lowBatteryPercent && !animal.externalPower) classes.push("is-low");
     if (animal.silent) classes.push("is-silent");
     if (animal.sensors?.sos) classes.push("is-sos");
     const marker = L.marker(latlng, {
@@ -312,6 +313,11 @@ export function mountRancherMap(el, { animals, apiKey, now, onSelect }) {
   return {
     select(id) {
       for (const [key, marker] of markers) marker.getElement()?.classList.toggle("is-active", key === id);
+    },
+    // Ring the trackers that have an open alert.
+    setAlerts(ids) {
+      const open = new Set(ids);
+      for (const [key, marker] of markers) marker.getElement()?.classList.toggle("has-alert", open.has(key));
     },
     destroy() {
       map.remove();

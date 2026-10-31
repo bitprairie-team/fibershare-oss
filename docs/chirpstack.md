@@ -1,6 +1,6 @@
 # Live data from your own ChirpStack
 
-The herd view can show your own LoRa trackers instead of the sample goats. This is optional. Without it, the demo uses the bundled sample data and works offline.
+The herd view can show your own LoRaWAN collar trackers instead of the sample goats. This is optional. Without it, the demo uses the bundled sample data and works offline.
 
 Run all of this on your own hardware, next to ChirpStack. Nothing here sends tracker data to BitPrairie or anywhere else.
 

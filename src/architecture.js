@@ -1,42 +1,40 @@
 import { nav, footer } from "./layout.js";
 import { REPO } from "./sites.js";
 import { EXT } from "./util.js";
+import { icon } from "./icons.js";
+
+function item(iconName, title, html, extra = "") {
+  return '<li class="tile"><div class="tile-head"><span class="tile-icon">' + icon(iconName) + "</span>" + extra + "</div><h3>" + title + "</h3><p>" + html + "</p></li>";
+}
 
 export function renderArchitecture() {
   return (
     nav("/architecture") +
     '<main class="wrap" id="main">' +
     '<section class="page-head">' +
-    "<h1>How this site is built</h1>" +
-    '<p class="lede">You can run it on your own hardware. You do not need an account.</p>' +
+    "<h1>How this demo is built</h1>" +
+    '<p class="lede">A small web app and a few server routes. You can run all of it on your own hardware, with no account.</p>' +
     "</section>" +
-    '<ol class="arch-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>The pages</h3><p>Home, the herd view, the fleece trace, the shop, and the setups page are simple web pages. You can run them yourself or publish a copy on Cloudflare Pages. This is a demo, not the FiberShare app.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Sample files</h3><p>Goat, event, and fiber data are in the public/data folder. Edit herd.json, events.json, and shop.json to change the samples. The fleece trace reads the record examples in docs/schemas/examples.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Health check</h3><p>A Pages Function is a small server step beside the site. Today it only answers /api/health to say the site is up. A store for sample herd and shop data behind that step is planned.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">04</span><div><h3>Your own ChirpStack, if you want it</h3><p><code>npm run chirpstack:pull</code> reads your trackers from a ChirpStack v4 server on your own hardware, over its REST API and, if you set it up, MQTT for decoded uplinks. By default it hides tracker details before writing: aliases such as Tracker 3, no device IDs, tags, or positions, and grid cells from a hash. It writes <code>.local/live.json</code>, which git ignores. <code>npm run dev</code> then shows a Live from your ChirpStack badge and a Hide tracker details setting. Real names and positions only show when you turn both layers off, on your own hardware. Without that file, the site uses the sample data.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">05</span><div><h3>Other sites</h3><p>bitprairie.com/fibershare is BitPrairie\'s FiberShare project page. It links on to the hosted app. fibershare.dev leads to the project page. fibershare.us leads to the app. The app needs sign-in. None of them is this demo.</p></div></li>' +
-    "</ol>" +
+    '<ul class="arch-list">' +
+    item("layers", "The pages", "Home, the herd view, the fleece trace, the shop, and the setups page are plain web pages built with Vite. Run them yourself or publish a copy on Cloudflare Pages.") +
+    item("grid", "Sample files", "The goats, the sample day, and the fiber lots are in public/data: herd.json, events.json, and shop.json. The fleece trace reads the record examples in docs/schemas/examples.") +
+    item("server", "Server routes", "<code>/api/health</code> says the site is up. <code>/api/live</code> sends tracker data: hidden for everyone, full only for a signed-in rancher. <code>/api/session</code> handles rancher sign-in, <code>/api/alerts</code> keeps a signed-in rancher's answers to alerts, and <code>/api/push</code> takes data sent from your own pull.") +
+    item("signal", "Your own ChirpStack", "<code>npm run chirpstack:pull</code> reads your trackers from a ChirpStack v4 server over REST, and MQTT if you set it up. It writes <code>.local/live.json</code>, which git ignores and the build never includes. Without that file the site uses the samples.") +
+    item("lock", "Rancher sign-in", "The server decides who sees what, on every request. On your own hardware, sign-in is a passphrase you set with <code>npm run rancher:passphrase</code>. On Cloudflare Pages, it is Cloudflare Access.") +
+    item("map", "The rancher map", "A signed-in rancher sees real positions on a map with public agency layers. The map code loads only for that view. If it cannot load, the tracker details still show each position.") +
+    item("alert", "Alerts and answers", "The rules are in <code>src/alerts.js</code> and the thresholds in <code>src/alert-config.js</code>. The browser and the server use the same code. Answers on sample data stay in your browser. A signed-in rancher's answers go to <code>.local/alert-feedback.json</code> on your own hardware, or to KV on Pages. Tuning the rules from the answers is planned.") +
+    item("bag", "Data stored in the cloud", "A store for sample herd and shop data behind the server routes.", '<span class="badge badge-planned">Planned</span>') +
+    "</ul>" +
     '<section class="section">' +
-    '<h2 class="section-rule">Help out</h2>' +
-    "<p>Keep secrets out of this repo. Do not add private ranch files, payment setup, or mail settings.</p>" +
-    "<p>The license is MIT. You may use, share, and change the code.</p>" +
-    "<p>You need a GitHub account to send a change. A pull request is the change you ask us to add.</p>" +
-    '<p><a href="' +
-    REPO +
-    "/blob/main/docs/DIRECTION.md\"" +
-    EXT +
-    ">Read how this demo relates to the FiberShare app</a></p>" +
-    '<p><a href="' +
-    REPO +
-    "/blob/main/CONTRIBUTING.md\"" +
-    EXT +
-    ">Read the contribution rules</a></p>" +
-    '<p class="cta-row"><a class="btn btn-primary" href="' +
-    REPO +
-    '"' +
-    EXT +
-    ">View the code</a></p>" +
+    '<div class="section-head"><div><h2>Help out</h2><p>The license is MIT. You may use, share, and change the code.</p></div></div>' +
+    '<ul class="card-grid">' +
+    '<li class="tile"><span class="tile-icon">' + icon("shield") + "</span><h3>Keep secrets out</h3><p>Do not add private ranch files, real tracker data, payment setup, or mail settings to the repo.</p></li>" +
+    '<li class="tile tile-link"><span class="tile-icon">' + icon("code") + "</span><h3>Send a change</h3><p>You need a GitHub account. A pull request is the change you ask us to add.</p>" +
+    '<a class="link-arrow stretch" href="' + REPO + '/blob/main/CONTRIBUTING.md"' + EXT + ">Contribution rules" + icon("external", { size: 16 }) + "</a></li>" +
+    '<li class="tile tile-link"><span class="tile-icon">' + icon("info") + "</span><h3>Demo and app</h3><p>This is a demo, not the FiberShare app. bitprairie.com/fibershare and fibershare.app are separate sites.</p>" +
+    '<a class="link-arrow stretch" href="' + REPO + '/blob/main/docs/DIRECTION.md"' + EXT + ">How they relate" + icon("external", { size: 16 }) + "</a></li>" +
+    "</ul>" +
+    '<div class="cta-row"><a class="btn btn-primary" href="' + REPO + '"' + EXT + ">View the code" + icon("external", { size: 16 }) + "</a></div>" +
     "</section></main>" +
     footer()
   );

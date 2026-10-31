@@ -23,8 +23,8 @@ flowchart LR
 
 | Job | What it reads | What it suggests | How it improves | Status |
 | --- | --- | --- | --- | --- |
-| **Find an animal in trouble** | Collar movement and SOS button presses | An alert naming the animal, with the readings that set it off | Confirmed and dismissed alerts set when the next one fires, so there are fewer false alarms | In use in the FiberShare app: alerts, and the rancher's confirm or dismiss. Built and tested: the movement and distress feed to Predator Watch. Planned: learning from the rancher's answers |
-| **Catch a dying or silent tracker** | Battery level, last check-in, signal at the gateway | Charge or swap a tracker, check a collar that went quiet, check a gateway that is missing readings | Learns each device's normal check-in pattern | In use in the FiberShare app: low-battery and quiet-tracker alerts. Also in this demo, with sample data. Planned: learning each device's pattern |
+| **Find an animal in trouble** | Collar movement and SOS button presses | An alert naming the animal, with the readings that set it off | Confirmed and dismissed alerts set when the next one fires, so there are fewer false alarms | In use in the FiberShare app: alerts, and the rancher's confirm or dismiss. In this demo: SOS, predator and smoke alerts with confirm or dismiss, on simulated sample alerts. Built and tested: the movement and distress feed to Predator Watch. Planned: learning from the rancher's answers |
+| **Catch a dying or silent tracker** | Battery level, last check-in, signal at the gateway | Charge or swap a tracker, check a collar that went quiet, check a gateway that is missing readings | Learns each device's normal check-in pattern | In use in the FiberShare app: low-battery and quiet-tracker alerts. In this demo: the same alerts from the sample herd or your own ChirpStack trackers, with confirm or dismiss, and each answer kept as a feedback record. Planned: learning each device's pattern, and tuning the rules from the answers |
 | **Plan the next paddock move** | Time each group spends in each paddock, forage notes, weather | When to move a group and where to | Compares each suggestion with what the rancher did and how the paddock recovered | Planned |
 | **Plan a move ahead of fire or smoke** | Ranch temperature, humidity and air readings, plus public fire, smoke and fire-weather layers | A move plan: which animals first, to where, through which gate | The rancher marks what worked after each event | Sensor feed to Wildfire Watch: being built. Move plans: Planned |
 | **Warn neighbors about predator activity** | Confirmed predator events from ranches that opt in | A heads-up to nearby ranchers when confirmed events cluster | More confirmed events make the pattern clearer | Planned. Shared events will be delayed and placed on a coarse grid, with no ranch names or real locations |
@@ -89,12 +89,15 @@ All of these share the same sensors, LoRa radios and solar power on the ranch.
 
 - **Herd view.** Eight sample goats on a virtual paddock grid, 6 by 4 cells. The grid is a drawing, not GPS. Pick a goat to see its breed, fiber, tracker battery, last check-in, and check-ins per hour.
 - **A day of events.** A made-up day of tracker check-ins, a low battery, a quiet tracker, a wildfire smoke alert and a predator alert, each marked simulated. Press Play the day to step through it.
+- **Alerts to answer.** Low-battery alerts (below 20% and not on outside power) and quiet-tracker alerts (nothing heard for over 2 hours) come from the tracker data. The sample Predator Watch and Wildfire Watch alerts are listed with them. Confirm or dismiss each one, with an optional note, and reopen it from the history list. The thresholds are in `src/alert-config.js`. On sample data and the public live view, answers stay in your browser. A signed-in rancher's answers go to `/api/alerts`, behind the same sign-in check as the real data: `.local/alert-feedback.json` on your own hardware, or the KV namespace on Pages. Each answer is kept as a feedback record with the rule that raised it. Planned: tuning the rules from those records.
+- **Six jobs, with their status.** The home page lists the six jobs above and marks each one In the demo, Partly built or Planned.
 - **Fleece to fiber lot.** Follow the sample goat Bramble from her shearing to her fleece to the `mohair-bramble` lot, using the draft records in `docs/schemas/examples/`. Switch between rancher, buyer and public to see what each record shares.
 - **Three setups**, side by side.
 - **Your own trackers.** Read your trackers from your own ChirpStack v4 server. See [docs/chirpstack.md](docs/chirpstack.md).
 - **Rancher sign-in and a real map.** The public always gets hidden tracker data. A signed-in rancher gets real names and positions on a map with public map layers: imagery, topo and street basemaps, wildfire perimeters and incidents, weather warnings, fire weather, smoke, air quality, federal land ownership, and any ArcGIS or GeoJSON layer you add. See [docs/rancher-access.md](docs/rancher-access.md).
-- **Sample fiber list** with no checkout, and a page that explains ranch support.
-- Runs on Node 20 and works offline from the bundled sample data.
+- **A guided tour for live demos.** Press Tour in the header. Nine short steps: what FiberShare is, the herd, a smoke alert, a predator alert, the alerts to answer, one goat up close, the fleece trace, the rancher map and the setups. The tour always uses the sample data, so it works offline. Arrow keys move between steps and Esc ends it. The last step has Reset demo, which clears the demo's saved settings except the theme.
+- **Sample fiber list** with no checkout, and a page that explains ranch support. Checkout and ranch support are Planned.
+- Runs on Node 20 or 22 and works offline from the bundled sample data.
 
 This repo has no secrets: no API keys, no mail settings and no real collar data. A test checks every committed file for DevEUI-like hex strings and coordinates.
 
@@ -122,7 +125,7 @@ Then open http://localhost:5173.
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 4 (Node 22 or newer), including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Tests the sample data, record schemas, herd view, ChirpStack pull, rancher sign-in, map layers and `/api/health` |
+| `npm test` | Tests the sample data, record schemas, herd view, ChirpStack pull, rancher sign-in, map layers, the alerts and their answers, and the server routes |
 | `npm run chirpstack:pull` | Reads your trackers from your ChirpStack server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
 | `npm run rancher:passphrase` | Sets the rancher sign-in passphrase for local mode. See [docs/rancher-access.md](docs/rancher-access.md) |
 | `npm run serve:local` | Serves `dist/` and the API on your own hardware at http://127.0.0.1:4174 |
@@ -132,7 +135,7 @@ Sample goats, events and fiber are in `public/data/herd.json`, `public/data/even
 
 ## Live data from your own ChirpStack
 
-If you run ChirpStack v4 for LoRa trackers, `npm run chirpstack:pull` reads your devices on your own hardware and writes `.local/live.json`, which git ignores. `npm run dev` then shows a **Live from your ChirpStack** badge, how long ago the data was pulled, and a **Hide tracker details** setting. Use `--watch=120` to keep pulling.
+If you run ChirpStack v4 for LoRaWAN collar trackers, `npm run chirpstack:pull` reads your devices on your own hardware and writes `.local/live.json`, which git ignores. `npm run dev` then shows a **Live from your ChirpStack** badge, how long ago the data was pulled, and a **Hide tracker details** setting. Use `--watch=120` to keep pulling.
 
 The page gets the data from `/api/live`, never from the file. Everyone gets the hidden view: aliases such as Tracker 3, no device IDs, tags or positions, and grid cells from a hash. Only a signed-in rancher gets real values, and only if the pull ran with `FIBERSHARE_HIDE_TRACKERS=0`. Sign-in is a passphrase on your own hardware, or Cloudflare Access on Pages, where `--push` sends the data to a KV namespace. The live file is never part of `npm run build`.
 
@@ -148,13 +151,14 @@ Browser
         └── Pages Functions
               ├── /api/health  (says the site is up)
               ├── /api/live    (hidden data, or full data for a signed-in rancher, from KV)
+              ├── /api/alerts  (a signed-in rancher's answers to alerts, in KV)
               ├── /api/session and /api/rancher/login  (Cloudflare Access sign-in)
               └── /api/push    (your pull sends data here with a token)
 ```
 
 `fibershare-dev` is the project name for a copy of this demo, not the FiberShare app.
 
-On your own hardware, `npm run dev`, `npm run preview` and `npm run serve:local` answer the same `/api/live` and `/api/session` from `.local/`. The rule for who gets what is in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
+On your own hardware, `npm run dev`, `npm run preview` and `npm run serve:local` answer the same `/api/live`, `/api/session` and `/api/alerts` from `.local/`. The rule for who gets what is in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
 
 You can run the built files in `dist/` on your own server. You do not need an account to try the demo.
 

@@ -28,7 +28,7 @@ export const applications = {
   ],
 };
 
-const PROFILE = "Fake T1000 profile";
+const PROFILE = "Fake tracker profile";
 
 function device(n, { batteryLevel, lastSeenAt, external = false, description = "", tags = {} }) {
   return {
@@ -124,7 +124,7 @@ export function fakePosition(n) {
   return { latitude: 10 + n / 1000 + 0.00012, longitude: 20 + n / 1000 + 0.00034 };
 }
 
-/** A fake ChirpStack JSON uplink event, T1000 style decoded object. */
+/** A fake ChirpStack JSON uplink event, reading-list style decoded object. */
 export function uplinkEvent(n, { time = "2026-09-06T17:58:00Z", sos = false, withPosition = true } = {}) {
   const pos = fakePosition(n);
   const readings = [

@@ -9,7 +9,7 @@ import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { createLocalApi } from "../server/local-api.js";
-import { LIVE_FILE, RANCHER_FILE, ROOT } from "../server/paths.js";
+import { ALERTS_FILE, LIVE_FILE, RANCHER_FILE, ROOT } from "../server/paths.js";
 
 const DIST = join(ROOT, "dist");
 const TYPES = {
@@ -66,7 +66,7 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.
   }
   const host = process.env.FIBERSHARE_HOST || "127.0.0.1";
   const port = Number(process.env.FIBERSHARE_PORT) || 4174;
-  const api = createLocalApi({ liveFile: LIVE_FILE, rancherFile: RANCHER_FILE });
+  const api = createLocalApi({ liveFile: LIVE_FILE, rancherFile: RANCHER_FILE, alertsFile: ALERTS_FILE });
   const files = staticHandler(DIST);
   createServer((req, res) => api(req, res, () => files(req, res))).listen(port, host, () => {
     console.log("serve:local: http://" + (host.includes(":") ? "[" + host + "]" : host) + ":" + port);

@@ -1,6 +1,7 @@
 import { nav, footer } from "./layout.js";
 import { REPO } from "./sites.js";
 import { EXT } from "./util.js";
+import { icon } from "./icons.js";
 
 const ROWS = [
   [
@@ -53,33 +54,33 @@ export function renderSetups() {
     "<h1>Three setups</h1>" +
     '<p class="lede">The same trackers and records can run three ways. Pick the one that fits your place. You can change later.</p>' +
     "</section>" +
-    '<ol class="setup-cards">' +
-    '<li class="setup-card"><span class="feature-num" aria-hidden="true">01</span><h2>Your own hardware</h2>' +
+    '<ol class="setup-cards" data-tour="setups">' +
+    '<li class="setup-card is-main"><div class="tile-head"><span class="tile-icon">' + icon("server") + '</span><span class="badge badge-live">Free and open source</span></div><h2>Your own hardware</h2>' +
     "<p>You build or buy the gear and run it yourself. Trackers talk over LoRa to a receiver on the ranch. A network server such as ChirpStack runs on your own hardware. Nothing has to leave the ranch.</p>" +
     '<p class="setup-fit">This suits ranchers who like to tinker, co-ops, and research groups.</p>' +
-    '<p><a href="' + REPO + '/blob/main/docs/chirpstack.md"' + EXT + ">Hook this demo up to your own ChirpStack</a></p></li>" +
-    '<li class="setup-card"><span class="feature-num" aria-hidden="true">02</span><h2>Hosted by BitPrairie</h2>' +
+    '<a class="link-arrow" href="' + REPO + '/blob/main/docs/chirpstack.md"' + EXT + ">Connect this demo to your ChirpStack" + icon("external", { size: 16 }) + "</a></li>" +
+    '<li class="setup-card"><div class="tile-head"><span class="tile-icon">' + icon("cloud") + "</span></div><h2>Hosted by BitPrairie</h2>" +
     "<p>BitPrairie runs the hosting for you and can supply ready-to-go gear. You need an internet link on the ranch. This part is small and mainly covers the cost of hardware and hosting.</p>" +
     '<p class="setup-fit">This suits ranchers who would rather not run a server.</p>' +
-    '<p><a href="https://www.bitprairie.com/fibershare"' + EXT + ">BitPrairie's FiberShare page</a></p></li>" +
-    '<li class="setup-card"><span class="feature-num" aria-hidden="true">03</span><h2>A mix of both</h2>' +
+    '<a class="link-arrow" href="https://www.bitprairie.com/fibershare"' + EXT + ">BitPrairie's FiberShare page" + icon("external", { size: 16 }) + "</a></li>" +
+    '<li class="setup-card"><div class="tile-head"><span class="tile-icon">' + icon("mix") + "</span></div><h2>A mix of both</h2>" +
     "<p>Your gear and server on the ranch, with BitPrairie hosting the parts you choose, such as alert relay. If the hosted side is down, the trackers and server on the ranch keep running.</p>" +
     '<p class="setup-fit">This suits ranchers who already run their own radios and want hosted alerts.</p></li>' +
     "</ol>" +
     '<section class="section">' +
-    '<h2 class="section-rule">Side by side</h2>' +
+    '<div class="section-head"><h2>Side by side</h2></div>' +
     '<div class="table-scroll"><table class="link-table compare-table"><thead><tr><th scope="col">Part</th><th scope="col">Your own hardware</th><th scope="col">Hosted by BitPrairie</th><th scope="col">A mix</th></tr></thead><tbody>' +
     table +
     "</tbody></table></div>" +
     "</section>" +
     '<section class="section">' +
-    '<h2 class="section-rule">In every setup</h2>' +
-    '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>No locations in public</h3><p>Public pages never show where an animal is. In this demo the public sees a virtual grid. Only a signed-in rancher sees their own trackers on a map.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Sharing is opt in</h3><p>Each rancher\'s event history is theirs. Planned: anything shared with agencies or researchers will be aggregated or delayed, with no exact locations.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Community first</h3><p>The community network, self-hosted or run as a co-op, is the main part of the project. It is free for non-commercial and research use.</p></div></li>' +
-    "</ol>" +
-    '<p class="fine-print">This is a demo, not the FiberShare app. Support for a ranch pays for animals and pasture. Support is not ownership or an investment return.</p>' +
+    '<div class="section-head"><h2>In every setup</h2></div>' +
+    '<ul class="card-grid cols-3">' +
+    '<li class="tile"><span class="tile-icon">' + icon("pin") + '</span><h3>No locations in public</h3><p>Public pages never show where an animal is. In this demo the public sees a virtual grid. Only a signed-in rancher sees their own trackers on a map.</p></li>' +
+    '<li class="tile"><span class="tile-icon">' + icon("shield") + '</span><h3>Sharing is opt in</h3><p>Each rancher\'s event history is theirs. Planned: anything shared with agencies or researchers will be aggregated or delayed, with no exact locations.</p></li>' +
+    '<li class="tile"><span class="tile-icon">' + icon("people") + '</span><h3>Community first</h3><p>The community network, self-hosted or run as a co-op, is the main part of the project. It is free for non-commercial and research use.</p></li>' +
+    "</ul>" +
+    '<p class="fine-print">Support for a ranch pays for animals and pasture. Support is not ownership or an investment return.</p>' +
     "</section></main>" +
     footer()
   );

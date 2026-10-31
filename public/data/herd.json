@@ -2,6 +2,7 @@
   "ranch": "Community sample herd",
   "note": "Sample goats for this demo. This is not a real ranch herd. Positions are cells on a virtual paddock grid, not places on a map.",
   "updated": "2026-09-06",
+  "uplinksStart": "2026-09-06T06:00:00",
   "goats": [
     {
       "id": "juniper",
@@ -15,7 +16,7 @@
       "tracker": "Tracker 1",
       "battery": 78,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 3, 2, 2, 3, 2, 2, 3, 4, 3, 2]
+      "uplinks": [2, 2, 3, 2, 2, 3, 2, 2, 3, 4, 3, 2]
     },
     {
       "id": "thistle",
@@ -29,7 +30,7 @@
       "tracker": "Tracker 2",
       "battery": 64,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2]
+      "uplinks": [2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2]
     },
     {
       "id": "clover",
@@ -43,7 +44,7 @@
       "tracker": "Tracker 3",
       "battery": 71,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2]
+      "uplinks": [2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2]
     },
     {
       "id": "bramble",
@@ -57,7 +58,7 @@
       "tracker": "Tracker 4",
       "battery": 83,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 3, 2, 2, 2, 3, 2, 2, 2, 5, 3, 2]
+      "uplinks": [2, 3, 2, 2, 2, 3, 2, 2, 2, 5, 3, 2]
     },
     {
       "id": "sage",
@@ -71,7 +72,7 @@
       "tracker": "Tracker 5",
       "battery": 58,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 2, 2, 2, 2, 3, 2, 2, 4, 2, 2]
+      "uplinks": [2, 2, 2, 2, 2, 2, 3, 2, 2, 4, 2, 2]
     },
     {
       "id": "willow",
@@ -79,13 +80,13 @@
       "breed": "Angora",
       "color": "cream",
       "status": "creek side",
-      "x": 55,
-      "y": 80,
+      "x": 50,
+      "y": 74,
       "fiber": "curly adult mohair",
       "tracker": "Tracker 6",
-      "battery": 69,
-      "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2]
+      "battery": 71,
+      "lastSeen": "2026-09-06T14:40:00",
+      "uplinks": [2, 2, 3, 2, 2, 2, 2, 3, 2, 0, 0, 0]
     },
     {
       "id": "pippin",
@@ -99,7 +100,7 @@
       "tracker": "Tracker 7",
       "battery": 47,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 0, 0, 2, 2, 2, 2, 2, 4, 2, 2]
+      "uplinks": [1, 0, 0, 0, 2, 2, 2, 2, 2, 4, 2, 2]
     },
     {
       "id": "hazel",
@@ -113,7 +114,7 @@
       "tracker": "Tracker 8",
       "battery": 19,
       "lastSeen": "2026-09-06T17:55:00",
-      "uplinks": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+      "uplinks": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
     }
   ]
 }

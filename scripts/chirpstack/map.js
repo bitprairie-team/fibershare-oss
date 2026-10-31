@@ -115,8 +115,8 @@ function sensorName(label) {
 /**
  * Pull known values out of a decoded uplink "object". Codecs differ, so this
  * looks for plain keys (latitude, temperature, ...) and for lists of
- * { type, measurementValue } items, which is how the SenseCAP T1000 codec
- * reports its readings. Not checked against a real T1000 uplink.
+ * { type, measurementValue } items, which is how some tracker codecs report
+ * their readings. Not checked against every codec.
  */
 export function decodeObject(object) {
   const out = {};

@@ -11,14 +11,17 @@ import { renderSetups } from "./setups.js";
 import { renderShop } from "./shop.js";
 import { renderArchitecture } from "./architecture.js";
 import { renderRancher, bindRancher } from "./rancher.js";
+import { tourAfterRender } from "./tour.js";
+import { skeleton } from "./skeleton.js";
+import { icon } from "./icons.js";
 
 const routes = {
   "/": { render: renderHome, title: "Home · FiberShare" },
-  "/map": { render: renderMap, title: "Herd view · FiberShare" },
+  "/map": { render: renderMap, title: "Herd view · FiberShare", skeleton: "herd" },
   "/trace": { render: renderTrace, title: "Fleece to fiber lot · FiberShare" },
   "/setups": { render: renderSetups, title: "Three setups · FiberShare" },
-  "/shop": { render: renderShop, title: "Sample fiber · FiberShare" },
-  "/rancher": { render: renderRancher, title: "Rancher sign-in · FiberShare" },
+  "/shop": { render: renderShop, title: "Sample fiber · FiberShare", skeleton: "grid" },
+  "/rancher": { render: renderRancher, title: "Rancher sign-in · FiberShare", skeleton: "panel" },
   "/architecture": {
     render: renderArchitecture,
     title: "How it is built · FiberShare",
@@ -34,19 +37,20 @@ function renderNotFound() {
   return (
     nav("") +
     '<main class="wrap" id="main">' +
-    '<section class="page-head">' +
+    '<section class="page-head"><div class="state">' +
+    '<span class="state-icon">' + icon("map", { size: 22 }) + "</span>" +
     "<h1>Page not found</h1>" +
-    '<p class="lede">This page isn\'t on FiberShare. Try the herd view, the fiber shop, or Home.</p>' +
+    "<p>There is no page at this address. Try the herd view or go back home.</p>" +
     '<div class="cta-row">' +
     '<a class="btn btn-primary" href="#/">Home</a>' +
     '<a class="btn btn-ghost" href="#/map">Herd view</a>' +
-    '<a class="btn btn-ghost" href="#/shop">Fiber shop</a>' +
-    "</div></section></main>" +
+    "</div></div></section></main>" +
     footer()
   );
 }
 
 let firstRender = true;
+let renderToken = 0;
 
 /** Tell screen readers which page is now showing. */
 function announce(title) {
@@ -79,13 +83,21 @@ async function render() {
   const title = route ? route.title : "Page not found · FiberShare";
   document.title = title;
   leaveMap();
-  const html = route ? await route.render() : renderNotFound();
   const app = document.getElementById("app");
+  const token = ++renderToken;
+  // Async pages show a skeleton of the same shape first, so nothing jumps.
+  if (route?.skeleton) {
+    app.innerHTML = nav(path) + skeleton(route.skeleton) + footer();
+    bindTheme(app);
+  }
+  const html = route ? await route.render() : renderNotFound();
+  if (token !== renderToken) return; // a newer route won the race
   app.innerHTML = html;
   bindTheme(app);
   if (path === "/map") bindMap(app);
   if (path === "/trace") bindTrace(app);
   if (path === "/rancher") bindRancher(app);
+  app.querySelectorAll("[data-retry]").forEach((btn) => btn.addEventListener("click", () => render()));
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {
     event.preventDefault();
     focusMain();
@@ -94,10 +106,11 @@ async function render() {
   // move focus to the main content and announce the new page.
   if (firstRender) {
     firstRender = false;
-    return;
+  } else {
+    focusMain();
+    announce(title);
   }
-  focusMain();
-  announce(title);
+  tourAfterRender(app);
 }
 
 window.addEventListener("hashchange", render);

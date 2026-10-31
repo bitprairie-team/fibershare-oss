@@ -3,6 +3,7 @@ import { esc, EXT } from "./util.js";
 import { REPO } from "./sites.js";
 import { RECORDS } from "./records-data.js";
 import { traceLot, visibleRecord } from "./records.js";
+import { icon } from "./icons.js";
 
 const LOT_ID = "mohair-bramble";
 const VIEWER_LABELS = {
@@ -29,6 +30,11 @@ const FIELD_LABELS = {
 
 let viewer = "rancher";
 
+/** Back to the rancher's own view, for "Reset demo". */
+export function resetTrace() {
+  viewer = "rancher";
+}
+
 function value(key, v) {
   if (Array.isArray(v)) return v.map(esc).join(", ");
   if (key === "weightGrams") return esc(v) + " g";
@@ -36,28 +42,31 @@ function value(key, v) {
   return esc(v);
 }
 
+// Record IDs are long. Show them in a smaller mono face that can break anywhere.
+const ID_FIELDS = new Set(["id", "fleeceIds", "shearingId", "animalId"]);
+
 function card(kind, file, record, schemaFile) {
   const shown = visibleRecord(record, viewer);
   const audience = record?.sharing?.audience || "private";
   const head =
     '<header><span class="trace-kind">' + esc(kind) + "</span>" +
-    '<span class="badge' + (audience === "public" ? "" : " badge-quiet") + '">shared with ' + esc(audience) + "</span></header>";
+    '<span class="badge' + (audience === "public" ? " badge-live" : " badge-quiet") + '">' + (audience === "public" ? "Public" : "Shared with " + esc(audience)) + "</span></header>";
   if (!shown) {
     return (
       '<li class="trace-card is-hidden">' + head +
-      '<h3>Not shared with this viewer</h3><p class="muted">The rancher shares this ' + esc(kind.toLowerCase()) +
+      '<h3>' + icon("lock", { size: 16 }) + ' Not shared with this viewer</h3><p class="muted">The rancher shares this ' + esc(kind.toLowerCase()) +
       " record with " + esc(audience) + " only. The chain stops here for this viewer.</p></li>"
     );
   }
   const rows = Object.entries(shown.fields)
-    .map(([k, v]) => "<dt>" + esc(FIELD_LABELS[k] || k) + "</dt><dd>" + value(k, v) + "</dd>")
+    .map(([k, v]) => "<dt>" + esc(FIELD_LABELS[k] || k) + "</dt><dd" + (ID_FIELDS.has(k) ? ' class="fact-id"' : "") + ">" + value(k, v) + "</dd>")
     .join("");
   const hidden = shown.hidden.length
     ? '<p class="fine-print">Kept private: ' + shown.hidden.map((k) => esc(FIELD_LABELS[k] || k)).join(", ") + "</p>"
     : "";
   return (
     '<li class="trace-card">' + head +
-    "<h3><code>" + esc(record.id) + "</code></h3>" +
+    "<h3><code title=\"" + esc(record.id) + "\">" + esc(record.id) + "</code></h3>" +
     '<dl class="facts">' + rows + "</dl>" + hidden +
     '<p class="trace-file"><a href="' + REPO + "/blob/main/docs/schemas/" + esc(schemaFile) + '"' + EXT + ">" + esc(file) + "</a></p></li>"
   );
@@ -78,13 +87,13 @@ function chainHtml() {
   const out = [];
   for (const html of cards) {
     if (blocked) {
-      out.push('<li class="trace-card is-hidden"><p class="muted">Hidden because the record before it is not shared.</p></li>');
+      out.push('<li class="trace-card is-hidden"><header><span class="trace-kind">Hidden</span></header><p class="muted">Hidden because the record before it is not shared.</p></li>');
       continue;
     }
     out.push(html);
     if (html.includes("is-hidden")) blocked = true;
   }
-  return '<ol class="trace-chain" aria-label="From fiber lot back to the animal">' + out.join("") + "</ol>";
+  return '<ol class="trace-chain" data-tour="chain" aria-label="From fiber lot back to the animal">' + out.join("") + "</ol>";
 }
 
 export function renderTrace() {
@@ -99,9 +108,9 @@ export function renderTrace() {
     '<main class="wrap wrap-wide" id="main">' +
     '<section class="page-head">' +
     "<h1>From fleece to fiber lot</h1>" +
-    '<p class="lede">Follow the <code>mohair-bramble</code> lot back to the goat it came from, using the draft record examples in docs/schemas. Each record has its own sharing setting, set by the rancher.</p>' +
+    '<p class="lede">Follow the mohair-bramble lot back to Bramble, the goat it came from. Each record has its own sharing setting, and the rancher picks it.</p>' +
     "</section>" +
-    '<div class="trace-controls"><span class="row-meta">See it as</span><div class="chips" role="group" aria-label="Pick a viewer">' +
+    '<div class="trace-controls"><span class="row-meta" id="viewer-label">See it as</span><div class="segmented" role="group" aria-labelledby="viewer-label">' +
     chips +
     "</div></div>" +
     '<div data-chain aria-live="polite">' +
@@ -109,12 +118,12 @@ export function renderTrace() {
     "</div>" +
     '<section class="section">' +
     '<h2 class="section-rule">How it links</h2>' +
-    '<ol class="feature-list">' +
-    '<li><span class="feature-num" aria-hidden="true">01</span><div><h3>Lot to fleece</h3><p>The lot lists its fleeces in <code>fleeceIds</code>. One lot can hold many fleeces.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">02</span><div><h3>Fleece to shearing</h3><p>Each fleece names the shearing it came from in <code>shearingId</code>.</p></div></li>' +
-    '<li><span class="feature-num" aria-hidden="true">03</span><div><h3>Shearing to animal</h3><p>Each shearing names its animal in <code>animalId</code>, and has a date.</p></div></li>' +
-    "</ol>" +
-    '<p class="muted">Bramble is a sample goat. The weights and dates are made up. The record format is a draft for comment. <a href="' +
+    '<ul class="steps">' +
+    '<li class="tile"><span class="tile-icon">' + icon("bag") + '</span><h3>Lot to fleece</h3><p>The lot lists its fleeces in <code>fleeceIds</code>. One lot can hold many fleeces.</p></li>' +
+    '<li class="tile"><span class="tile-icon">' + icon("fleece") + '</span><h3>Fleece to shearing</h3><p>Each fleece names the shearing it came from in <code>shearingId</code>.</p></li>' +
+    '<li class="tile"><span class="tile-icon">' + icon("herd") + '</span><h3>Shearing to animal</h3><p>Each shearing names its animal in <code>animalId</code>, and has a date.</p></li>' +
+    "</ul>" +
+    '<p class="fine-print">Bramble is a sample goat. The weights and dates are made up. The record format is a draft, open for comment. <a href="' +
     REPO +
     '/blob/main/docs/schemas/README.md"' +
     EXT +

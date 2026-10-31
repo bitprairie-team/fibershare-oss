@@ -110,7 +110,7 @@ test("hidden live data has no names, DevEUIs, tags, descriptions, or positions",
     assert.ok(!text.toLowerCase().includes(device.devEui), "no DevEUI");
     assert.ok(!text.includes(device.name), "no device name");
   }
-  for (const word of ["fake-herd-north", "fake-blue", "Fake note", "Fake T1000", "latitude", "\"details\"", "\"tags\"", String(fakePosition(1).latitude)]) {
+  for (const word of ["fake-herd-north", "fake-blue", "Fake note", "Fake tracker profile", "latitude", "\"details\"", "\"tags\"", String(fakePosition(1).latitude)]) {
     assert.ok(!text.includes(word), "hidden export leaked " + word);
   }
   assert.deepEqual(leakProblems(hidden, full), []);
@@ -159,13 +159,13 @@ test("battery, status, and signal follow the ChirpStack values", async () => {
   assert.equal(signalBucket({}), null);
 });
 
-test("decodeObject reads plain keys and T1000 style readings, and ignores a 0,0 fix", () => {
+test("decodeObject reads plain keys and reading lists, and ignores a 0,0 fix", () => {
   assert.deepEqual(decodeObject({ latitude: 0, longitude: 0, temperature: 3.14159 }), { temperature: 3.1 });
   const plain = decodeObject({ data: { lat: 10.5, lng: 20.25, light: 9, sos: true, motionSegmentNumber: 4 } });
   assert.deepEqual(plain, { latitude: 10.5, longitude: 20.25, light: 9, motion: 4, sos: true });
-  const t1000 = decodeObject(uplinkEvent(4).payload.object);
-  assert.equal(t1000.latitude, fakePosition(4).latitude);
-  assert.equal(t1000.battery, 77);
+  const listed = decodeObject(uplinkEvent(4).payload.object);
+  assert.equal(listed.latitude, fakePosition(4).latitude);
+  assert.equal(listed.battery, 77);
   assert.deepEqual(decodeObject(null), {});
 });
 

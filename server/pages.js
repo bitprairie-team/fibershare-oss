@@ -4,6 +4,7 @@ import { isLiveData } from "../src/live-format.js";
 import { hiddenProblems } from "./push-check.js";
 import { accessToken, isRancher, teamHost, verifyAccessJwt } from "./access-jwt.js";
 import { liveBody, NO_STORE } from "./live-response.js";
+import { addFeedback, KV_FEEDBACK, parseFeedbackList } from "./alert-feedback.js";
 
 export const KV_HIDDEN = "live-hidden";
 export const KV_FULL = "live-full";
@@ -93,4 +94,43 @@ export async function postPush({ request, env }) {
   await store.put(KV_HIDDEN, JSON.stringify(hidden));
   await store.put(KV_FULL, JSON.stringify(full));
   return json(200, { ok: true, trackers: full.animals.length });
+}
+
+function sameSite(request) {
+  const origin = request.headers.get("Origin");
+  if (!origin) return true;
+  try {
+    return new URL(origin).host === new URL(request.url).host;
+  } catch {
+    return false;
+  }
+}
+
+async function alertGate({ request, env }, { fetchImpl, now }) {
+  if (!accessConfigured(env) || !(await isRancher(request, env, { fetchImpl, now }))) {
+    return json(401, { error: "Sign in as the rancher to see and answer alerts." });
+  }
+  if (!env.FIBERSHARE_LIVE) return json(503, { error: "No store is set up on this copy." });
+  return null;
+}
+
+/** GET /api/alerts: the rancher's answers to alerts. Signed-in ranchers only. */
+export async function getAlerts(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  const blocked = await alertGate(context, { fetchImpl, now });
+  if (blocked) return blocked;
+  const text = await context.env.FIBERSHARE_LIVE.get(KV_FEEDBACK);
+  return json(200, { feedback: parseFeedbackList(text) });
+}
+
+/** POST /api/alerts: confirm, dismiss, or reopen one alert, with an optional note. */
+export async function postAlerts(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  if (!sameSite(context.request)) return json(403, { error: "Answer alerts from this site." });
+  const blocked = await alertGate(context, { fetchImpl, now });
+  if (blocked) return blocked;
+  const text = await context.request.text();
+  if (text.length > 4096) return json(413, { error: "That answer is too long." });
+  const store = context.env.FIBERSHARE_LIVE;
+  const result = addFeedback(parseFeedbackList(await store.get(KV_FEEDBACK)), text, { now: new Date(now).toISOString() });
+  if (result.list) await store.put(KV_FEEDBACK, JSON.stringify(result.list));
+  return json(result.status, result.body);
 }

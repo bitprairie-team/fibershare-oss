@@ -1,7 +1,9 @@
 // The /api routes for your own hardware. Used by the Vite dev and preview
 // servers and by `npm run serve:local`. The full live file never leaves this
 // process unless the request carries a valid rancher session cookie.
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { addFeedback, parseFeedbackList } from "./alert-feedback.js";
 import { liveBody, NO_STORE } from "./live-response.js";
 import {
   checkSession,
@@ -53,12 +55,29 @@ function sameOrigin(req) {
  * options:
  *   liveFile     path to .local/live.json
  *   rancherFile  path to .local/rancher.json
+ *   alertsFile   path to .local/alert-feedback.json (answers to alerts)
  *   env          for ARCGIS_API_KEY
  *   secure       add Secure to the cookie (when served over https)
  *   now          clock for tests
  */
-export function createLocalApi({ liveFile, rancherFile, env = process.env, secure = false, now = () => Date.now() }) {
+export function createLocalApi({ liveFile, rancherFile, alertsFile, env = process.env, secure = false, now = () => Date.now() }) {
   const limiter = createLimiter();
+  const feedbackFile = alertsFile || join(dirname(rancherFile), "alert-feedback.json");
+  let writing = Promise.resolve();
+
+  const readFeedback = async () => {
+    try {
+      return parseFeedbackList(await readFile(feedbackFile, "utf8"));
+    } catch {
+      return [];
+    }
+  };
+  const writeFeedback = async (list) => {
+    await mkdir(dirname(feedbackFile), { recursive: true });
+    const tmp = feedbackFile + ".tmp";
+    await writeFile(tmp, JSON.stringify(list, null, 1) + "\n", { mode: 0o600 });
+    await rename(tmp, feedbackFile);
+  };
 
   const signedIn = (req) => {
     const record = readRecord(rancherFile);
@@ -108,6 +127,26 @@ export function createLocalApi({ liveFile, rancherFile, env = process.env, secur
         live = null;
       }
       return send(res, 200, liveBody({ live, rancher: signedIn(req), arcgisApiKey: env.ARCGIS_API_KEY }));
+    }
+
+    if (path === "/api/alerts") {
+      if (req.method !== "GET" && req.method !== "POST") return send(res, 405, { error: "Use GET or POST." }, { Allow: "GET, POST" });
+      if (req.method === "POST" && !sameOrigin(req)) return send(res, 403, { error: "Answer alerts from this site." });
+      if (!signedIn(req)) return send(res, 401, { error: "Sign in as the rancher to see and answer alerts." });
+      if (req.method === "GET") return send(res, 200, { feedback: await readFeedback() });
+      let text = "";
+      try {
+        text = await readBody(req);
+      } catch {
+        return send(res, 413, { error: "That answer is too long." });
+      }
+      // One write at a time, so two quick answers cannot overwrite each other.
+      const result = await (writing = writing.then(async () => {
+        const out = addFeedback(await readFeedback(), text, { now: new Date(now()).toISOString() });
+        if (out.list) await writeFeedback(out.list);
+        return out;
+      }));
+      return send(res, result.status, result.body);
     }
 
     if (path === "/api/health") return send(res, 200, { ok: true, project: "fibershare-oss", mode: "local" });

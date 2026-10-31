@@ -19,15 +19,17 @@ async function getJson(url) {
 async function loadLive() {
   try {
     const body = await getJson("/api/live");
-    if (!body || !isLiveData(body.live)) return null;
-    const rancher = body.view === "rancher";
+    const rancher = body?.view === "rancher";
+    if (!body || !isLiveData(body.live)) return { status: "missing", rancher };
     return {
+      status: "ok",
       live: body.live,
       rancher,
       arcgisApiKey: rancher && typeof body.arcgisApiKey === "string" ? body.arcgisApiKey : null,
     };
   } catch {
-    return null;
+    // No /api here: a static copy, or the local server is not running.
+    return { status: "noserver", rancher: false };
   }
 }
 
@@ -132,7 +134,8 @@ function liveView({ live, rancher, arcgisApiKey }) {
  * file, otherwise the bundled samples.
  */
 export async function loadHerd() {
-  const live = await loadLive();
+  const probe = await loadLive();
+  const live = probe.status === "ok" ? probe : null;
   if (live && !preferSample()) {
     const pulledAt = live.live.pulledAt || live.live.generatedAt;
     return {
@@ -164,11 +167,15 @@ export async function loadHerd() {
   return {
     mode: "sample",
     liveAvailable: Boolean(live),
+    // "missing": the server answered but has no live file. "noserver": no /api.
+    liveStatus: probe.status,
+    rancherSignedIn: probe.rancher,
     loadFailed,
     ranch: herd.ranch || "Sample herd",
     animals: herd.goats || [],
     events: events.events || [],
     now: SAMPLE_NOW,
     windowHours: 12,
+    uplinksStart: herd.uplinksStart || null,
   };
 }

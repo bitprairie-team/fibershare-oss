@@ -1,49 +1,111 @@
 import { nav, footer } from "./layout.js";
 import { esc } from "./util.js";
 import { getSession, signIn, signOut } from "./session.js";
+import { icon } from "./icons.js";
 
 let session = null;
+
+function mockMap() {
+  // A drawing of the rancher map, so this page and the tour work offline.
+  // The shapes and dots are made up. No real place or position.
+  const dots = [
+    [38, 42],
+    [44, 48],
+    [41, 55],
+    [52, 46],
+    [57, 58],
+    [48, 62],
+    [62, 50],
+    [35, 60],
+  ]
+    .map(([x, y]) => '<span class="dot" style="left:' + x + "%;top:" + y + '%"></span>')
+    .join("");
+  return (
+    '<div class="rancher-callout" data-tour="rancher-map">' +
+    "<h2>" + icon("map", { size: 22 }) + "What a signed-in rancher sees</h2>" +
+    '<div class="mock-map" role="img" aria-label="Drawing of the rancher map: tracker dots on a basemap, a dashed fire perimeter, and a layer list">' +
+    '<span class="zone" style="left:66%;top:12%;width:26%;height:30%"></span>' + dots +
+    '<span class="layer-chip"><strong>Layers</strong><span>Wildfire perimeters</span><span>Smoke from satellite</span><span>Federal land ownership</span></span></div>' +
+    "<p>Real tracker positions on a map, with layers from public agency services. Names, device IDs, and positions stay on the server until a rancher signs in.</p>" +
+    '<p class="fine-print">This is a drawing. The real map needs your own trackers and a sign-in.</p>' +
+    "</div>"
+  );
+}
+
+function card(iconName, title, html, kind = "") {
+  return (
+    '<div class="rancher-callout' + (kind ? " state-" + kind : "") + '">' +
+    '<h2><span class="state-icon">' + icon(iconName, { size: 20 }) + "</span>" + title + "</h2>" + html + "</div>"
+  );
+}
 
 export async function renderRancher() {
   session = await getSession();
   const error = new URLSearchParams(location.hash.split("?")[1] || "").get("error");
   let body;
   if (session.signedIn) {
-    body =
-      '<div class="rancher-callout"><p><span class="badge badge-private">Signed in as the rancher</span></p>' +
+    body = card(
+      "check",
+      'Signed in <span class="badge badge-private">Rancher</span>',
       "<p>The herd view now gets full tracker data from the server: real names, device IDs, and positions on a real map. Turn off <strong>Hide tracker details</strong> there to see them.</p>" +
-      '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view</a>' +
-      (session.mode === "local" ? '<button type="button" class="btn btn-ghost" data-sign-out>Sign out</button>' : "") +
-      "</div>" +
-      (session.mode === "access" ? '<p class="fine-print">Signed in through Cloudflare Access. Sign out from your Access app launcher.</p>' : "") +
-      "</div>";
-  } else if (session.mode === "local") {
-    body = session.passphraseSet
-      ? '<form class="signin" data-sign-in>' +
+        '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view' + icon("arrowRight", { size: 18 }) + "</a>" +
+        (session.mode === "local" ? '<button type="button" class="btn btn-ghost" data-sign-out>Sign out</button>' : "") +
+        "</div>" +
+        (session.mode === "access" ? '<p class="fine-print">Signed in through Cloudflare Access. Sign out from your Access app launcher.</p>' : ""),
+      "ok"
+    );
+  } else if (session.mode === "local" && session.passphraseSet) {
+    body = card(
+      "lock",
+      "Sign in",
+      '<form class="signin" data-sign-in novalidate>' +
         '<label for="passphrase">Rancher passphrase</label>' +
-        '<input id="passphrase" name="passphrase" type="password" autocomplete="current-password" required minlength="12" />' +
-        '<button type="submit" class="btn btn-primary">Sign in</button>' +
+        '<input id="passphrase" name="passphrase" type="password" autocomplete="current-password" required minlength="12" aria-describedby="passphrase-help" />' +
         '<p class="form-error" role="alert" data-error hidden></p>' +
-        '<p class="fine-print">The server on your own hardware checks the passphrase and sets a session cookie the page cannot read. It lasts 12 hours.</p>' +
+        '<button type="submit" class="btn btn-primary">Sign in</button>' +
+        '<p class="fine-print" id="passphrase-help">The server on your own hardware checks the passphrase and sets a session cookie the page cannot read. It lasts 12 hours.</p>' +
         "</form>"
-      : '<div class="rancher-callout"><p>No rancher passphrase is set on this server yet. On the hardware that runs it:</p>' +
-        "<pre><code>npm run rancher:passphrase</code></pre><p>Then reload this page.</p></div>";
+    );
+  } else if (session.mode === "local") {
+    body = card(
+      "lock",
+      "Set a passphrase first",
+      "<p>No rancher passphrase is set on this server yet. On the hardware that runs it:</p>" +
+        "<pre><code>npm run rancher:passphrase</code></pre><p>Then reload this page.</p>",
+      "warn"
+    );
   } else if (session.mode === "access") {
-    body =
-      '<div class="rancher-callout"><p>This copy uses Cloudflare Access. Sign in with the account your Access policy allows.</p>' +
-      (error === "access" ? '<p class="form-error" role="alert">Access did not let that sign-in through. Check the policy and try again.</p>' : "") +
-      '<div class="cta-row"><a class="btn btn-primary" href="' + esc(session.loginUrl || "/api/rancher/login") + '">Sign in with Cloudflare Access</a></div></div>';
+    body = card(
+      "lock",
+      "Sign in with Cloudflare Access",
+      "<p>This copy uses Cloudflare Access. Sign in with the account your Access policy allows.</p>" +
+        (error === "access" ? '<p class="form-error" role="alert">' + icon("alert", { size: 16 }) + "<span>Access did not let that sign-in through. Check the policy and try again.</span></p>" : "") +
+        '<div class="cta-row"><a class="btn btn-primary" href="' + esc(session.loginUrl || "/api/rancher/login") + '">Sign in with Cloudflare Access</a></div>'
+    );
+  } else if (session.noServer) {
+    body = card(
+      "wifiOff",
+      "The sign-in server did not answer",
+      "<p>This copy has no server routes, or the local server is not running. The rest of the demo works without it, on sample data.</p>" +
+        "<p>To sign in on your own hardware, start <code>npm run dev</code> or <code>npm run serve:local</code>.</p>" +
+        '<div class="cta-row"><button type="button" class="btn btn-ghost" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>" +
+        '<a class="btn btn-text" href="#/map">Open the sample herd</a></div>',
+      "warn"
+    );
   } else {
-    body =
-      '<div class="rancher-callout"><p>Rancher sign-in is not set up on this copy, so everyone sees the hidden view.</p>' +
-      "<p>On your own hardware, run <code>npm run rancher:passphrase</code>, then <code>npm run dev</code> or <code>npm run serve:local</code>. On Cloudflare Pages, set up Access as in docs/rancher-access.md.</p></div>";
+    body = card(
+      "info",
+      "Sign-in is not set up here",
+      "<p>Everyone sees the hidden view on this copy.</p>" +
+        "<p>On your own hardware, run <code>npm run rancher:passphrase</code>, then <code>npm run dev</code> or <code>npm run serve:local</code>. On Cloudflare Pages, set up Access as in docs/rancher-access.md.</p>"
+    );
   }
   return (
     nav("/rancher") +
     '<main class="wrap" id="main">' +
     '<section class="page-head"><h1>Rancher sign-in</h1>' +
-    '<p class="lede">The public sees trackers with hidden details: aliases, hashed grid cells, no device IDs or positions. A signed-in rancher gets the real data, checked by the server on every request.</p></section>' +
-    body +
+    '<p class="lede">The public sees trackers with the details hidden: aliases, grid cells from a hash, no device IDs or positions. A signed-in rancher gets the real data. The server checks on every request.</p></section>' +
+    '<div class="rancher-grid">' + body + mockMap() + "</div>" +
     "</main>" +
     footer()
   );
@@ -54,21 +116,36 @@ export function bindRancher(root) {
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const out = form.querySelector("[data-error]");
-    const button = form.querySelector("button");
+    const button = form.querySelector("button[type=submit]");
+    const input = form.passphrase;
+    const fail = (text) => {
+      out.innerHTML = icon("alert", { size: 16 }) + "<span></span>";
+      out.querySelector("span").textContent = text;
+      out.hidden = false;
+      input.setAttribute("aria-invalid", "true");
+      input.setAttribute("aria-describedby", "passphrase-help " + (out.id || (out.id = "passphrase-error")));
+      input.focus();
+    };
+    if (input.value.length < 12) {
+      fail("The passphrase is at least 12 characters.");
+      return;
+    }
+    out.hidden = true;
+    input.removeAttribute("aria-invalid");
     button.disabled = true;
+    button.textContent = "Signing in…";
     try {
       const result = await signIn(form.passphrase.value);
       if (result.ok) {
         location.hash = "#/map";
         return;
       }
-      out.textContent = result.error || "Sign-in failed.";
-      out.hidden = false;
+      fail(result.error || "That passphrase did not work. Check it and try again.");
     } catch {
-      out.textContent = "The server did not answer.";
-      out.hidden = false;
+      fail("The server did not answer. Check that it is running, then try again.");
     } finally {
       button.disabled = false;
+      button.textContent = "Sign in";
       form.passphrase.value = "";
     }
   });

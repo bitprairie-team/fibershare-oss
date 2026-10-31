@@ -9,7 +9,7 @@ export function sortEvents(events) {
  * State after the first `count` events. Animals start at their first
  * positioned event, or at their own x and y when no event has a position.
  */
-export function stateAt(animals, events, count) {
+export function stateAt(animals, events, count, { uplinksStart = null, now = null } = {}) {
   const sorted = sortEvents(events);
   const upto = sorted.slice(0, Math.max(0, count));
   const byId = new Map();
@@ -54,5 +54,60 @@ export function stateAt(animals, events, count) {
       if (animal.silent) state.silent = true;
     }
   }
+  // The sample day also has hourly uplink counts. Use them so "last check-in"
+  // moves on between the check-ins the event feed lists.
+  if (uplinksStart && now) {
+    for (const state of byId.values()) {
+      if (!state.lastSeen) continue;
+      const heard = heardBy(state.uplinks, uplinksStart, now);
+      if (heard && Date.parse(heard) > Date.parse(state.lastSeen)) state.lastSeen = heard;
+    }
+  }
   return { animals: [...byId.values()], alertCells: [...alerts.keys()], smoke, shown: upto };
+}
+
+function localIso(t) {
+  const d = new Date(t);
+  const p = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()) + ":00";
+}
+
+/**
+ * The latest uplink at or before `now`, from hourly counts that start at
+ * `startIso` (index 0 covers the first hour). Uplinks in an hour are spread
+ * evenly across it. Returns a local ISO time, or null.
+ */
+export function heardBy(uplinks, startIso, now) {
+  const start = Date.parse(startIso);
+  const end = Date.parse(now);
+  if (!Array.isArray(uplinks) || !Number.isFinite(start) || !Number.isFinite(end)) return null;
+  let best = null;
+  uplinks.forEach((count, i) => {
+    const n = Math.max(0, Math.floor(Number(count) || 0));
+    for (let k = 0; k < n; k++) {
+      const t = start + i * 3600000 + Math.round(((k + 1) * 3600000) / (n + 1));
+      if (t <= end && (best === null || t > best)) best = t;
+    }
+  });
+  return best === null ? null : localIso(best);
+}
+
+/**
+ * Steps worth jumping to in the sample day: each alert just before it
+ * clears, so the grid shows the alert and what the herd did about it.
+ * Returns [{ id, label, step, time }] in time order.
+ */
+export function keyMoments(events) {
+  const sorted = sortEvents(events);
+  const out = [];
+  const add = (id, label, startType, clearType) => {
+    const start = sorted.findIndex((e) => e.type === startType);
+    if (start < 0) return;
+    const clear = sorted.findIndex((e, i) => i > start && e.type === clearType && (!sorted[start].cell || e.cell === sorted[start].cell));
+    const step = clear > start ? clear : start + 1;
+    out.push({ id, label, step, time: sorted[start].time });
+  };
+  add("smoke", "Smoke", "smoke", "smoke-clear");
+  add("predator", "Predator", "predator", "predator-clear");
+  return out.sort((a, b) => a.step - b.step);
 }

@@ -1,5 +1,6 @@
 import { DISCORD, SITES } from "./sites.js";
 import { esc, EXT } from "./util.js";
+import { icon } from "./icons.js";
 
 const MARK =
   '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
@@ -16,107 +17,102 @@ const MARK =
   '<circle cx="16.25" cy="26.6" r="1.05" fill="#c49a6c"/>' +
   "</svg>";
 
+export const NAV_LINKS = [
+  ["/", "Home"],
+  ["/map", "Herd view"],
+  ["/trace", "Fleece to lot"],
+  ["/shop", "Fiber shop"],
+  ["/setups", "Setups"],
+  ["/architecture", "Build"],
+  ["/rancher", "Rancher"],
+];
+
 export function nav(active) {
-  const links = [
-    ["/", "Home"],
-    ["/map", "Herd view"],
-    ["/trace", "Fleece to lot"],
-    ["/shop", "Fiber shop"],
-    ["/setups", "Setups"],
-    ["/architecture", "Build"],
-    ["/rancher", "Rancher"],
-  ]
-    .map(([href, label]) => {
-      const on = active === href;
-      const cls = on ? ' class="active"' : "";
-      const cur = on ? ' aria-current="page"' : "";
-      return '<a href="#' + href + '"' + cls + cur + ">" + label + "</a>";
-    })
-    .join("");
+  const links = NAV_LINKS.map(([href, label]) => {
+    const on = active === href;
+    return '<a href="#' + href + '"' + (on ? ' class="active" aria-current="page"' : "") + ">" + label + "</a>";
+  }).join("");
   return (
     '<a class="skip-link" href="#main">Skip to content</a>' +
-    '<header class="site-header"><div class="wrap">' +
-    '<a class="brand" href="#/">' +
-    MARK +
-    "FiberShare <span>Demo</span></a>" +
-    '<button class="nav-toggle" type="button" data-nav-toggle aria-label="Toggle navigation menu" aria-expanded="false">' +
-    '<span aria-hidden="true">&#9776;</span> Menu</button>' +
-    '<nav class="nav" id="primary-nav" aria-label="Primary">' +
-    links +
-    '<a href="' +
-    DISCORD +
-    '"' +
-    EXT +
-    ">Discord</a>" +
-    '<button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle light or dark theme">Theme</button>' +
-    "</nav></div></header>"
+    '<header class="site-header"><div class="wrap header-row">' +
+    '<a class="brand" href="#/">' + MARK + '<span class="brand-name">FiberShare</span><span class="brand-tag">Demo</span></a>' +
+    '<nav class="nav" id="primary-nav" aria-label="Primary">' + links + "</nav>" +
+    '<div class="header-actions">' +
+    '<button class="btn btn-tour" type="button" data-tour-start>' + icon("tour", { size: 18 }) + "<span>Tour</span></button>" +
+    '<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">' + icon("moon", { cls: "i-moon" }) + icon("sun", { cls: "i-sun" }) + "</button>" +
+    '<button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">' + icon("menu", { cls: "i-open" }) + icon("close", { cls: "i-close" }) + "</button>" +
+    "</div></div></header>"
   );
 }
 
 export function footer() {
-  const items = SITES.map(
-    (s) => '<a href="' + esc(s.href) + '"' + EXT + ">" + esc(s.name) + "</a>"
-  ).join(" &middot; ");
+  const items = SITES.map((s) => '<li><a href="' + esc(s.href) + '"' + EXT + ">" + esc(s.name) + "</a></li>").join("");
   return (
-    '<footer class="site-footer"><div class="wrap">' +
-    '<small class="footer-brand"><img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />' +
-    '<span>&copy; 2026 BitPrairie LLC &middot; <a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></span></small>' +
-    "<small>This is a demo, not the FiberShare app. Support is not ownership or an investment return.</small>" +
-    "<small>Predator Watch and Wildfire Watch use intelligence systems trained by BitPrairie.</small><small>" +
-    items +
-    "</small></div></footer>"
+    '<footer class="site-footer"><div class="wrap footer-grid">' +
+    '<div class="footer-brand"><img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />' +
+    '<p>&copy; 2026 BitPrairie LLC<br /><a href="mailto:legal@bitprairie.com">legal@bitprairie.com</a></p></div>' +
+    '<div class="footer-notes"><p>This is a demo, not the FiberShare app. Support is not ownership or an investment return.</p>' +
+    "<p>Predator Watch and Wildfire Watch use intelligence systems trained by BitPrairie.</p></div>" +
+    '<ul class="footer-links" aria-label="Related sites">' + items + "</ul>" +
+    "</div></footer>"
   );
 }
 
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
+export function setTheme(next) {
+  document.documentElement.setAttribute("data-theme", next);
+  document.documentElement.style.colorScheme = next;
+}
+
+function closeMenu(root) {
+  root.querySelector("#primary-nav")?.classList.remove("is-open");
+  root.querySelector("[data-nav-toggle]")?.setAttribute("aria-expanded", "false");
+}
+
+let documentBound = false;
+
 export function bindTheme(root) {
   const stored = localStorage.getItem("fs-theme");
-  if (stored === "light" || stored === "dark") {
-    document.documentElement.setAttribute("data-theme", stored);
-    document.documentElement.style.colorScheme = stored;
-  }
+  if (stored === "light" || stored === "dark") setTheme(stored);
   const btn = root.querySelector("[data-theme-toggle]");
-  const syncLabel = () => {
-    const dark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (btn) btn.textContent = dark ? "Light" : "Dark";
-  };
-  syncLabel();
+  const sync = () => btn?.setAttribute("aria-label", currentTheme() === "dark" ? "Switch to light theme" : "Switch to dark theme");
+  sync();
   btn?.addEventListener("click", () => {
-    const next =
-      document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    document.documentElement.style.colorScheme = next;
+    const next = currentTheme() === "dark" ? "light" : "dark";
+    setTheme(next);
     localStorage.setItem("fs-theme", next);
-    syncLabel();
+    sync();
   });
 
-  // Mobile nav toggle
-  const navToggle = root.querySelector("[data-nav-toggle]");
-  const nav = root.querySelector("#primary-nav");
-  
-  navToggle?.addEventListener("click", () => {
-    const isOpen = nav?.classList.contains("is-open");
-    if (isOpen) {
-      nav?.classList.remove("is-open");
-      navToggle.setAttribute("aria-expanded", "false");
-    } else {
-      nav?.classList.add("is-open");
-      navToggle.setAttribute("aria-expanded", "true");
-    }
+  const toggle = root.querySelector("[data-nav-toggle]");
+  const menu = root.querySelector("#primary-nav");
+  toggle?.addEventListener("click", () => {
+    const open = !menu?.classList.contains("is-open");
+    menu?.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    if (open) menu?.querySelector("a")?.focus();
   });
+  menu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => closeMenu(root)));
 
-  // Close mobile nav when clicking a link
-  nav?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      nav?.classList.remove("is-open");
-      navToggle?.setAttribute("aria-expanded", "false");
-    });
+  // One set of document listeners for the life of the page, not one per render.
+  if (documentBound) return;
+  documentBound = true;
+  document.addEventListener("click", (event) => {
+    const app = document.getElementById("app");
+    const m = app?.querySelector("#primary-nav");
+    const t = app?.querySelector("[data-nav-toggle]");
+    if (m?.classList.contains("is-open") && !m.contains(event.target) && !t?.contains(event.target)) closeMenu(app);
   });
-
-  // Close mobile nav when clicking outside
-  document.addEventListener("click", (e) => {
-    if (!nav?.contains(e.target) && !navToggle?.contains(e.target)) {
-      nav?.classList.remove("is-open");
-      navToggle?.setAttribute("aria-expanded", "false");
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const app = document.getElementById("app");
+    const m = app?.querySelector("#primary-nav");
+    if (m?.classList.contains("is-open")) {
+      closeMenu(app);
+      app.querySelector("[data-nav-toggle]")?.focus();
     }
   });
 }

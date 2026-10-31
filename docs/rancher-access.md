@@ -102,6 +102,14 @@ The push needs `https`, except to localhost. The token is never printed, and it 
 - For the public it is locked on. It cannot show more, because the server only sent hidden data.
 - For a signed-in rancher it starts on, so real values stay off the screen until you turn it off. The choice is kept in your browser.
 
+## Answers to alerts
+
+The herd view raises an alert for a battery below 20% (unless the tracker is on outside power) and for a tracker with nothing heard for over 2 hours. The thresholds are in `src/alert-config.js`. You can confirm or dismiss each alert, with an optional note.
+
+- Public live view and sample data: answers stay in your browser, under `fs-alerts-public` and `fs-alerts-demo`. Reset demo clears them.
+- Signed-in rancher: answers go to `/api/alerts`. It has the same check as the full data. Without a valid sign-in, GET and POST get 401 and nothing is stored. A POST from another site gets 403. Local mode keeps the answers in `.local/alert-feedback.json`, owner-only. Pages keeps them in the `FIBERSHARE_LIVE` KV namespace under `alert-feedback`, and answers 503 if no namespace is bound.
+- Each answer is a feedback record: the alert id, its kind, the answer, the note, the time, and the threshold that raised it. The newest 2,000 are kept. Tuning the rules from these records is planned.
+
 ## Map layers
 
 Turn **Hide tracker details** off while signed in and the herd view shows a map. Each tracker is a pin with its alias. Click one for battery, last seen, position time, and sensors. The **Layers** panel picks a basemap and any overlays, and remembers your choice in your browser.
@@ -150,6 +158,7 @@ The server sends the key only to a signed-in rancher, and it never goes into the
 
 - Storing the full copy in R2 instead of KV, for a larger herd
 - More than one rancher, each seeing only their own trackers
+- Tuning the alert thresholds from the answers
 
 ## Not checked yet
 
