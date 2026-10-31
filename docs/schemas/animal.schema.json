@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fibershare/animal.schema.json",
+  "title": "Animal",
+  "description": "One fiber animal on the ranch. Draft for comment. Not final.",
+  "type": "object",
+  "required": [
+    "id",
+    "species",
+    "breed",
+    "name",
+    "sharing"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "A short id the rancher picks, such as bramble. Lower-case letters, numbers, and dashes."
+    },
+    "species": {
+      "type": "string",
+      "enum": [
+        "goat",
+        "sheep",
+        "alpaca",
+        "llama",
+        "rabbit",
+        "other"
+      ],
+      "description": "The kind of animal."
+    },
+    "breed": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "Breed as the rancher writes it, such as Angora or Pygora."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The animal's barn name. Not a person's name."
+    },
+    "tag": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "description": "Ear tag or herd number as painted or printed on the tag. Not an electronic or collar ID."
+    },
+    "birthYear": {
+      "type": "integer",
+      "minimum": 1980,
+      "maximum": 2100,
+      "description": "Year the animal was born."
+    },
+    "color": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "Coat color, such as white or silver."
+    },
+    "sharing": {
+      "type": "object",
+      "description": "What the rancher chooses to share from this record. Nothing is shared unless the rancher picks it.",
+      "required": [
+        "audience"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "audience": {
+          "type": "string",
+          "enum": [
+            "private",
+            "buyers",
+            "public"
+          ],
+          "description": "Who may see this record. private means only the rancher. buyers means people who buy fiber from this ranch. public means anyone."
+        },
+        "fields": {
+          "type": "array",
+          "description": "The fields in this record that the audience may see. Fields not listed stay private. The id is always shared so records can link.",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "species",
+              "breed",
+              "name",
+              "tag",
+              "birthYear",
+              "color"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

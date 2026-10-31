@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fibershare/shearing.schema.json",
+  "title": "Shearing",
+  "description": "One shearing of one animal. It links to the animal by animalId and date. Draft for comment. Not final.",
+  "type": "object",
+  "required": [
+    "id",
+    "animalId",
+    "date",
+    "sharing"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "A short id for this shearing, such as bramble-2026-03-14."
+    },
+    "animalId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The id of the animal that was shorn."
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "description": "Shearing date, written as YYYY-MM-DD."
+    },
+    "ageClass": {
+      "type": "string",
+      "enum": [
+        "kid",
+        "yearling",
+        "adult"
+      ],
+      "description": "Age class at this shearing. Mohair is often graded by it."
+    },
+    "sharing": {
+      "type": "object",
+      "description": "What the rancher chooses to share from this record. Nothing is shared unless the rancher picks it.",
+      "required": [
+        "audience"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "audience": {
+          "type": "string",
+          "enum": [
+            "private",
+            "buyers",
+            "public"
+          ],
+          "description": "Who may see this record. private means only the rancher. buyers means people who buy fiber from this ranch. public means anyone."
+        },
+        "fields": {
+          "type": "array",
+          "description": "The fields in this record that the audience may see. Fields not listed stay private. The id is always shared so records can link.",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "animalId",
+              "date",
+              "ageClass"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -30,7 +30,7 @@ Do not post device IDs, gateway sites, or where cameras or microphones are place
 - Improve the demo pages, the herd map, and the sample data.
 - Keep CI passing. It runs lint, tests, and the build on every pull request, on Node 20 and 22.
 - Help build the planned fake-data demo pages. See [ROADMAP.md](ROADMAP.md).
-- Comment on the draft schemas and interfaces once they are posted.
+- Comment on the draft record schemas in [`docs/schemas/`](docs/schemas/README.md).
 
 ## Ground rules
 

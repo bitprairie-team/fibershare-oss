@@ -21,7 +21,7 @@ Each can use one of three setups: your own hardware, hosted by BitPrairie, or a 
 ### Community (open)
 
 - This demo
-- Open schemas and interfaces, once drafted (see below)
+- Open schemas and interfaces (see below)
 - Self-hosting docs
 - Free to use for non-commercial and research work
 
@@ -88,17 +88,17 @@ This demo only explains ranch support. Support pays for animals and pasture. It 
 - The `/api/health` function
 - Docs for running the demo, publishing a copy, and sending a change
 - Fictional sample goats, fiber, ranches, and hardware nodes
-- Draft open interfaces, once proposed (see below)
+- Draft open interfaces (see below)
 
-## Planned open interfaces
+## Open interfaces
 
-These are proposed. None is final, and each will start as a draft for comment.
+None is final. Each one starts as a draft for comment.
 
-- The FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`
-- Event and alert schemas
-- A LoRa uplink payload format
-- An alert-routing plugin interface, so alerts can go to the tools a community already uses
-- A bring-your-own-model hook, so a self-hosted system can use its own intelligence systems
+- The FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in [`docs/schemas/`](schemas/README.md). Posted as a draft.
+- Planned: event and alert schemas
+- Planned: a LoRa uplink payload format
+- Planned: an alert-routing plugin interface, so alerts can go to the tools a community already uses
+- Planned: a bring-your-own-model hook, so a self-hosted system can use its own intelligence systems
 
 ## What stays private
 
@@ -119,4 +119,4 @@ Do not add keys, tokens, internal hostnames, or internal URLs. Do not add coordi
 2. Tests for the sample JSON files and for `/api/health`, plus a lint step, exist (`npm test` and `npm run lint`), so a change can be tested without the private app. CI runs them and the build on every pull request.
 3. Planned: add a short guide for publishing your own copy of this demo. If a store for demo data is added later, it stays limited to sample or contributor-owned fictional herds.
 4. Planned: add demo pages that show the larger idea with fake data only. See [ROADMAP.md](../ROADMAP.md).
-5. Planned: post the open interfaces above as drafts and ask for comment.
+5. The record format draft is posted in `docs/schemas/` for comment. Planned: post the other open interfaces above as drafts and ask for comment.

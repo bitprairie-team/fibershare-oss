@@ -1,0 +1,14 @@
+{
+  "id": "bramble-2026-03-14",
+  "animalId": "bramble",
+  "date": "2026-03-14",
+  "ageClass": "kid",
+  "sharing": {
+    "audience": "buyers",
+    "fields": [
+      "animalId",
+      "date",
+      "ageClass"
+    ]
+  }
+}

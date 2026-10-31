@@ -1,0 +1,17 @@
+{
+  "id": "mohair-bramble",
+  "fleeceIds": [
+    "bramble-2026-03-14-fleece"
+  ],
+  "form": "locks",
+  "weightGrams": 1200,
+  "color": "pearl",
+  "sharing": {
+    "audience": "public",
+    "fields": [
+      "fleeceIds",
+      "form",
+      "color"
+    ]
+  }
+}

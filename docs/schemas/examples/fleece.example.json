@@ -1,0 +1,15 @@
+{
+  "id": "bramble-2026-03-14-fleece",
+  "shearingId": "bramble-2026-03-14",
+  "weightGrams": 1350,
+  "micron": 24.5,
+  "color": "pearl",
+  "sharing": {
+    "audience": "buyers",
+    "fields": [
+      "shearingId",
+      "micron",
+      "color"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "bramble",
+  "species": "goat",
+  "breed": "Angora",
+  "name": "Bramble",
+  "tag": "B-07",
+  "birthYear": 2025,
+  "color": "pearl",
+  "sharing": {
+    "audience": "buyers",
+    "fields": [
+      "species",
+      "breed",
+      "name",
+      "birthYear",
+      "color"
+    ]
+  }
+}

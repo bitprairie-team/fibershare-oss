@@ -91,7 +91,7 @@ Then open http://localhost:5173.
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 4 (needs Node 22 or newer), including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Runs the tests for the sample JSON files and `/api/health` |
+| `npm test` | Runs the tests for the sample data, the record schemas, and `/api/health` |
 
 `npm run dev` serves the pages and the sample JSON. The `/api/health` function is included when you use `npm run pages:dev` after `npm run build`.
 

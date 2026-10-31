@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fibershare/fiber-lot.schema.json",
+  "title": "Fiber lot",
+  "description": "A batch of fiber made from one or more fleeces. Draft for comment. Not final.",
+  "type": "object",
+  "required": [
+    "id",
+    "fleeceIds",
+    "sharing"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The lot id, such as mohair-bramble."
+    },
+    "fleeceIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "The id of a fleece in this lot."
+      },
+      "description": "The fleeces in this lot."
+    },
+    "form": {
+      "type": "string",
+      "enum": [
+        "raw",
+        "washed",
+        "locks",
+        "roving",
+        "batt",
+        "yarn"
+      ],
+      "description": "What the fiber is now."
+    },
+    "weightGrams": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1000000,
+      "description": "Lot weight in grams."
+    },
+    "color": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "Lot color."
+    },
+    "sharing": {
+      "type": "object",
+      "description": "What the rancher chooses to share from this record. Nothing is shared unless the rancher picks it.",
+      "required": [
+        "audience"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "audience": {
+          "type": "string",
+          "enum": [
+            "private",
+            "buyers",
+            "public"
+          ],
+          "description": "Who may see this record. private means only the rancher. buyers means people who buy fiber from this ranch. public means anyone."
+        },
+        "fields": {
+          "type": "array",
+          "description": "The fields in this record that the audience may see. Fields not listed stay private. The id is always shared so records can link.",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "fleeceIds",
+              "form",
+              "weightGrams",
+              "color"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,6 +11,7 @@ This list covers the open demo and its open docs. It is not a plan for the Fiber
 - Tests for the sample JSON files and `/api/health` (`npm test`), and a lint step (`npm run lint`)
 - A Discord chat link for people working on the demo
 - CI that runs lint, tests, and the build on every pull request
+- A draft of the FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`, with fake examples only. It is posted for comment and is not final.
 
 ## Planned: checks and docs
 
@@ -29,7 +30,6 @@ All of these use fake data only.
 
 These are proposals. They will be posted as drafts for comment before anything is final.
 
-- The FiberShare record format (animal, shearing, fleece, fiber lot) as JSON Schemas in `docs/schemas/`, with fake examples only
 - Event and alert schemas
 - A LoRa uplink payload format
 - An alert-routing plugin interface
