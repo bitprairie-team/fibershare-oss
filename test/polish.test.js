@@ -336,6 +336,10 @@ test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by d
   const html = read("index.html");
   assert.ok(!/prefers-color-scheme: dark\)"\)\.matches/.test(html), "the system dark setting does not switch the theme");
   assert.match(html, /=== "dark" \? "dark" : "light"/);
+  assert.match(html, /meta name="theme-color" content="#f2ede4"/);
+  assert.match(html, /meta\.setAttribute\("content", t === "dark" \? "#161310" : "#f2ede4"\)/);
+  assert.match(src["layout.js"], /THEME_COLORS = \{ light: "#f2ede4", dark: "#161310" \}/);
+  assert.match(src["layout.js"], /meta\[name="theme-color"\]/);
 });
 
 test("layout: no template tells (caps labels, pill tags, boxed card grids, many filled buttons)", async () => {

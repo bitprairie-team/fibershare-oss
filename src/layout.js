@@ -56,9 +56,13 @@ function currentTheme() {
   return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
 
+const THEME_COLORS = { light: "#f2ede4", dark: "#161310" };
+
 export function setTheme(next) {
   document.documentElement.setAttribute("data-theme", next);
   document.documentElement.style.colorScheme = next;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLORS[next] || THEME_COLORS.light);
 }
 
 function closeMenu(root) {
