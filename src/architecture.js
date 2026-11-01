@@ -18,7 +18,7 @@ export function renderArchitecture() {
   const parts = PARTS.map(([k, v]) => "<dt>" + k + "</dt><dd>" + v + "</dd>").join("");
   return (
     nav("/architecture") +
-    '<main class="wrap" id="main">' +
+    '<main class="wrap editorial" id="main">' +
     '<section class="page-head">' +
     "<h1>How it works</h1>" +
     '<p class="lede">The demo is a small web app with a few server routes. All of it runs on your own hardware, with no account.</p>' +

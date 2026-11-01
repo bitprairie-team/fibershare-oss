@@ -337,3 +337,22 @@ test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by d
   assert.ok(!/prefers-color-scheme: dark\)"\)\.matches/.test(html), "the system dark setting does not switch the theme");
   assert.match(html, /=== "dark" \? "dark" : "light"/);
 });
+
+test("layout: no template tells (caps labels, pill tags, boxed card grids, many filled buttons)", async () => {
+  const rule = (sel) => (css.match(new RegExp("\\n" + sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + " \\{([^}]*)\\}")) || [])[1] || "";
+  assert.ok(!/text-transform:\s*uppercase/.test(css), "no all-caps labels");
+  assert.ok(!/border|radius/.test(rule(".tag")), "Planned is flat text, not a pill");
+  for (const sel of [".trace-card", ".alert-item", ".rancher-callout", ".herd-main"]) {
+    const body = rule(sel);
+    assert.ok(body, sel + " rule exists");
+    assert.ok(!/box-shadow|border-radius|background:/.test(body), sel + " is a ruled block, not a boxed card");
+  }
+  assert.ok(!/repeat\(3, minmax\(0, 1fr\)\)/.test(rule(".setup-list")), "home setups are rows, not three equal cards");
+  // One filled button at most on any page.
+  assert.ok(!/btn-primary[^>]*data-answer/.test(src["map.js"]), "herd view answers are outlined buttons");
+  assert.ok((src["map.js"].match(/btn-primary/g) || []).length <= 1, "only the load-error retry is filled");
+  const { renderHome } = await import("../src/home.js");
+  const { renderSetups } = await import("../src/setups.js");
+  const { renderArchitecture } = await import("../src/architecture.js");
+  for (const html of [renderHome(), renderSetups(), renderArchitecture()]) assert.ok((html.match(/btn-primary/g) || []).length <= 1);
+});

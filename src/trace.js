@@ -67,7 +67,7 @@ function card(kind, record) {
     : "";
   return (
     '<li class="trace-card">' + head +
-    "<h2><code title=\"" + esc(record.id) + "\">" + esc(record.id) + "</code></h2>" +
+    "<h2>" + esc(record.id) + "</h2>" +
     '<dl class="facts">' + rows + "</dl>" + hidden + "</li>"
   );
 }

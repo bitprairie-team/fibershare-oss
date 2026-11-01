@@ -514,7 +514,7 @@ function openItem(alert) {
     '<div class="alert-answer">' +
     '<label class="visually-hidden" for="' + noteId + '">Note for this answer (optional)</label>' +
     '<input id="' + noteId + '" class="alert-note" type="text" maxlength="' + ALERT_RULES.noteMaxLength + '" placeholder="Note (optional)" autocomplete="off" data-alert-note />' +
-    '<button type="button" class="btn btn-primary btn-small" data-answer="confirmed">Confirm</button>' +
+    '<button type="button" class="btn btn-ghost btn-small" data-answer="confirmed">Confirm</button>' +
     '<button type="button" class="btn btn-ghost btn-small" data-answer="dismissed">Dismiss</button>' +
     "</div></div></li>"
   );
