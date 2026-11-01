@@ -61,7 +61,7 @@ The community network is the main part of the project. Ranchers share through a 
 - Tracker positions stay on the server until the rancher signs in.
 - In the FiberShare app, positions become cells on a private grid when they arrive. GPS coordinates are not stored.
 - Each rancher owns their event history. It is shared only if they opt in.
-- Anything shared with agencies or researchers will be aggregated or delayed, with no exact locations.
+- Data shared with agencies or researchers is combined or delayed and never includes exact locations.
 
 This repository holds no secrets, API keys, mail settings or real collar data. A test checks every committed file for DevEUI-like hex strings and coordinates.
 
@@ -85,17 +85,17 @@ Then open http://localhost:5173.
 | `npm run preview` | Serves the built site |
 | `npm run pages:dev` | Serves `dist/` with Wrangler 4, including `/api/health` |
 | `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Runs the tests for data, schemas, alerts, sign-in, map layers, the ChirpStack pull and the page copy |
-| `npm run chirpstack:pull` | Reads your trackers from ChirpStack into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
+| `npm test` | Runs the tests for data, schemas, alerts, sign-in, map layers, the live-data pull and the page copy |
+| `npm run chirpstack:pull` | Reads your trackers from your network server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
 | `npm run rancher:passphrase` | Sets the rancher passphrase for local sign-in. See [docs/rancher-access.md](docs/rancher-access.md) |
 | `npm run serve:local` | Serves `dist/` and the API at http://127.0.0.1:4174 |
 | `npm run layers:check` | Checks that every map layer still answers |
 
 The sample goats, events and fiber lots are in `public/data/herd.json`, `public/data/events.json` and `public/data/shop.json`.
 
-## Live data from your own ChirpStack
+## Live data from your own network server
 
-If you run ChirpStack v4 for LoRaWAN collar trackers, `npm run chirpstack:pull` reads your devices and writes `.local/live.json`. Git ignores that file and the build leaves it out. `npm run dev` then shows your trackers, how long ago they were pulled, and a **Hide tracker details** setting. Add `--watch=120` to keep pulling.
+The pull script supports ChirpStack v4. If your LoRaWAN collar trackers report to it, `npm run chirpstack:pull` reads your devices and writes `.local/live.json`. Git ignores that file and the build leaves it out. `npm run dev` then shows your trackers, how long ago they were pulled, and a **Hide tracker details** setting. Add `--watch=120` to keep pulling.
 
 The page reads the data from `/api/live`, never from the file. The public gets the hidden view: aliases such as Tracker 3, no device IDs, tags or positions, and grid cells from a hash. A signed-in rancher gets real values if the pull ran with `FIBERSHARE_HIDE_TRACKERS=0`. Sign-in is a passphrase on your own hardware, or Cloudflare Access on Pages, where `--push` sends the data to a KV namespace.
 

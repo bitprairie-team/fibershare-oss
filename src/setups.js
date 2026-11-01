@@ -28,7 +28,7 @@ const ROWS = [
   ["Predator and smoke alerts", "Your own rules, or none.", "Predator Watch and Wildfire Watch, from BitPrairie's intelligence and realtime systems.", "Hosted, on top of your radios."],
   ["Event history", "Kept by you.", "Kept by BitPrairie for you. Shared only if you opt in.", "You choose what goes to the hosted side."],
   ["Support", "Community, on Discord and GitHub.", "BitPrairie.", "Both."],
-  ["Cost", "Free and open source.", "Covers hardware and hosting.", "Hosted parts only."],
+  ["Cost", "Free and open source.", "A fee for hardware and hosting.", "A fee for the hosted parts."],
 ];
 
 export function renderSetups() {
@@ -47,7 +47,7 @@ export function renderSetups() {
     '<h2 id="every-title">In every setup</h2>' +
     '<ul class="plain-list">' +
     "<li>Public pages never show where an animal is. Only a signed-in rancher sees tracker positions.</li>" +
-    "<li>Each rancher owns their event history. Anything shared with agencies or researchers will be aggregated or delayed, with no exact locations.</li>" +
+    "<li>Each rancher owns their event history. Data shared with agencies or researchers is combined or delayed and never includes exact locations.</li>" +
     "</ul>" +
     "</section>" +
     '<section class="section" aria-labelledby="network-title">' +

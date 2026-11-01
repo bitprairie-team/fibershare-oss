@@ -1,6 +1,6 @@
 # Rancher sign-in and the map
 
-This demo can show your own trackers from ChirpStack (see [chirpstack.md](chirpstack.md)). Anyone who opens a copy of it gets the hidden view: aliases, no device IDs, no positions, and grid cells from a hash. A signed-in rancher gets the real data and a map with map layers.
+This demo can show your own trackers from your LoRaWAN network server (see [chirpstack.md](chirpstack.md)). Anyone who opens a copy of it gets the hidden view: aliases, no device IDs, no positions, and grid cells from a hash. A signed-in rancher gets the real data and a map with map layers.
 
 The server decides which one you get. The page asks `/api/live`, and the server only sends the full file after it has checked your sign-in. Real data is never part of `npm run build`, so a copy of `dist/` holds none.
 

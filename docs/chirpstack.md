@@ -1,24 +1,24 @@
-# Live data from your own ChirpStack
+# Live data from your own network server
 
 The herd view can show your own LoRaWAN collar trackers instead of the sample goats. This is optional. Without it, the demo uses the bundled sample data and works offline.
 
-Run all of this on your own hardware, next to ChirpStack. Nothing here sends tracker data to BitPrairie or anywhere else.
+Run all of this on your own hardware, next to your LoRaWAN network server. Nothing here sends tracker data to BitPrairie or anywhere else.
 
 ## What you need
 
-- ChirpStack v4, for example the official chirpstack-docker stack.
-- The ChirpStack REST API gateway, which the stack runs on port 8090.
-- An API token. Make one in the ChirpStack web UI under API keys.
+- ChirpStack v4, which is the server the pull script supports. The official `chirpstack-docker` stack works.
+- Its REST API gateway, which the stack runs on port 8090.
+- An API token. Make one in the server's web UI under API keys.
 - Node 20 or newer. The pull script has no dependencies.
-- For decoded uplinks: ChirpStack's MQTT integration with the JSON marshaler, which is the default.
+- For decoded uplinks: The server's MQTT integration with the JSON marshaler, which is the default.
 
 ## Two sources
 
 **REST (always).** The script reads `/api/tenants`, `/api/applications?tenantId=`, and `/api/devices?applicationId=&limit=`, then `/api/devices/{devEui}/link-metrics` for each device. From these it gets each tracker's name, DevEUI, description, tags, profile name, battery, last-seen time, uplinks per hour, and signal (SNR and RSSI). The REST gateway does not hand out uplink payloads, so there are no positions or sensor readings from this source.
 
-**MQTT (optional).** Set `CHIRPSTACK_MQTT_URL` and the script also listens to the broker for a while (60 seconds by default). ChirpStack publishes each uplink on `application/<applicationId>/device/<devEui>/event/up` as JSON, with the decoded values in its `object` field. From these the script takes position, temperature, light, motion, battery, and SOS when your codec reports them. It keeps the best SNR and RSSI of each uplink. It does not keep radio receiver IDs or receiver positions.
+**MQTT (optional).** Set `CHIRPSTACK_MQTT_URL` and the script also listens to the broker for a while (60 seconds by default). The server publishes each uplink on `application/<applicationId>/device/<devEui>/event/up` as JSON, with the decoded values in its `object` field. From these the script takes position, temperature, light, motion, battery, and SOS when your codec reports them. It keeps the best SNR and RSSI of each uplink. It does not keep radio receiver IDs or receiver positions.
 
-In the chirpstack-docker stack, Mosquitto listens on port 1883 inside the compose network only. Either run the pull in a container on that network, or publish 1883 to localhost only (`127.0.0.1:1883:1883`) and use `mqtt://localhost:1883`. Use `mqtts://` if your broker has TLS. The MQTT client is built in, so nothing extra is installed.
+In the `chirpstack-docker` stack, Mosquitto listens on port 1883 inside the compose network only. Either run the pull in a container on that network, or publish 1883 to localhost only (`127.0.0.1:1883:1883`) and use `mqtt://localhost:1883`. Use `mqtts://` if your broker has TLS. The MQTT client is built in, so nothing extra is installed.
 
 ## Run it
 
@@ -31,7 +31,7 @@ npm run chirpstack:pull
 npm run dev
 ```
 
-Open the herd view. It shows **Live from your ChirpStack** when `.local/live.json` exists, and how long ago it was pulled. **Show sample data** switches back for this browser tab.
+Open the herd view. It shows **Live from your network server** when `.local/live.json` exists, and how long ago it was pulled. **Show sample data** switches back for this browser tab.
 
 ## Keep the file fresh
 
@@ -47,7 +47,7 @@ That pulls every 120 seconds until you stop it with Ctrl-C. With MQTT on, each p
 
 ## Run it with podman, on the compose network
 
-In the chirpstack-docker stack the REST gateway and Mosquitto are only reachable inside the compose network. This runs the pull in a throwaway Node container on that network. The token file and the MQTT login stay in `~/.config/fibershare/`, mounted read-only:
+In the `chirpstack-docker` stack the REST gateway and Mosquitto are only reachable inside the compose network. This runs the pull in a throwaway Node container on that network. The token file and the MQTT login stay in `~/.config/fibershare/`, mounted read-only:
 
 ```bash
 podman run --rm --network chirpstack-docker_default -v $PWD:/app:Z -v ~/.config/fibershare:/cfg:ro,Z -w /app --env-file ~/.config/fibershare/mqtt.env -e CHIRPSTACK_URL=http://chirpstack-rest-api:8090 -e CHIRPSTACK_API_TOKEN_FILE=/cfg/chirpstack-token -e CHIRPSTACK_MQTT_URL=mqtt://mosquitto:1883 node:22-alpine node scripts/chirpstack/pull.js
@@ -107,11 +107,11 @@ A full file (`FIBERSHARE_HIDE_TRACKERS=0`) is written with owner-only permission
 
 ## Checked, and not checked yet
 
-The REST and MQTT sources have run against a real chirpstack-docker stack with LoRaWAN collar trackers: 4 MQTT uplinks in 20 minutes, each with a position. Other ChirpStack versions or marshaler settings may differ.
+The REST and MQTT sources have run against a real `chirpstack-docker` stack with LoRaWAN collar trackers: 4 MQTT uplinks in 20 minutes, each with a position. Other server versions or marshaler settings may differ.
 
-These parts were built from the ChirpStack v4 API definitions and tested with made-up replies:
+These parts were built from the v4 API definitions and tested with made-up replies:
 
 - The `start` and `end` query format for link metrics (RFC 3339 timestamps), and whether `rxPackets` counts each uplink once when several radio receivers hear it.
 - Listing tenants with a key that is not an admin key. If it fails, set `CHIRPSTACK_TENANT_ID`.
 - The names of the decoded tracker fields. The script looks for plain keys (`latitude`, `temperature`, ...) and for lists of `{ type, measurementValue }` readings, which is how the codec on the tested trackers reports them. SOS, light, and motion names may differ by codec version.
-- What a battery level of 0 means for a given tracker. ChirpStack uses -1 or a missing value for no reading, and those show as not reported.
+- What a battery level of 0 means for a given tracker. The server uses -1 or a missing value for no reading, and those show as not reported.

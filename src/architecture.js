@@ -7,7 +7,7 @@ const PARTS = [
   ["Pages", "Plain web pages built with Vite. Run them yourself or publish a copy on Cloudflare Pages."],
   ["Sample data", "The goats, the sample day and the fiber lots are in <code>public/data</code>. The fleece trace reads <code>docs/schemas/examples</code>."],
   ["Server routes", "<code>/api/live</code> sends tracker data, <code>/api/session</code> handles sign-in and <code>/api/alerts</code> keeps a signed-in rancher's answers."],
-  ["Your own trackers", "<code>npm run chirpstack:pull</code> reads trackers from a ChirpStack v4 server into <code>.local/live.json</code>. Git ignores that file and the build leaves it out."],
+  ["Your own trackers", "A pull script reads trackers from your LoRaWAN network server into <code>.local/live.json</code>. Git ignores that file and the build leaves it out."],
   ["Sign-in", "A passphrase on your own hardware, or Cloudflare Access on Pages. The server checks it on every request."],
   ["Alert rules", "<code>src/alerts.js</code> and <code>src/alert-config.js</code>. The browser and the server run the same code."],
 ];
@@ -34,8 +34,9 @@ export function renderArchitecture() {
     "</section>" +
     '<section class="section" aria-labelledby="run-title">' +
     '<h2 id="run-title">Run your own copy</h2>' +
-    "<p>You need Node 20.9 or newer. Then open http://localhost:5173.</p>" +
+    "<p>You need Node 20.9 or newer.</p>" +
     "<pre><code>git clone " + REPO + ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
+    "<p>Then open http://localhost:5173.</p>" +
     "<p>The code is MIT licensed. Keep private ranch files and real tracker data out of the repository. " +
     'See the <a href="' + REPO + '/blob/main/CONTRIBUTING.md"' + EXT + ">contribution guide</a>, or ask on <a href=\"" + DISCORD + '"' + EXT + ">Discord</a>.</p>" +
     '<p>The FiberShare app is a separate product at <a href="' + APP + '"' + EXT + ">fibershare.app</a>.</p>" +

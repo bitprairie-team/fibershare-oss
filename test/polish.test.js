@@ -291,3 +291,25 @@ test("herd view: at most 3 stats, and they are the ones a rancher scans", async 
   assert.ok(!/data-moment|data-filter|data-herd-reset/.test(src["map.js"]), "one playback control, no jump-to chips or filters");
   assert.match(src["map.js"], /<details class="disclosure feed-section"[^>]*><summary>Show all events/);
 });
+
+test("on-screen copy does not name a network server, outside <code> command spans", () => {
+  const NAMES = /ChirpStack|Things Network|\bTTN\b/i;
+  const files = { ...src, "index.html": read("index.html") };
+  for (const [name, text] of Object.entries(files)) {
+    const copy = text
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<code>[\s\S]*?<\/code>/g, "");
+    // String literals only: code identifiers such as LIVE_SOURCE may stay.
+    const strings = copy.match(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`/g) || [];
+    const shown = name.endsWith(".html") ? [copy.replace(/<script[\s\S]*?<\/script>/g, "")] : strings;
+    for (const s of shown) {
+      if (name === "live-format.js" && s === '"chirpstack"') continue; // LIVE_SOURCE value
+      assert.ok(!NAMES.test(s), name + ": " + s.slice(0, 120));
+    }
+  }
+  // The rancher still sees the command where it is needed.
+  assert.match(src["map.js"], /no live file yet\. Run <code>npm run chirpstack:pull<\/code>/);
+  assert.match(src["map.js"], /Live from your network server/);
+});

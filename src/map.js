@@ -149,7 +149,7 @@ export async function renderMap() {
   const pulledMinutes = live ? Math.max(0, Math.round((Date.now() - new Date(data.pulledAt).getTime()) / 60000)) : 0;
   const stale = live && pulledMinutes > STALE_MINUTES;
   const sourceBadge = live
-    ? '<div class="source-line"><span class="source-label">Live from your ChirpStack server</span>' +
+    ? '<div class="source-line"><span class="source-label">Live from your network server</span>' +
       '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label></div>" +
       (data.rancher
         ? '<p class="fine-print source-note">Signed in as the rancher.</p>'
@@ -159,7 +159,10 @@ export async function renderMap() {
         : "") +
       '<div class="source-line"><span class="muted source-time" data-pulled>Pulled ' + esc(pulledMinutes < 1 ? "just now" : pulledMinutes + " min ago") + " (" + esc(timeOf(data.pulledAt)) + ")" + (data.sources?.includes("mqtt") ? " · REST and MQTT" : " · REST") + "</span>" +
       '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>' +
-      (stale ? '<p class="fine-print source-note stale-note">This file is more than ' + STALE_MINUTES + " minutes old. Keep it fresh with <code>npm run chirpstack:pull -- --watch=120</code>.</p>" : "")
+      (stale
+        ? '<p class="fine-print source-note stale-note">This file is more than ' + STALE_MINUTES + " minutes old." +
+          (data.rancher ? " Keep it fresh with <code>npm run chirpstack:pull -- --watch=120</code>." : "") + "</p>"
+        : "")
     : (data.liveAvailable
         ? '<button type="button" class="btn btn-ghost btn-small" data-source="live">Show live data</button>'
         : "");
@@ -167,7 +170,7 @@ export async function renderMap() {
   const lede = live
     ? data.privateView
       ? "Your trackers with real names, device IDs, tags and positions. Only a signed-in rancher gets this view."
-      : "Trackers from a ChirpStack server, with names, device IDs, tags and positions hidden. Each grid cell comes from a hash, not a position."
+      : "Trackers from your LoRaWAN network server, with names, device IDs, tags and positions hidden. Each grid cell comes from a hash, not a position."
     : "8 sample goats on a paddock grid. The grid is a drawing, not a map.";
 
   const cells = cellLabels()
