@@ -104,6 +104,6 @@ export function paintAlertsOffNotice(el, jobs) {
 export function jobsLine(jobs, rules = ALERT_RULES) {
   const on = ALERT_JOB_IDS.filter((id) => jobs[id]);
   const off = ALERT_JOB_IDS.filter((id) => !jobs[id]);
-  if (!on.length) return "Automatic alerts are off. Add alerts by hand below.";
+  if (!on.length) return "Add alerts by hand below.";
   return "Automatic alerts on: " + on.map((id) => ALERT_JOB_LABELS[id](rules)).join(", ") + "." + (off.length ? " Off: " + off.map((id) => OFF_LABELS[id]).join(", ") + "." : "");
 }

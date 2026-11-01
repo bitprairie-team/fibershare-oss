@@ -58,7 +58,7 @@ function stage(data, animals, live, cells) {
     const placed = animals.filter((a) => Number.isFinite(a.details?.position?.latitude)).length;
     return (
       '<div class="rancher-map" data-rancher-map role="region" aria-label="Map of tracker positions"><p class="muted map-loading">Loading the map…</p></div>' +
-      '<p class="pasture-legend map-legend">' + placed + " of " + animals.length + " trackers have a position. Map layers come from public agencies, plus Esri basemaps when an ArcGIS key is set.</p>"
+      '<p class="pasture-legend map-legend">' + placed + " of " + animals.length + " trackers have a position. Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set.</p>"
     );
   }
   const legend = data.mapSpan

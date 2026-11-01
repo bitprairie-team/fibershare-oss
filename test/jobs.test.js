@@ -161,7 +161,7 @@ test("herd view: one plain line says which automated alerts run", () => {
   const on = readJobs(memory());
   assert.equal(jobsLine(on, ALERT_RULES), "Automatic alerts on: battery below 20%, no check-in for 2 hours, SOS, Predator Watch, Wildfire Watch.");
   assert.equal(jobsLine({ ...on, battery: false, smoke: false }, ALERT_RULES), "Automatic alerts on: no check-in for 2 hours, SOS, Predator Watch. Off: battery, Wildfire Watch.");
-  assert.equal(jobsLine(OFF, ALERT_RULES), "Automatic alerts are off. Add alerts by hand below.");
+  assert.equal(jobsLine(OFF, ALERT_RULES), "Add alerts by hand below.");
   assert.match(jobsLine(on, { ...ALERT_RULES, lowBatteryPercent: 35, quietMinutes: 90 }), /battery below 35%, no check-in for 1 hour 30 min/);
 });
 
@@ -273,7 +273,7 @@ test("copy: pages lead with the job, and Reset demo keeps a rancher's own notes"
   assert.ok(read("src/architecture.js").includes(license));
   assert.ok(read("README.md").includes(license));
   assert.match(read("README.md"), /Open models that BitPrairie builds on keep their own licenses\./);
-  assert.match(mapSrc, /Map layers come from public agencies, plus Esri basemaps when an ArcGIS key is set\./);
+  assert.match(mapSrc, /Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set\./);
   assert.match(read(".env.example"), /referrer-restricted key limited to basemaps and features/);
   assert.match(read("docs/rancher-access.md"), /The sign-in rate limiter is kept in memory, so it resets when the server restarts/);
   assert.match(read("docs/rancher-access.md"), /Limit it to basemaps and features/);
