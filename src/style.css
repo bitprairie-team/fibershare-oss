@@ -368,6 +368,8 @@ main.wrap {
   align-items: center;
   gap: var(--s-2);
   flex: none;
+  position: relative;
+  z-index: 2;
 }
 .icon-btn {
   display: inline-grid;
@@ -409,7 +411,8 @@ main.wrap {
   .nav {
     display: none;
     position: absolute;
-    top: calc(var(--header-h) - 1px);
+    /* Sit under the full site-header (demo bar + row), not just --header-h */
+    top: 100%;
     left: 0;
     right: 0;
     flex-direction: column;
@@ -419,7 +422,7 @@ main.wrap {
     background: var(--surface);
     border-bottom: 1px solid var(--line);
     box-shadow: var(--shadow-2);
-    max-height: calc(100vh - var(--header-h));
+    max-height: calc(100dvh - var(--header-h) - 3rem);
     overflow-y: auto;
   }
   .nav.is-open {

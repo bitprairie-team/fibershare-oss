@@ -230,6 +230,8 @@ for (const [name, theme] of [["light", light], ["dark", dark]]) {
 
 test("layout: breakpoints for the menu, the bottom sheet, the phone, and reduced motion", () => {
   assert.match(css, /@media \(max-width: 1100px\)[\s\S]*?\.nav-toggle/);
+  // Open mobile nav must sit under the full site-header (demo bar + row).
+  assert.match(css, /@media \(max-width: 1100px\)[\s\S]*?\.nav \{[\s\S]*?top:\s*100%;/);
   assert.match(css, /@media \(max-width: 860px\)[\s\S]*?\.detail/);
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(css, /prefers-reduced-motion: reduce/);
