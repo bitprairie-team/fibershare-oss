@@ -11,17 +11,18 @@ import { renderArchitecture, bindArchitecture } from "./architecture.js";
 import { renderRancher, bindRancher } from "./rancher.js";
 import { tourAfterRender } from "./tour.js";
 import { skeleton } from "./skeleton.js";
+import { applyPageMeta, metaForPath } from "./page-meta.js";
 
-const trace = { render: renderTrace, title: "Fleece trace · FiberShare" };
+const trace = { render: renderTrace };
 const routes = {
-  "/": { render: renderHome, title: "FiberShare demo" },
-  "/map": { render: renderMap, title: "Herd view · FiberShare", skeleton: "herd" },
+  "/": { render: renderHome },
+  "/map": { render: renderMap, skeleton: "herd" },
   "/trace": trace,
   // The fiber list is now part of the fleece trace page. Old links still work.
   "/shop": trace,
-  "/setups": { render: renderSetups, title: "Setups · FiberShare" },
-  "/rancher": { render: renderRancher, title: "Rancher sign-in · FiberShare", skeleton: "panel" },
-  "/architecture": { render: renderArchitecture, title: "How it works · FiberShare" },
+  "/setups": { render: renderSetups },
+  "/rancher": { render: renderRancher, skeleton: "panel" },
+  "/architecture": { render: renderArchitecture },
 };
 
 function pathFromHash() {
@@ -73,8 +74,9 @@ async function render() {
     return;
   }
   const route = routes[path];
-  const title = route ? route.title : "Page not found · FiberShare";
-  document.title = title;
+  const meta = metaForPath(path);
+  applyPageMeta(meta);
+  const title = meta.title;
   leaveMap();
   const app = document.getElementById("app");
   const token = ++renderToken;

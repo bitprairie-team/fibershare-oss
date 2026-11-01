@@ -152,7 +152,7 @@ test("copy: one demo line site-wide, at most one Planned tag per page, and the s
   assert.ok(!/intelligence systems/.test(all.replace(/intelligence and realtime systems/g, "")));
 });
 
-test("copy: pages render plain headings, one primary button on home, and a bare footer", async () => {
+test("copy: pages render plain headings, one primary button on home, and a BitPrairie LLC legal footer", async () => {
   const { renderHome } = await import("../src/home.js");
   const { renderSetups } = await import("../src/setups.js");
   const { renderArchitecture } = await import("../src/architecture.js");
@@ -170,7 +170,11 @@ test("copy: pages render plain headings, one primary button on home, and a bare 
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, name + " has one h1");
   }
   assert.equal((pages.home.match(/btn-primary/g) || []).length, 1, "home has one primary button");
-  assert.equal(textOf(footer()), "BitPrairie LLC");
+  const foot = footer();
+  assert.match(textOf(foot), /© 2026 BitPrairie LLC/);
+  assert.match(foot, /href="https:\/\/bitprairie\.com\/terms"/);
+  assert.match(foot, /href="https:\/\/bitprairie\.com\/privacy"/);
+  assert.ok(!/Not legal advice|\[BRACKETED\]|business hours/i.test(foot));
 });
 
 test("icons: every icon used in src exists and has no title unless labelled", () => {

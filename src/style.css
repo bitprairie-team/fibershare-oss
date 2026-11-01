@@ -779,6 +779,29 @@ main.wrap {
   border-radius: 6px;
   flex: none;
 }
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-5);
+  min-width: 0;
+}
+.footer-legal p {
+  margin: 0;
+}
+.footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+}
+.footer-legal-links a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.footer-legal-links a:hover {
+  color: var(--ink);
+}
 
 /* Home */
 .hero {

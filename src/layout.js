@@ -1,3 +1,4 @@
+import { PRIVACY, TERMS } from "./sites.js";
 import { icon } from "./icons.js";
 
 const MARK =
@@ -47,8 +48,12 @@ export function footer() {
   return (
     '<footer class="site-footer"><div class="wrap footer-row">' +
     '<img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="" width="28" height="28" />' +
-    "<p>BitPrairie LLC</p>" +
-    "</div></footer>"
+    '<div class="footer-legal">' +
+    "<p>© 2026 BitPrairie LLC</p>" +
+    '<nav class="footer-legal-links" aria-label="Legal">' +
+    '<a href="' + TERMS + '">Terms</a>' +
+    '<a href="' + PRIVACY + '">Privacy</a>' +
+    "</nav></div></div></footer>"
   );
 }
 
