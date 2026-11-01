@@ -5,7 +5,7 @@ import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { cellLabels, cellOf } from "../src/grid.js";
-import { grazingLog, sortEvents, stateAt } from "../src/herd-state.js";
+import { grazingLog, positionTrail, sortEvents, stateAt } from "../src/herd-state.js";
 import { traceLot, visibleRecord } from "../src/records.js";
 import { hideTrackerDetails, isLiveData } from "../src/live-format.js";
 import { localMap } from "../src/data.js";
@@ -149,5 +149,18 @@ test("grazing log: sample day lists paddock moves and grazing notes as Play adva
   assert.equal(end[2].cell, "B3");
   assert.match(end[1].text, /Sample:/);
   assert.equal(grazingLog(sorted, sorted.length).length, 3);
+});
+
+test("position trail: last N positioned check-ins for one animal during Play", () => {
+  const sorted = sortEvents(events.events);
+  assert.deepEqual(positionTrail(sorted, "thistle", 0), []);
+  const afterNoon = sorted.findIndex((e) => e.id === "e30") + 1;
+  const trail = positionTrail(sorted, "thistle", afterNoon, { limit: 5 });
+  assert.ok(trail.length >= 2);
+  assert.ok(trail.length <= 5);
+  assert.equal(trail[0].x, 58);
+  assert.equal(trail.at(-1).x, 59);
+  assert.deepEqual(positionTrail(sorted, "missing", afterNoon), []);
+  assert.equal(positionTrail(sorted, "thistle", sorted.length, { limit: 2 }).length, 2);
 });
 

@@ -2066,6 +2066,31 @@ button.feed-row:focus-visible {
   margin-bottom: var(--s-3);
 }
 
+
+.trail-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+.trail-line {
+  stroke: var(--accent);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.trail-dot {
+  fill: var(--accent);
+}
+.paddock [data-pins] {
+  position: relative;
+  z-index: 2;
+}
+
 .grazing-log {
   margin: 0.75rem 0 0;
   padding: 0.75rem 0 0;

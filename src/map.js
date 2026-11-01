@@ -2,7 +2,7 @@ import { ago, dateTime, dayTime, timeOf } from "./time.js";
 import { nav, footer } from "./layout.js";
 import { esc } from "./util.js";
 import { cellLabels, cellOf } from "./grid.js";
-import { grazingLog, herdStats, keyMoments, sortEvents, stateAt } from "./herd-state.js";
+import { grazingLog, herdStats, keyMoments, positionTrail, sortEvents, stateAt } from "./herd-state.js";
 import { icon } from "./icons.js";
 import { spreadPins } from "./pin-spread.js";
 import { loadHerd, setHideTrackers, setPreferSample } from "./data.js";
@@ -81,7 +81,7 @@ function stage(data, animals, live, cells) {
       : '<div class="paddock" id="paddock" role="group" aria-label="Paddock grid, 6 by 4 cells. Arrow keys move between animals, Enter shows one.">' +
         '<div class="paddock-cells" aria-hidden="true">' + cells + "</div>") +
     '<div class="paddock-haze" data-haze hidden></div>' +
-    "<div data-pins></div>" +
+    '<svg class="trail-layer" data-trail aria-hidden="true"></svg><div data-pins></div>' +
     (legend ? '<div class="pasture-legend">' + legend + "</div>" : "") +
     "</div>"
   );
@@ -327,6 +327,43 @@ function clockIso() {
   if (view.step >= view.events.length) return view.data.now;
   const event = view.events[Math.max(0, view.step - 1)];
   return event ? event.time : view.data.now;
+}
+
+
+const TRAIL_LIMIT = 5;
+
+function renderTrail(root, state) {
+  const layer = root.querySelector("[data-trail]");
+  if (!layer) return;
+  // Trails only on the sample paddock grid during Play. Live maps keep pins only.
+  if (view.data.mode === "live" || view.data.mapSpan) {
+    layer.innerHTML = "";
+    return;
+  }
+  const id = view.selected;
+  if (!id) {
+    layer.innerHTML = "";
+    return;
+  }
+  const points = positionTrail(view.events, id, view.step, { limit: TRAIL_LIMIT });
+  if (points.length < 2) {
+    layer.innerHTML = "";
+    return;
+  }
+  // viewBox 0..100 matches paddock grid percent positions.
+  const path = points.map((pt, i) => (i ? "L" : "M") + pt.x.toFixed(2) + " " + pt.y.toFixed(2)).join(" ");
+  layer.setAttribute("viewBox", "0 0 100 100");
+  layer.setAttribute("preserveAspectRatio", "none");
+  layer.innerHTML =
+    '<path class="trail-line" d="' +
+    path +
+    '" fill="none" />' +
+    points
+      .map((pt, i) => {
+        const opacity = (0.35 + (0.65 * (i + 1)) / points.length).toFixed(2);
+        return '<circle class="trail-dot" cx="' + pt.x.toFixed(2) + '" cy="' + pt.y.toFixed(2) + '" r="1.6" style="opacity:' + opacity + '" />';
+      })
+      .join("");
 }
 
 function renderPins(root, state, alerts) {

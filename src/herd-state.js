@@ -134,6 +134,25 @@ export function keyMoments(events) {
  * view's grazing log during Play. Only `move` and `graze` events are listed.
  * Returns [{ id, type, time, text, animalId?, cell? }] in time order.
  */
+
+/**
+ * The last `limit` positioned check-ins for one animal up to `count` events.
+ * Used to draw a short trail on the paddock during day Play. Oldest first.
+ * Returns [{ time, x, y }].
+ */
+export function positionTrail(events, animalId, count, { limit = 5 } = {}) {
+  if (!animalId || limit < 1) return [];
+  const sorted = sortEvents(events);
+  const upto = sorted.slice(0, Math.max(0, count));
+  const points = [];
+  for (const event of upto) {
+    if (event.animalId !== animalId) continue;
+    if (!Number.isFinite(event.x) || !Number.isFinite(event.y)) continue;
+    points.push({ time: event.time, x: event.x, y: event.y });
+  }
+  return points.slice(-Math.max(1, Math.floor(limit)));
+}
+
 export function grazingLog(events, count) {
   const sorted = sortEvents(events);
   const upto = sorted.slice(0, Math.max(0, count));

@@ -10,7 +10,7 @@ Ranch support pays for animals and pasture. Support is not ownership or an inves
 
 ## What the demo shows
 
-- **Herd view.** 8 sample goats on a paddock grid. The grid is a drawing, not GPS. Three numbers sit above it: trackers reporting in the last hour, open alerts and the last check-in. Select a goat to see its breed, battery, last check-in and grid cell. Play steps through one made-up day of events. A paddock-move log lists sample moves and grazing notes as the day advances, and Show all events opens the full log.
+- **Herd view.** 8 sample goats on a paddock grid. The grid is a drawing, not GPS. Three numbers sit above it: trackers reporting in the last hour, open alerts and the last check-in. Select a goat to see its breed, battery, last check-in and grid cell. Play steps through one made-up day of events. A paddock-move log lists sample moves and grazing notes as the day advances. Selecting a goat during Play draws a short trail of its last few check-ins. Show all events opens the full log.
 - **Alerts.** Open alerts come from the trackers and from Predator Watch and Wildfire Watch. On the sample day the Predator Watch and Wildfire Watch reports are simulated. Confirm or dismiss each alert, with an optional note, and reopen it under Answered alerts. On sample data the answers stay in your browser.
 - **Fleece trace.** The `mohair-bramble` lot traced back through its fleece and shearing to the goat Bramble, using the draft records in `docs/schemas/examples/`. Switch the viewer between rancher, buyer and public to see what each record shares. The page also lists the sample fiber lots. Nothing is for sale.
 - **Setups.** Your own hardware, hosted by BitPrairie, or a mix, side by side.
