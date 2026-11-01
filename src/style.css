@@ -1134,14 +1134,11 @@ main.wrap {
 .detail {
   position: sticky;
   top: calc(var(--header-h) + var(--s-4));
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-1);
+  border-top: 2px solid var(--ink);
   min-width: 0;
 }
 .detail-body {
-  padding: var(--s-5);
+  padding: var(--s-4) 0;
 }
 .sheet-handle {
   display: none;
@@ -1234,6 +1231,8 @@ main.wrap {
     right: 0;
     bottom: 0;
     z-index: 30;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: var(--r-lg) var(--r-lg) 0 0;
     border-bottom: 0;
     box-shadow: var(--shadow-3);
@@ -1293,7 +1292,7 @@ main.wrap {
     display: none;
   }
   .detail-body {
-    padding-top: 0;
+    padding: 0 var(--s-5) var(--s-5);
   }
   .detail-body .detail-top {
     display: none;
