@@ -75,11 +75,35 @@ const ALERT_JOB_LABELS = {
 };
 const OFF_LABELS = { battery: "battery", quiet: "quiet tracker", sos: "SOS", predator: "Predator Watch", smoke: "Wildfire Watch" };
 
+// Alert jobs only. The trace page and the live-file check are separate jobs.
+export const ALERT_JOB_IDS = Object.keys(ALERT_JOB_LABELS);
+
+export const ALERTS_OFF_NOTICE =
+  "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, SOS or Predator Watch and Wildfire Watch reports until you turn them back on. " +
+  "FiberShare is an aid, not a guarantee. In an emergency, call 911.";
+
+/** True when every alert job is off. Trace and the live-file check do not count. */
+export function alertJobsAreOff(jobs) {
+  return ALERT_JOB_IDS.every((id) => jobs?.[id] === false);
+}
+
+export function alertsOffNoticeHtml(jobs) {
+  const off = alertJobsAreOff(jobs);
+  return '<p class="notice notice-warn alerts-off" data-alerts-off role="status"' + (off ? "" : " hidden") + ">" + (off ? ALERTS_OFF_NOTICE : "") + "</p>";
+}
+
+/** Show or clear the notice. `el` is the [data-alerts-off] paragraph, or null. */
+export function paintAlertsOffNotice(el, jobs) {
+  if (!el) return;
+  const off = alertJobsAreOff(jobs);
+  el.hidden = !off;
+  el.textContent = off ? ALERTS_OFF_NOTICE : "";
+}
+
 /** One plain line on the herd view: which automated alerts run right now. */
 export function jobsLine(jobs, rules = ALERT_RULES) {
-  const ids = Object.keys(ALERT_JOB_LABELS);
-  const on = ids.filter((id) => jobs[id]);
-  const off = ids.filter((id) => !jobs[id]);
+  const on = ALERT_JOB_IDS.filter((id) => jobs[id]);
+  const off = ALERT_JOB_IDS.filter((id) => !jobs[id]);
   if (!on.length) return "Automatic alerts are off. Add alerts by hand below.";
   return "Automatic alerts on: " + on.map((id) => ALERT_JOB_LABELS[id](rules)).join(", ") + "." + (off.length ? " Off: " + off.map((id) => OFF_LABELS[id]).join(", ") + "." : "");
 }

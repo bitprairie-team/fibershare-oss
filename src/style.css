@@ -718,6 +718,13 @@ main.wrap {
 .notice-warn .icon {
   color: var(--warn);
 }
+.notice[hidden] {
+  display: none;
+}
+.alerts-off {
+  margin: var(--s-3) 0;
+  max-width: 68ch;
+}
 
 /* Skeletons */
 .skel {
