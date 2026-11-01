@@ -109,7 +109,7 @@ function settingsHtml(live) {
     '<details class="disclosure settings" data-settings id="alert-settings"><summary>Alert settings</summary>' +
     '<p class="fine-print settings-note">Each job runs only while it is on. Answers, notes and alerts you add by hand work either way. Saved in this browser.</p>' +
     '<ul class="settings-list">' + rows.join("") + "</ul>" +
-    '<p class="fine-print"><a href="#/architecture#jobs-title">Every automated job</a></p>' +
+    '<p class="fine-print"><a href="#/architecture">Every automated job</a></p>' +
     "</details>"
   );
 }

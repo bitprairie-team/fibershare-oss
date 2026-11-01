@@ -2525,3 +2525,23 @@ button.feed-row:focus-visible {
   color: var(--muted);
   margin-right: var(--s-1);
 }
+.job-block {
+  max-width: 52rem;
+}
+.job-intro {
+  margin: 0 0 var(--s-4);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  max-width: 64ch;
+}
+.job-list .job-row {
+  align-items: center;
+}
+.job-row .toggle {
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+.job-all {
+  margin-top: var(--s-3);
+  font-size: var(--fs-sm);
+}

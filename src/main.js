@@ -7,7 +7,7 @@ import { renderHome } from "./home.js";
 import { renderMap, bindMap, leaveMap } from "./map.js";
 import { renderTrace, bindTrace } from "./trace.js";
 import { renderSetups } from "./setups.js";
-import { renderArchitecture } from "./architecture.js";
+import { renderArchitecture, bindArchitecture } from "./architecture.js";
 import { renderRancher, bindRancher } from "./rancher.js";
 import { tourAfterRender } from "./tour.js";
 import { skeleton } from "./skeleton.js";
@@ -90,6 +90,7 @@ async function render() {
   if (path === "/map") bindMap(app);
   if (path === "/trace" || path === "/shop") bindTrace(app);
   if (path === "/rancher") bindRancher(app);
+  if (path === "/architecture") bindArchitecture(app);
   app.querySelectorAll("[data-retry]").forEach((btn) => btn.addEventListener("click", () => render()));
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {
     event.preventDefault();

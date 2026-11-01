@@ -180,3 +180,27 @@ test("herd view: a switch for each job, the limits, and the manual tools", () =>
   assert.match(mapSrc, /view\.jobs\.predator \? state\.alertCells : \[\]/, "no predator marker with the job off");
   assert.match(mapSrc, /view\.jobs\.smoke && state\.smoke/, "no haze with the job off");
 });
+
+// ---- How it works and the fleece trace ----------------------------------------
+
+test("How it works: a switch for each job and the pull loop, with its state in words", async () => {
+  const { renderArchitecture } = await import("../src/architecture.js");
+  const saved = globalThis.localStorage;
+  try {
+    globalThis.localStorage = memory();
+    let html = renderArchitecture();
+    for (const id of JOB_IDS) assert.match(html, new RegExp('data-job="' + id + '" checked'), id + " is on by default");
+    assert.equal((html.match(/data-job-what="[a-z]+">On\. /g) || []).length, JOB_IDS.length);
+    assert.match(html, />Turn every job off</);
+    setAllJobs(false, globalThis.localStorage);
+    setLimit("lowBatteryPercent", 30, globalThis.localStorage);
+    html = renderArchitecture();
+    assert.ok(!/data-job="[a-z]+" checked/.test(html), "every switch shows off");
+    assert.equal((html.match(/data-job-what="[a-z]+">Off\. /g) || []).length, JOB_IDS.length);
+    assert.match(html, />Turn every job on</);
+    assert.match(html, /Flags tracker batteries below 30%/, "the list reads the rancher's own limit");
+    assert.match(html, /still works by hand/);
+  } finally {
+    globalThis.localStorage = saved;
+  }
+});
