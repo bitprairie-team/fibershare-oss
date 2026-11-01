@@ -364,3 +364,10 @@ test("fleece trace: a shareable viewer link and a clean print sheet", () => {
   assert.ok(print.length > 20, "print styles exist");
   for (const sel of [".site-header", ".site-footer", ".trace-print"]) assert.ok(print.includes(sel), "print hides " + sel);
 });
+
+test("herd view keyboard and screen reader flow", () => {
+  const map = src["map.js"];
+  assert.match(map, /pin\.tabIndex = pin === current \? 0 : -1/, "the grid is one tab stop");
+  assert.match(map, /aria-valuetext/, "the time slider reads as a time");
+  assert.match(map, /data-answer="confirmed" aria-describedby=/, "Confirm names its alert");
+});

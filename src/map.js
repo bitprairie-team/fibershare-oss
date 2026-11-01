@@ -81,7 +81,7 @@ function stage(data, animals, live, cells) {
   return (
     (data.mapSpan
       ? '<div class="paddock paddock-map" id="paddock" role="group" aria-label="Local map of tracker positions">'
-      : '<div class="paddock" id="paddock" role="group" aria-label="Paddock grid, 6 by 4 cells. Arrow keys move between animals.">' +
+      : '<div class="paddock" id="paddock" role="group" aria-label="Paddock grid, 6 by 4 cells. Arrow keys move between animals, Enter shows one.">' +
         '<div class="paddock-cells" aria-hidden="true">' + cells + "</div>") +
     '<div class="paddock-haze" data-haze hidden></div>' +
     "<div data-pins></div>" +
@@ -292,6 +292,11 @@ function renderPins(root, state, alerts) {
     if (holderLabel && holderLabel.textContent !== label) holderLabel.textContent = label;
     pin.title = animal.name;
   }
+  // One tab stop for the whole grid: the picked animal. Arrow keys move
+  // between pins from there.
+  const pins = [...holder.querySelectorAll(".goat")];
+  const current = pins.find((pin) => pin.dataset.id === view.selected) || pins[0];
+  for (const pin of pins) pin.tabIndex = pin === current ? 0 : -1;
 }
 
 // The time of the last check-in, with the date when it was not today.
@@ -355,6 +360,9 @@ function renderGrid(root, state, alerts) {
   }
   const clock = root.querySelector("[data-clock]");
   if (clock) clock.textContent = timeOf(clockIso());
+  // Screen readers hear the time of day, not the event number.
+  const scrubber = root.querySelector("[data-scrub]");
+  if (scrubber) scrubber.setAttribute("aria-valuetext", timeOf(clockIso()) + ", event " + view.step + " of " + view.events.length);
 }
 
 function batteryBar(value) {
@@ -503,10 +511,11 @@ function openItem(alert) {
   const label = ALERT_KIND[alert.kind][1];
   const noteId = "note-" + alert.id.replace(/[^A-Za-z0-9_-]/g, "-");
   const who = alert.animalId ? view.data.animals.find((a) => a.id === alert.animalId) : null;
+  const titleId = "title-" + alert.id.replace(/[^A-Za-z0-9_-]/g, "-");
   return (
     '<li class="alert-item kind-' + alert.kind + '" data-alert="' + esc(alert.id) + '">' +
     '<div class="alert-body">' +
-    '<p class="alert-title"><strong>' + esc(alert.title) + "</strong></p>" +
+    '<p class="alert-title" id="' + titleId + '"><strong>' + esc(alert.title) + "</strong></p>" +
     '<p class="row-meta">' + (isEvent(alert.kind) ? "" : esc(label) + " · ") + '<time datetime="' + esc(alert.time) + '">' + esc(timeOf(alert.time)) + "</time>" +
     (alert.cleared ? " · cleared" : "") +
     (who ? ' · <button type="button" class="btn-link" data-alert-animal="' + esc(who.id) + '">Show ' + esc(who.name) + "</button>" : "") +
@@ -514,8 +523,8 @@ function openItem(alert) {
     '<div class="alert-answer">' +
     '<label class="visually-hidden" for="' + noteId + '">Note for this answer (optional)</label>' +
     '<input id="' + noteId + '" class="alert-note" type="text" maxlength="' + ALERT_RULES.noteMaxLength + '" placeholder="Note (optional)" autocomplete="off" data-alert-note />' +
-    '<button type="button" class="btn btn-ghost btn-small" data-answer="confirmed">Confirm</button>' +
-    '<button type="button" class="btn btn-ghost btn-small" data-answer="dismissed">Dismiss</button>' +
+    '<button type="button" class="btn btn-ghost btn-small" data-answer="confirmed" aria-describedby="' + titleId + '">Confirm</button>' +
+    '<button type="button" class="btn btn-ghost btn-small" data-answer="dismissed" aria-describedby="' + titleId + '">Dismiss</button>' +
     "</div></div></li>"
   );
 }
@@ -793,7 +802,11 @@ export function bindMap(root) {
         best = pin;
       }
     }
-    best?.focus();
+    if (best) {
+      from.tabIndex = -1;
+      best.tabIndex = 0;
+      best.focus();
+    }
   });
   if (view.data.rancherMap) mountMap(root);
   const scrub = root.querySelector("[data-scrub]");
