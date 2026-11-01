@@ -26,7 +26,7 @@ export const TOUR_STEPS = [
     target: "alerts",
     herd: { moment: "end" },
     title: "Open alerts",
-    body: "Alerts from the trackers, Predator Watch and Wildfire Watch. Confirm or dismiss each one. Answered alerts move under Answered alerts and stay after a reload.",
+    body: "Alerts from the trackers, Predator Watch and Wildfire Watch. Confirm or dismiss each one. Answers are kept after a reload.",
   },
   {
     id: "trace",
