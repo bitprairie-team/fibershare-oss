@@ -1,5 +1,5 @@
 {
-  "ranch": "Community sample herd",
+  "ranch": "Sample herd",
   "note": "Sample goats for this demo. This is not a real ranch herd. Positions are cells on a virtual paddock grid, not places on a map.",
   "updated": "2026-09-06",
   "uplinksStart": "2026-09-06T06:00:00",

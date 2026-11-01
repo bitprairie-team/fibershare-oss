@@ -160,16 +160,16 @@ function drawCard(step) {
   els.card.innerHTML =
     '<div class="tour-meta"><span class="tour-step">Step ' + (index + 1) + " of " + TOUR_STEPS.length + "</span>" +
     '<button type="button" class="icon-btn tour-close" data-tour-end aria-label="End the tour">' + icon("close", { size: 18 }) + "</button></div>" +
-    '<h2 id="tour-title">' + esc(step.title) + (step.simulated ? ' <span class="badge badge-sim">Simulated</span>' : "") + "</h2>" +
+    '<h2 id="tour-title">' + esc(step.title) + "</h2>" +
     '<p id="tour-body">' + esc(step.body) + "</p>" +
     '<div class="tour-actions">' +
     '<div class="tour-dots" aria-hidden="true">' + dots + "</div><span class=\"spacer\"></span>" +
-    (index > 0 ? '<button type="button" class="btn btn-ghost btn-small" data-tour-back>' + icon("arrowLeft", { size: 16 }) + "Back</button>" : "") +
+    (index > 0 ? '<button type="button" class="btn btn-ghost btn-small" data-tour-back>' + "Back</button>" : "") +
     (last
-      ? '<button type="button" class="btn btn-ghost btn-small" data-tour-reset>' + icon("reset", { size: 16 }) + 'Reset demo</button><button type="button" class="btn btn-primary btn-small" data-tour-next>Finish</button>'
-      : '<button type="button" class="btn btn-primary btn-small" data-tour-next>Next' + icon("arrowRight", { size: 16 }) + "</button>") +
+      ? '<button type="button" class="btn btn-ghost btn-small" data-tour-reset>Reset demo</button><button type="button" class="btn btn-primary btn-small" data-tour-next>Finish</button>'
+      : '<button type="button" class="btn btn-primary btn-small" data-tour-next>Next</button>') +
     "</div>" +
-    '<p class="tour-hint">Arrow keys move between steps. Esc ends the tour.</p>';
+    '<p class="tour-hint">Arrow keys change steps. Esc closes the tour.</p>';
   els.card.querySelector("[data-tour-end]").addEventListener("click", endTour);
   els.card.querySelector("[data-tour-back]")?.addEventListener("click", back);
   els.card.querySelector("[data-tour-next]").addEventListener("click", next);

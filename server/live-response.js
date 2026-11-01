@@ -15,8 +15,13 @@ export const NO_STORE = {
  *   rancher: true only after the server checked the session
  *   arcgisApiKey: optional, sent only to a signed-in rancher
  */
-export function liveBody({ live, rancher, arcgisApiKey }) {
-  if (!isLiveData(live)) return { view: rancher ? "rancher" : "public", live: null };
+export function liveBody({ live, rancher, arcgisApiKey, unreadable = false }) {
+  if (!isLiveData(live)) {
+    // Only a signed-in rancher learns that a file is there but broken.
+    const body = { view: rancher ? "rancher" : "public", live: null };
+    if (rancher && (unreadable || live != null)) body.problem = "unreadable";
+    return body;
+  }
   if (!rancher) return { view: "public", live: live.hidden === false ? hideTrackerDetails(live) : live };
   const body = { view: "rancher", live };
   const key = typeof arcgisApiKey === "string" ? arcgisApiKey.trim() : "";

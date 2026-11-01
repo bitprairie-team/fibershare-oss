@@ -64,7 +64,7 @@ export const LAYERS = [
     needsKey: true,
     attribution: POWERED_BY_ESRI + " | Esri, Maxar, Earthstar Geographics, and the GIS User Community",
     source: "https://developers.arcgis.com/rest/static-basemap-tiles/",
-    terms: "Needs an ArcGIS API key with basemap access. Esri terms apply: keep the attribution, no caching or bulk download.",
+    terms: "Needs an ArcGIS API key with basemap access. Esri terms apply. Keep the attribution. No caching or bulk download.",
   },
   {
     id: "esri-topo",

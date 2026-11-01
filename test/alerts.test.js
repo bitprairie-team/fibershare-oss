@@ -9,7 +9,7 @@ import { ALERT_RULES } from "../src/alert-config.js";
 import { computeAlerts, eventAlerts, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
 import { alertScope, createAlertStore, STORE_KEYS } from "../src/alert-store.js";
 import { heardBy, sortEvents, stateAt } from "../src/herd-state.js";
-import { LOOPS, LOOP_STATUS } from "../src/loops.js";
+import { JOBS, PLANNED } from "../src/loops.js";
 import { clearCertCache } from "../server/access-jwt.js";
 import { FEEDBACK_LIMIT, KV_FEEDBACK } from "../server/alert-feedback.js";
 import { createLocalApi } from "../server/local-api.js";
@@ -64,7 +64,7 @@ test("quiet rule: over 2 hours opens an alert, a new uplink starts a new one, ne
   assert.equal(trackerAlerts(animal("2026-09-06T10:00:00Z"), "2026-09-06T12:30:00Z").length, 1);
 });
 
-test("SOS, Predator Watch, and Wildfire Watch alerts; a cleared event stays until answered", () => {
+test("SOS, Predator Watch and Wildfire Watch alerts; a cleared event stays until answered", () => {
   const sos = trackerAlerts([{ id: "t2", name: "Tracker 2", lastSeen: "2026-09-06T12:00:00Z", sensors: { sos: true } }], "2026-09-06T12:05:00Z");
   assert.equal(sos[0].kind, "sos");
   const events = [
@@ -74,6 +74,7 @@ test("SOS, Predator Watch, and Wildfire Watch alerts; a cleared event stays unti
   ];
   const out = eventAlerts(events);
   assert.deepEqual(out.map((a) => [a.id, a.kind, a.cleared]), [["event:p1", "predator", true], ["event:s1", "smoke", false]]);
+  assert.deepEqual(out.map((a) => a.title), ["Predator Watch reported activity near A1", "Wildfire Watch reported smoke upwind"]);
 });
 
 test("sample day: the alerts follow the story, from the hourly check-ins", () => {
@@ -300,27 +301,21 @@ test("/api/health says whether a store is bound", async () => {
   assert.equal((await (await healthGet({ env: { FIBERSHARE_LIVE: {} } })).json()).store, true);
 });
 
-// ---- the six jobs -----------------------------------------------------------
+// ---- the automated jobs -----------------------------------------------------
 
-test("six jobs: each has an honest status, and only the tracker job is fully in the demo", () => {
-  assert.equal(LOOPS.length, 6);
+test("jobs: each is named by the work it does, with the real thresholds", () => {
   assert.deepEqual(
-    LOOPS.map((l) => l.title),
-    [
-      "Catch a dying or silent tracker",
-      "Find an animal in trouble",
-      "Warn neighbors about predator activity",
-      "Plan a move ahead of fire or smoke",
-      "Link fiber quality to breeding and grazing",
-      "Plan the next paddock move",
-    ]
+    JOBS.map((j) => j.id),
+    ["battery", "quiet", "sos", "predator", "smoke", "trace"]
   );
-  for (const loop of LOOPS) {
-    assert.ok(LOOP_STATUS[loop.status], loop.id);
-    if (loop.status === "works") assert.ok(loop.done && loop.href, loop.id + " says what works and links to it");
-    if (loop.status === "partly") assert.ok(loop.done && loop.planned, loop.id + " says what works and what is planned");
-    if (loop.status === "planned") assert.equal(loop.href, "", loop.id + " links nowhere");
+  for (const job of JOBS) {
+    assert.match(job.name, /^[A-Z][a-z]+s /, job.id + " starts with a verb");
+    assert.ok(!/[.:!]$/.test(job.name), job.id + " name is not a sentence");
+    assert.ok(job.name.split(" ").length <= 9, job.id + " name is short");
+    assert.ok(job.detail.length < 90, job.id + " detail is short");
   }
-  assert.deepEqual(LOOPS.filter((l) => l.status === "works").map((l) => l.id), ["tracker"]);
-  assert.match(LOOPS[0].done, new RegExp(ALERT_RULES.lowBatteryPercent + "%"));
+  assert.equal(JOBS[0].name, "Flags tracker batteries below " + ALERT_RULES.lowBatteryPercent + "%");
+  assert.equal(JOBS[1].name, "Flags trackers that stop reporting");
+  assert.match(JOBS[1].detail, new RegExp(ALERT_RULES.quietMinutes / 60 + " hours"));
+  assert.ok(PLANNED.length >= 1 && PLANNED.every((p) => /^[a-z]/.test(p)), "planned items read inside one sentence");
 });

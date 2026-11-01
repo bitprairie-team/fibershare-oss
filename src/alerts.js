@@ -95,7 +95,7 @@ export function eventAlerts(events) {
       id: "event:" + e.id,
       kind: e.type,
       eventId: e.id,
-      title: e.type === "predator" ? "Predator Watch: activity near " + (e.cell || "the herd") : "Wildfire Watch: smoke upwind",
+      title: e.type === "predator" ? "Predator Watch reported activity near " + (e.cell || "the herd") : "Wildfire Watch reported smoke upwind",
       detail: String(e.text || ""),
       time: e.time,
       cleared,

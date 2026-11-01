@@ -20,7 +20,7 @@ async function loadLive() {
   try {
     const body = await getJson("/api/live");
     const rancher = body?.view === "rancher";
-    if (!body || !isLiveData(body.live)) return { status: "missing", rancher };
+    if (!body || !isLiveData(body.live)) return { status: rancher && body?.problem === "unreadable" ? "unreadable" : "missing", rancher };
     return {
       status: "ok",
       live: body.live,
@@ -167,7 +167,8 @@ export async function loadHerd() {
   return {
     mode: "sample",
     liveAvailable: Boolean(live),
-    // "missing": the server answered but has no live file. "noserver": no /api.
+    // "missing": the server answered but has no live file. "unreadable": the
+    // file is there but is not live data (rancher only). "noserver": no /api.
     liveStatus: probe.status,
     rancherSignedIn: probe.rancher,
     loadFailed,
