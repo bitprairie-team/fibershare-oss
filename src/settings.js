@@ -3,13 +3,14 @@
 // job off the herd view still works by hand.
 import { ALERT_RULES } from "./alert-config.js";
 
-export const JOB_IDS = ["battery", "quiet", "sos", "predator", "smoke", "trace", "pull"];
+export const JOB_IDS = ["battery", "quiet", "still", "paddock", "sos", "predator", "smoke", "trace", "pull"];
 export const SETTINGS_KEYS = { jobs: "fs-jobs", limits: "fs-alert-limits" };
 
 // The limits a rancher may set, so a typo cannot turn an alert into noise.
 export const LIMITS = Object.freeze({
   lowBatteryPercent: { min: 5, max: 90 },
   quietMinutes: { min: 15, max: 1440 },
+  stillMinutes: { min: 15, max: 1440 },
 });
 
 function readJson(storage, key) {

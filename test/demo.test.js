@@ -39,7 +39,7 @@ test("the sample event feed is marked simulated and ends where herd.json says", 
     if (event.animalId) assert.ok(ids.has(event.animalId), event.id);
   }
   const types = new Set(events.events.map((e) => e.type));
-  for (const type of ["checkin", "battery", "silent", "predator", "smoke"]) assert.ok(types.has(type), type);
+  for (const type of ["checkin", "battery", "silent", "still", "out-of-paddock", "predator", "smoke"]) assert.ok(types.has(type), type);
   const end = stateAt(herd.goats, events.events, events.events.length);
   for (const goat of herd.goats) {
     const state = end.animals.find((a) => a.id === goat.id);

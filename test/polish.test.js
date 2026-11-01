@@ -120,8 +120,8 @@ test("keyMoments: sample day gives smoke and predator steps while the alert is o
   assert.deepEqual(moments.map((m) => m.id), ["smoke", "predator"]);
   const smoke = moments.find((m) => m.id === "smoke");
   const predator = moments.find((m) => m.id === "predator");
-  assert.equal(smoke.step, 12);
-  assert.equal(predator.step, 18);
+  assert.equal(smoke.step, sorted.findIndex((e) => e.type === "smoke-clear"));
+  assert.equal(predator.step, sorted.findIndex((e) => e.type === "predator-clear"));
   assert.match(smoke.time, /T12:30/);
   assert.match(predator.time, /T16:40/);
   // At each step the matching alert is still open.

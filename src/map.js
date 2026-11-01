@@ -18,6 +18,8 @@ const ALERT_KIND = {
   manual: ["info", "Added by hand"],
   battery: ["battery", "Low battery"],
   quiet: ["wifiOff", "Quiet tracker"],
+  still: ["pin", "Not moving"],
+  paddock: ["map", "Outside paddock"],
   sos: ["alert", "SOS"],
   predator: ["paw", "Predator Watch"],
   smoke: ["smoke", "Wildfire Watch"],
@@ -26,6 +28,8 @@ const EVENT_LABELS = {
   checkin: "Check-in",
   battery: "Battery",
   silent: "Missed check-in",
+  still: "Not moving",
+  "out-of-paddock": "Outside paddock",
   smoke: "Wildfire Watch",
   "smoke-clear": "Wildfire Watch, cleared",
   predator: "Predator Watch",
@@ -84,6 +88,8 @@ function stage(data, animals, live, cells) {
 const SETTING_ROWS = [
   ["battery", "Battery alerts", "lowBatteryPercent", "Below", "%"],
   ["quiet", "Quiet-tracker alerts", "quietMinutes", "After", "minutes with no check-in"],
+  ["still", "Not-moving alerts", "stillMinutes", "After", "minutes near the same spot"],
+  ["paddock", "Out-of-paddock alerts"],
   ["sos", "SOS alerts"],
   ["predator", "Predator Watch reports"],
   ["smoke", "Wildfire Watch reports"],
@@ -134,7 +140,7 @@ function alertsSection(data, live) {
     '<section class="section alerts-section" data-tour="alerts" aria-labelledby="alerts-title">' +
     '<h2 class="section-rule" id="alerts-title">Open alerts <span class="count" data-open-count></span></h2>' +
     '<p class="jobs-line"><span data-jobs-line>' + esc(jobsLine(view.jobs, view.rules)) + '</span> <button type="button" class="btn-link" data-open-settings>Change</button></p>' +
-    (live ? "" : '<p class="muted feed-note">Predator Watch and Wildfire Watch reports on the sample day are simulated.</p>') +
+    (live ? "" : '<p class="muted feed-note">Predator Watch, Wildfire Watch, not-moving, and out-of-paddock reports on the sample day are simulated.</p>') +
     '<p class="notice notice-warn alert-error" data-alert-error role="alert" hidden></p>' +
     '<p class="visually-hidden" data-alert-status role="status"></p>' +
     '<div data-alerts>' +
@@ -344,6 +350,8 @@ function renderPins(root, state, alerts) {
     const mine = alerts.all.filter((a) => a.animalId === animal.id);
     pin.classList.toggle("is-low", mine.some((a) => a.kind === "battery"));
     pin.classList.toggle("is-silent", animal.silent || mine.some((a) => a.kind === "quiet"));
+    pin.classList.toggle("is-still", mine.some((a) => a.kind === "still"));
+    pin.classList.toggle("is-outside", mine.some((a) => a.kind === "paddock"));
     pin.classList.toggle("has-alert", alerts.open.some((a) => a.animalId === animal.id));
     pin.classList.toggle("is-sos", Boolean(animal.sos || animal.sensors?.sos));
     pin.setAttribute("aria-pressed", String(on));
@@ -629,7 +637,11 @@ function openItem(alert) {
       : (isEvent(alert.kind) ? "" : esc(label) + " · ") + "rules checked " + '<time datetime="' + esc(alert.ranAt) + '">' + esc(timeOf(alert.ranAt)) + "</time>") +
     (alert.cleared ? " · cleared" : "") +
     (who ? ' · <button type="button" class="btn-link" data-alert-animal="' + esc(who.id) + '">Show ' + esc(who.name) + "</button>" : "") +
-    (alert.kind === "battery" || alert.kind === "quiet" ? ' · <button type="button" class="btn-link" data-change-limit="' + (alert.kind === "battery" ? "lowBatteryPercent" : "quietMinutes") + '">Change limit</button>' : "") +
+    (alert.kind === "battery" || alert.kind === "quiet" || alert.kind === "still"
+      ? ' · <button type="button" class="btn-link" data-change-limit="' +
+        (alert.kind === "battery" ? "lowBatteryPercent" : alert.kind === "quiet" ? "quietMinutes" : "stillMinutes") +
+        '">Change limit</button>'
+      : "") +
     "</p>" +
     '<div class="alert-answer">' +
     '<label class="visually-hidden" for="' + noteId + '">Note for this answer (optional)</label>' +

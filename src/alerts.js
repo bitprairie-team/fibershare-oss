@@ -4,11 +4,11 @@
 import { ALERT_RULES } from "./alert-config.js";
 import { timeOf } from "./time.js";
 
-export const ALERT_KINDS = ["battery", "quiet", "sos", "predator", "smoke", "manual"];
+export const ALERT_KINDS = ["battery", "quiet", "still", "paddock", "sos", "predator", "smoke", "manual"];
 export const ANSWERS = ["confirmed", "dismissed", "reopened"];
-const KIND_ORDER = { sos: 0, manual: 1, predator: 2, smoke: 3, quiet: 4, battery: 5 };
+const KIND_ORDER = { sos: 0, manual: 1, predator: 2, smoke: 3, paddock: 4, still: 5, quiet: 6, battery: 7 };
 // Every automated alert job, on unless a setting turns it off.
-const ALL_ON = { battery: true, quiet: true, sos: true, predator: true, smoke: true };
+const ALL_ON = { battery: true, quiet: true, still: true, paddock: true, sos: true, predator: true, smoke: true };
 
 function ms(iso) {
   const t = Date.parse(iso);
@@ -26,9 +26,28 @@ function duration(minutes) {
   return h + (h === 1 ? " hour" : " hours") + (m ? " " + m + " min" : "");
 }
 
+/** True when x,y sit inside the active paddock bounds. */
+export function inPaddock(x, y, paddock = ALERT_RULES.paddock) {
+  return (
+    Number.isFinite(x) &&
+    Number.isFinite(y) &&
+    x >= paddock.minX &&
+    x <= paddock.maxX &&
+    y >= paddock.minY &&
+    y <= paddock.maxY
+  );
+}
+
+/** Distance between two grid (or meter) points. */
+export function displacement(a, b) {
+  if (!Number.isFinite(a?.x) || !Number.isFinite(a?.y) || !Number.isFinite(b?.x) || !Number.isFinite(b?.y)) return null;
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+
 /**
- * Alerts from the tracker data: a low battery, a quiet tracker, or an SOS.
- * animals: [{ id, name, battery, externalPower, lastSeen, status, sos, sensors }]
+ * Alerts from the tracker data: low battery, quiet, not-moving, out-of-paddock, or SOS.
+ * animals: [{ id, name, battery, externalPower, lastSeen, lastMoved, lastFix, x, y, status, sos, sensors }]
  * now: ISO time to measure "quiet" from.
  * jobs: which jobs run. A job that is off adds nothing.
  * Each alert has `why`: the rule and the reading that raised it.
@@ -76,6 +95,64 @@ export function trackerAlerts(animals, now, rules = ALERT_RULES, jobs = ALL_ON) 
         time: now,
       });
     }
+
+    if (jobs.still) {
+      const moved = ms(a.lastMoved);
+      // Prefer lastFix (last positioned reading). Fall back to lastSeen for live
+      // trackers that set lastSeen on every fix and do not send lastFix.
+      const fix = ms(a.lastFix) ?? seen;
+      if (fix !== null && nowMs !== null && moved !== null) {
+        const quietGap = Math.round((nowMs - fix) / 60000);
+        const stillFor = Math.round((nowMs - moved) / 60000);
+        // Still getting position fixes (not quiet on fixes) but has not moved enough.
+        if (quietGap <= rules.quietMinutes && stillFor > rules.stillMinutes) {
+          out.push({
+            id: "still:" + a.id + ":" + a.lastMoved,
+            kind: "still",
+            animalId: a.id,
+            title: name + ": not moving for " + duration(stillFor),
+            detail: "The tracker keeps checking in near the same spot. Look in on the animal when you can.",
+            why:
+              "Last real move at " +
+              hm(a.lastMoved) +
+              ", " +
+              duration(stillFor) +
+              " before " +
+              hm(now) +
+              ", over the limit of " +
+              duration(rules.stillMinutes) +
+              ". Still checking in.",
+            time: a.lastMoved,
+          });
+        }
+      }
+    }
+    if (jobs.paddock && Number.isFinite(a.x) && Number.isFinite(a.y) && !inPaddock(a.x, a.y, rules.paddock)) {
+      const at = a.lastSeen || now;
+      out.push({
+        id: "paddock:" + a.id + ":" + Math.round(a.x) + ":" + Math.round(a.y),
+        kind: "paddock",
+        animalId: a.id,
+        title: name + ": outside the paddock",
+        detail: "Last position is outside the active paddock. Confirm the fence or the animal.",
+        why:
+          "Position " +
+          Math.round(a.x) +
+          "," +
+          Math.round(a.y) +
+          " is outside the paddock (" +
+          rules.paddock.minX +
+          "-" +
+          rules.paddock.maxX +
+          " x " +
+          rules.paddock.minY +
+          "-" +
+          rules.paddock.maxY +
+          ").",
+        time: at,
+      });
+    }
+
     if (jobs.sos && (a.sos || a.sensors?.sos === true)) {
       const at = a.sensors?.at || a.lastSeen || now;
       out.push({
@@ -163,7 +240,7 @@ function cleanText(value, max) {
 export function normalizeFeedback(input, { now = new Date().toISOString(), source = "demo", rules = ALERT_RULES } = {}) {
   if (!input || typeof input !== "object") return { ok: false, error: "Send an answer as JSON." };
   const alertId = String(input.alertId || "");
-  if (!/^(battery|quiet|sos|event|manual):[A-Za-z0-9:._-]{1,100}$/.test(alertId)) return { ok: false, error: "Unknown alert." };
+  if (!/^(battery|quiet|still|paddock|sos|event|manual):[A-Za-z0-9:._-]{1,100}$/.test(alertId)) return { ok: false, error: "Unknown alert." };
   if (!ANSWERS.includes(input.answer)) return { ok: false, error: "The answer must be confirmed, dismissed, or reopened." };
   if (!ALERT_KINDS.includes(input.kind)) return { ok: false, error: "Unknown alert kind." };
   if (typeof input.note === "string" && input.note.length > rules.noteMaxLength * 2) return { ok: false, error: "The note is too long." };
@@ -178,7 +255,16 @@ export function normalizeFeedback(input, { now = new Date().toISOString(), sourc
     at: now,
     source,
     // The rule that raised the alert, for a later tuning step.
-    rule: input.kind === "battery" ? { lowBatteryPercent: rules.lowBatteryPercent } : input.kind === "quiet" ? { quietMinutes: rules.quietMinutes } : {},
+    rule:
+      input.kind === "battery"
+        ? { lowBatteryPercent: rules.lowBatteryPercent }
+        : input.kind === "quiet"
+          ? { quietMinutes: rules.quietMinutes }
+          : input.kind === "still"
+            ? { stillMinutes: rules.stillMinutes, stillDistance: rules.stillDistance }
+            : input.kind === "paddock"
+              ? { paddock: rules.paddock }
+              : {},
   };
   if (typeof input.animalId === "string" && /^[A-Za-z0-9._-]{1,60}$/.test(input.animalId)) entry.animalId = input.animalId;
   return { ok: true, entry };

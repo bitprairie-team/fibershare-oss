@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { PassThrough } from "node:stream";
 import test from "node:test";
 import { ALERT_RULES } from "../src/alert-config.js";
-import { computeAlerts, eventAlerts, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
+import { computeAlerts, eventAlerts, inPaddock, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
 import { alertScope, createAlertStore, STORE_KEYS } from "../src/alert-store.js";
 import { heardBy, sortEvents, stateAt } from "../src/herd-state.js";
 import { JOBS, PLANNED } from "../src/loops.js";
@@ -32,9 +32,12 @@ function sampleAt(count) {
 
 // ---- rules ------------------------------------------------------------------
 
-test("alert config: below 20% battery and over 2 hours quiet", () => {
+test("alert config: below 20% battery, over 2 hours quiet, not-moving and paddock bounds", () => {
   assert.equal(ALERT_RULES.lowBatteryPercent, 20);
   assert.equal(ALERT_RULES.quietMinutes, 120);
+  assert.equal(ALERT_RULES.stillMinutes, 120);
+  assert.equal(ALERT_RULES.stillDistance, 3);
+  assert.deepEqual(ALERT_RULES.paddock, { minX: 0, maxX: 100, minY: 0, maxY: 100 });
 });
 
 test("battery rule: below the threshold opens an alert, outside power or no reading does not", () => {
@@ -64,6 +67,53 @@ test("quiet rule: over 2 hours opens an alert, a new uplink starts a new one, ne
   assert.equal(trackerAlerts(animal("2026-09-06T10:00:00Z"), "2026-09-06T12:30:00Z").length, 1);
 });
 
+
+test("still rule: checking in near the same spot opens a not-moving alert", () => {
+  const now = "2026-09-06T12:30:00";
+  const animal = (extra) => [{ id: "t1", name: "Tracker 1", battery: 80, lastSeen: now, lastMoved: "2026-09-06T10:00:00", x: 50, y: 50, ...extra }];
+  assert.equal(trackerAlerts(animal({ lastMoved: "2026-09-06T10:30:00" }), now).filter((a) => a.kind === "still").length, 0, "exactly 2 hours is not over");
+  const [still] = trackerAlerts(animal({}), now).filter((a) => a.kind === "still");
+  assert.equal(still.kind, "still");
+  assert.equal(still.id, "still:t1:2026-09-06T10:00:00");
+  assert.match(still.title, /not moving for 2 hours 30 min/);
+  assert.match(still.why, /Still checking in/);
+  // Quiet animals do not also get a not-moving alert.
+  assert.equal(
+    trackerAlerts([{ id: "t1", name: "T", lastSeen: "2026-09-06T09:00:00", lastMoved: "2026-09-06T08:00:00", x: 10, y: 10 }], now).filter((a) => a.kind === "still").length,
+    0
+  );
+  // Job off.
+  assert.equal(trackerAlerts(animal({}), now, ALERT_RULES, { still: false }).filter((a) => a.kind === "still").length, 0);
+});
+
+
+test("still rule: uplink-only lastSeen without a recent position fix does not open not-moving", () => {
+  const now = "2026-09-06T07:45:00";
+  // Dawn fix, then hourly uplinks only (lastSeen recent, lastFix still dawn).
+  const animals = [{ id: "b", name: "Bramble", battery: 85, lastSeen: now, lastFix: "2026-09-06T05:44:00", lastMoved: "2026-09-06T05:44:00", x: 30, y: 22 }];
+  assert.equal(trackerAlerts(animals, now).filter((a) => a.kind === "still").length, 0);
+  // A fresh position fix at the same spot would open it once past the limit.
+  assert.equal(
+    trackerAlerts([{ ...animals[0], lastFix: now }], now).filter((a) => a.kind === "still").length,
+    1
+  );
+});
+
+test("paddock rule: a position outside the bounds opens an out-of-paddock alert", () => {
+  const now = "2026-09-06T14:10:00";
+  assert.equal(inPaddock(50, 50), true);
+  assert.equal(inPaddock(108, 66), false);
+  assert.equal(inPaddock(-1, 10), false);
+  const inside = trackerAlerts([{ id: "s", name: "Sage", lastSeen: now, x: 80, y: 66 }], now);
+  assert.equal(inside.filter((a) => a.kind === "paddock").length, 0);
+  const [out] = trackerAlerts([{ id: "s", name: "Sage", lastSeen: now, x: 108, y: 66 }], now).filter((a) => a.kind === "paddock");
+  assert.equal(out.kind, "paddock");
+  assert.equal(out.id, "paddock:s:108:66");
+  assert.match(out.title, /outside the paddock/);
+  assert.match(out.why, /108,66/);
+  assert.equal(trackerAlerts([{ id: "s", name: "Sage", lastSeen: now, x: 108, y: 66 }], now, ALERT_RULES, { paddock: false }).length, 0);
+});
+
 test("SOS, Predator Watch and Wildfire Watch alerts; a cleared event stays until answered", () => {
   const sos = trackerAlerts([{ id: "t2", name: "Tracker 2", lastSeen: "2026-09-06T12:00:00Z", sensors: { sos: true } }], "2026-09-06T12:05:00Z");
   assert.equal(sos[0].kind, "sos");
@@ -79,19 +129,27 @@ test("SOS, Predator Watch and Wildfire Watch alerts; a cleared event stays until
 
 test("sample day: the alerts follow the story, from the hourly check-ins", () => {
   const events = sortEvents(day.events);
-  assert.equal(events.length, 28);
+  assert.equal(events.length, 34);
   // Morning: every tracker heard within the hour, so nothing is quiet.
   assert.deepEqual(sampleAt(9).map((a) => a.id), [], "07:45 has no alert; Hazel is at 22%");
   // 09:20: Pippin has been quiet since 07:00.
   const at920 = sampleAt(10);
   assert.deepEqual(at920.map((a) => a.kind + ":" + a.animalId), ["quiet:pippin"]);
-  // 10:05: Pippin is back.
+  // 10:05: Pippin is back (before the sample still/paddock story).
   assert.deepEqual(sampleAt(11), []);
-  // Smoke and predator moments.
-  assert.ok(sampleAt(12).some((a) => a.kind === "smoke"));
-  assert.ok(sampleAt(14).some((a) => a.kind === "predator" && !a.cleared));
+  // After thistle's noon check-in: not-moving sample alert.
+  const stillStep = events.findIndex((e) => e.id === "e30") + 1;
+  assert.ok(sampleAt(stillStep).some((a) => a.kind === "still" && a.animalId === "thistle"));
+  // After sage leaves the paddock: out-of-paddock sample alert.
+  const outStep = events.findIndex((e) => e.id === "e32") + 1;
+  assert.ok(sampleAt(outStep).some((a) => a.kind === "paddock" && a.animalId === "sage"));
+  // Sage is back inside before smoke/predator; still clears when thistle later moves.
+  const smokeStep = events.findIndex((e) => e.type === "smoke") + 1;
+  const predatorStep = events.findIndex((e) => e.type === "predator") + 1;
+  assert.ok(sampleAt(smokeStep).some((a) => a.kind === "smoke"));
+  assert.ok(sampleAt(predatorStep).some((a) => a.kind === "predator" && !a.cleared));
   // End of day: smoke and predator (both cleared, not yet answered),
-  // Willow quiet since 14:40, Hazel below 20%.
+  // Willow quiet since 14:40, Hazel below 20%. Sample still/paddock cleared by later moves.
   const end = sampleAt(events.length);
   assert.deepEqual(end.map((a) => a.kind + ":" + (a.animalId || "")), ["predator:", "smoke:", "quiet:willow", "battery:hazel"]);
   assert.match(end.find((a) => a.kind === "quiet").title, /^Willow: no check-in for 3 hours 25 min/);
@@ -306,7 +364,7 @@ test("/api/health says whether a store is bound", async () => {
 test("jobs: each is named by the work it does, with the real thresholds", () => {
   assert.deepEqual(
     JOBS.map((j) => j.id),
-    ["battery", "quiet", "sos", "predator", "smoke", "trace"]
+    ["battery", "quiet", "still", "paddock", "sos", "predator", "smoke", "trace"]
   );
   for (const job of JOBS) {
     assert.match(job.name, /^[A-Z][a-z]+s /, job.id + " starts with a verb");

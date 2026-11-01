@@ -21,6 +21,18 @@ export function jobsFor(rules = ALERT_RULES) {
       off: "No quiet-tracker alerts. Each animal still shows its last check-in.",
     },
     {
+      id: "still",
+      name: "Flags animals that stop moving",
+      detail: "An alert after " + minutesText(rules.stillMinutes) + " checking in near the same spot.",
+      off: "No not-moving alerts. Each animal still shows its last check-in.",
+    },
+    {
+      id: "paddock",
+      name: "Flags animals outside the paddock",
+      detail: "An alert when a position falls outside the active paddock bounds.",
+      off: "No out-of-paddock alerts. Positions still show on the grid.",
+    },
+    {
       id: "sos",
       name: "Raises an alert when a tracker sends an SOS",
       detail: "The alert names the animal.",
@@ -69,11 +81,21 @@ export const PLANNED = [
 const ALERT_JOB_LABELS = {
   battery: (r) => "battery below " + r.lowBatteryPercent + "%",
   quiet: (r) => "no check-in for " + minutesText(r.quietMinutes),
+  still: (r) => "not moving for " + minutesText(r.stillMinutes),
+  paddock: () => "outside the paddock",
   sos: () => "SOS",
   predator: () => "Predator Watch",
   smoke: () => "Wildfire Watch",
 };
-const OFF_LABELS = { battery: "battery", quiet: "quiet tracker", sos: "SOS", predator: "Predator Watch", smoke: "Wildfire Watch" };
+const OFF_LABELS = {
+  battery: "battery",
+  quiet: "quiet tracker",
+  still: "not moving",
+  paddock: "out of paddock",
+  sos: "SOS",
+  predator: "Predator Watch",
+  smoke: "Wildfire Watch",
+};
 
 /** One plain line on the herd view: which automated alerts run right now. */
 export function jobsLine(jobs, rules = ALERT_RULES) {

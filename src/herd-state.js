@@ -1,5 +1,7 @@
 // Work out where each animal is, and what its tracker reported, at a point in
 // the event feed. Used by the herd view and its day playback.
+import { ALERT_RULES } from "./alert-config.js";
+
 
 export function sortEvents(events) {
   return [...(events || [])].sort((a, b) => String(a.time).localeCompare(String(b.time)) || String(a.id).localeCompare(String(b.id)));
@@ -21,6 +23,10 @@ export function stateAt(animals, events, count, { uplinksStart = null, now = nul
       y: first ? first.y : animal.y,
       battery: first && Number.isFinite(first.battery) ? first.battery : animal.battery,
       lastSeen: null,
+      lastMoved: first ? first.time : animal.lastMoved || null,
+      // Last event that carried a position. Hourly uplink counts update lastSeen
+      // only, so not-moving alerts use lastFix and ignore those count-only bumps.
+      lastFix: first ? first.time : animal.lastFix || null,
       silent: false,
       sos: false,
     });
@@ -31,8 +37,12 @@ export function stateAt(animals, events, count, { uplinksStart = null, now = nul
     const animal = byId.get(event.animalId);
     if (animal) {
       if (Number.isFinite(event.x) && Number.isFinite(event.y)) {
+        const prev = { x: animal.x, y: animal.y };
         animal.x = event.x;
         animal.y = event.y;
+        animal.lastFix = event.time;
+        const dist = Math.hypot(animal.x - prev.x, animal.y - prev.y);
+        if (!animal.lastMoved || dist >= ALERT_RULES.stillDistance) animal.lastMoved = event.time;
       }
       if (Number.isFinite(event.battery)) animal.battery = event.battery;
       if (event.type === "checkin") {

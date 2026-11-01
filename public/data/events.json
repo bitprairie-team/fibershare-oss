@@ -1,35 +1,326 @@
 {
   "simulated": true,
-  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid.",
+  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving and out-of-paddock alerts.",
   "day": "2026-09-06",
   "events": [
-    { "id": "e01", "time": "2026-09-06T05:40:00", "type": "checkin", "animalId": "juniper", "x": 20, "y": 30, "battery": 81, "text": "Tracker 1 checked in." },
-    { "id": "e02", "time": "2026-09-06T05:41:00", "type": "checkin", "animalId": "thistle", "x": 58, "y": 30, "battery": 66, "text": "Tracker 2 checked in." },
-    { "id": "e03", "time": "2026-09-06T05:43:00", "type": "checkin", "animalId": "clover", "x": 44, "y": 62, "battery": 73, "text": "Tracker 3 checked in." },
-    { "id": "e04", "time": "2026-09-06T05:44:00", "type": "checkin", "animalId": "bramble", "x": 30, "y": 22, "battery": 85, "text": "Tracker 4 checked in." },
-    { "id": "e05", "time": "2026-09-06T05:46:00", "type": "checkin", "animalId": "sage", "x": 36, "y": 26, "battery": 60, "text": "Tracker 5 checked in." },
-    { "id": "e06", "time": "2026-09-06T05:48:00", "type": "checkin", "animalId": "willow", "x": 50, "y": 74, "battery": 71, "text": "Tracker 6 checked in." },
-    { "id": "e07", "time": "2026-09-06T05:50:00", "type": "checkin", "animalId": "pippin", "x": 22, "y": 20, "battery": 50, "text": "Tracker 7 checked in." },
-    { "id": "e08", "time": "2026-09-06T05:52:00", "type": "checkin", "animalId": "hazel", "x": 60, "y": 48, "battery": 24, "text": "Tracker 8 checked in." },
-    { "id": "e09", "time": "2026-09-06T07:45:00", "type": "battery", "severity": "watch", "animalId": "hazel", "battery": 22, "text": "Tracker 8 battery is at 22%. Charge or swap it in the next day or two." },
-    { "id": "e10", "time": "2026-09-06T09:20:00", "type": "silent", "severity": "watch", "animalId": "pippin", "text": "Tracker 7 missed two check-ins. Last heard at 05:50." },
-    { "id": "e11", "time": "2026-09-06T10:05:00", "type": "checkin", "animalId": "pippin", "x": 18, "y": 16, "battery": 49, "text": "Tracker 7 is back. It was likely out of radio range behind the ridge." },
-    { "id": "e12", "time": "2026-09-06T12:30:00", "type": "smoke", "severity": "watch", "text": "Smoke haze is rising upwind of the grid. No fire reported nearby." },
-    { "id": "e13", "time": "2026-09-06T13:40:00", "type": "smoke-clear", "severity": "info", "text": "The haze reading is back to normal." },
-    { "id": "e14", "time": "2026-09-06T16:40:00", "type": "predator", "severity": "alert", "cell": "A1", "text": "A likely coyote at the edge of paddock A1. No contact with the herd." },
-    { "id": "e15", "time": "2026-09-06T16:44:00", "type": "checkin", "animalId": "bramble", "x": 70, "y": 56, "battery": 84, "text": "Tracker 4 moved quickly away from A1." },
-    { "id": "e16", "time": "2026-09-06T16:45:00", "type": "checkin", "animalId": "sage", "x": 79, "y": 64, "battery": 59, "text": "Tracker 5 moved quickly away from A1." },
-    { "id": "e17", "time": "2026-09-06T16:46:00", "type": "checkin", "animalId": "pippin", "x": 41, "y": 31, "battery": 48, "text": "Tracker 7 moved away from A1." },
-    { "id": "e18", "time": "2026-09-06T16:47:00", "type": "checkin", "animalId": "juniper", "x": 28, "y": 42, "battery": 79, "text": "Tracker 1 moved away from A1." },
-    { "id": "e19", "time": "2026-09-06T17:25:00", "type": "predator-clear", "severity": "info", "cell": "A1", "text": "No more detections at A1 for 45 minutes." },
-    { "id": "e20", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "juniper", "x": 34, "y": 44, "battery": 78, "text": "Tracker 1 checked in." },
-    { "id": "e21", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "thistle", "x": 62, "y": 35, "battery": 64, "text": "Tracker 2 checked in." },
-    { "id": "e22", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "clover", "x": 48, "y": 68, "battery": 71, "text": "Tracker 3 checked in." },
-    { "id": "e23", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "bramble", "x": 72, "y": 58, "battery": 83, "text": "Tracker 4 checked in." },
-    { "id": "e24", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "sage", "x": 80, "y": 66, "battery": 58, "text": "Tracker 5 checked in." },
-    { "id": "e25", "time": "2026-09-06T17:55:00", "type": "silent", "animalId": "willow", "text": "Tracker 6 missed its evening check-in. Last heard at 14:40 by the creek." },
-    { "id": "e26", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "pippin", "x": 40, "y": 30, "battery": 47, "text": "Tracker 7 checked in." },
-    { "id": "e27", "time": "2026-09-06T17:55:00", "type": "checkin", "animalId": "hazel", "x": 66, "y": 52, "battery": 19, "text": "Tracker 8 checked in." },
-    { "id": "e28", "time": "2026-09-06T18:00:00", "type": "battery", "severity": "alert", "animalId": "hazel", "battery": 19, "text": "Tracker 8 battery is at 19%. Charge or swap it today." }
+    {
+      "id": "e01",
+      "time": "2026-09-06T05:40:00",
+      "type": "checkin",
+      "animalId": "juniper",
+      "x": 20,
+      "y": 30,
+      "battery": 81,
+      "text": "Tracker 1 checked in."
+    },
+    {
+      "id": "e02",
+      "time": "2026-09-06T05:41:00",
+      "type": "checkin",
+      "animalId": "thistle",
+      "x": 58,
+      "y": 30,
+      "battery": 66,
+      "text": "Tracker 2 checked in."
+    },
+    {
+      "id": "e03",
+      "time": "2026-09-06T05:43:00",
+      "type": "checkin",
+      "animalId": "clover",
+      "x": 44,
+      "y": 62,
+      "battery": 73,
+      "text": "Tracker 3 checked in."
+    },
+    {
+      "id": "e04",
+      "time": "2026-09-06T05:44:00",
+      "type": "checkin",
+      "animalId": "bramble",
+      "x": 30,
+      "y": 22,
+      "battery": 85,
+      "text": "Tracker 4 checked in."
+    },
+    {
+      "id": "e05",
+      "time": "2026-09-06T05:46:00",
+      "type": "checkin",
+      "animalId": "sage",
+      "x": 36,
+      "y": 26,
+      "battery": 60,
+      "text": "Tracker 5 checked in."
+    },
+    {
+      "id": "e06",
+      "time": "2026-09-06T05:48:00",
+      "type": "checkin",
+      "animalId": "willow",
+      "x": 50,
+      "y": 74,
+      "battery": 71,
+      "text": "Tracker 6 checked in."
+    },
+    {
+      "id": "e07",
+      "time": "2026-09-06T05:50:00",
+      "type": "checkin",
+      "animalId": "pippin",
+      "x": 22,
+      "y": 20,
+      "battery": 50,
+      "text": "Tracker 7 checked in."
+    },
+    {
+      "id": "e08",
+      "time": "2026-09-06T05:52:00",
+      "type": "checkin",
+      "animalId": "hazel",
+      "x": 60,
+      "y": 48,
+      "battery": 24,
+      "text": "Tracker 8 checked in."
+    },
+    {
+      "id": "e09",
+      "time": "2026-09-06T07:45:00",
+      "type": "battery",
+      "severity": "watch",
+      "animalId": "hazel",
+      "battery": 22,
+      "text": "Tracker 8 battery is at 22%. Charge or swap it in the next day or two."
+    },
+    {
+      "id": "e10",
+      "time": "2026-09-06T09:20:00",
+      "type": "silent",
+      "severity": "watch",
+      "animalId": "pippin",
+      "text": "Tracker 7 missed two check-ins. Last heard at 05:50."
+    },
+    {
+      "id": "e11",
+      "time": "2026-09-06T10:05:00",
+      "type": "checkin",
+      "animalId": "pippin",
+      "x": 18,
+      "y": 16,
+      "battery": 49,
+      "text": "Tracker 7 is back. It was likely out of radio range behind the ridge."
+    },
+    {
+      "id": "e29",
+      "time": "2026-09-06T10:15:00",
+      "type": "checkin",
+      "animalId": "thistle",
+      "x": 58,
+      "y": 30,
+      "battery": 65,
+      "text": "Sample: Tracker 2 checked in near the same morning spot."
+    },
+    {
+      "id": "e30",
+      "time": "2026-09-06T12:20:00",
+      "type": "checkin",
+      "animalId": "thistle",
+      "x": 59,
+      "y": 31,
+      "battery": 64,
+      "text": "Sample: Tracker 2 is still near that spot after more than two hours."
+    },
+    {
+      "id": "e31",
+      "time": "2026-09-06T12:25:00",
+      "type": "still",
+      "severity": "watch",
+      "animalId": "thistle",
+      "text": "Sample not-moving alert: Tracker 2 has stayed near the same spot for over 2 hours while still checking in."
+    },
+    {
+      "id": "e12",
+      "time": "2026-09-06T12:30:00",
+      "type": "smoke",
+      "severity": "watch",
+      "text": "Smoke haze is rising upwind of the grid. No fire reported nearby."
+    },
+    {
+      "id": "e13",
+      "time": "2026-09-06T13:40:00",
+      "type": "smoke-clear",
+      "severity": "info",
+      "text": "The haze reading is back to normal."
+    },
+    {
+      "id": "e32",
+      "time": "2026-09-06T14:00:00",
+      "type": "checkin",
+      "animalId": "sage",
+      "x": 108,
+      "y": 66,
+      "battery": 58,
+      "text": "Sample: Tracker 5 checked in outside the paddock grid (east of the fence line)."
+    },
+    {
+      "id": "e33",
+      "time": "2026-09-06T14:05:00",
+      "type": "out-of-paddock",
+      "severity": "alert",
+      "animalId": "sage",
+      "text": "Sample out-of-paddock alert: Tracker 5's last position is outside the active paddock."
+    },
+    {
+      "id": "e34",
+      "time": "2026-09-06T14:20:00",
+      "type": "checkin",
+      "animalId": "sage",
+      "x": 80,
+      "y": 66,
+      "battery": 58,
+      "text": "Sample: Tracker 5 is back inside the paddock."
+    },
+    {
+      "id": "e14",
+      "time": "2026-09-06T16:40:00",
+      "type": "predator",
+      "severity": "alert",
+      "cell": "A1",
+      "text": "A likely coyote at the edge of paddock A1. No contact with the herd."
+    },
+    {
+      "id": "e15",
+      "time": "2026-09-06T16:44:00",
+      "type": "checkin",
+      "animalId": "bramble",
+      "x": 70,
+      "y": 56,
+      "battery": 84,
+      "text": "Tracker 4 moved quickly away from A1."
+    },
+    {
+      "id": "e16",
+      "time": "2026-09-06T16:45:00",
+      "type": "checkin",
+      "animalId": "sage",
+      "x": 79,
+      "y": 64,
+      "battery": 59,
+      "text": "Tracker 5 moved quickly away from A1."
+    },
+    {
+      "id": "e17",
+      "time": "2026-09-06T16:46:00",
+      "type": "checkin",
+      "animalId": "pippin",
+      "x": 41,
+      "y": 31,
+      "battery": 48,
+      "text": "Tracker 7 moved away from A1."
+    },
+    {
+      "id": "e18",
+      "time": "2026-09-06T16:47:00",
+      "type": "checkin",
+      "animalId": "juniper",
+      "x": 28,
+      "y": 42,
+      "battery": 79,
+      "text": "Tracker 1 moved away from A1."
+    },
+    {
+      "id": "e19",
+      "time": "2026-09-06T17:25:00",
+      "type": "predator-clear",
+      "severity": "info",
+      "cell": "A1",
+      "text": "No more detections at A1 for 45 minutes."
+    },
+    {
+      "id": "e20",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "juniper",
+      "x": 34,
+      "y": 44,
+      "battery": 78,
+      "text": "Tracker 1 checked in."
+    },
+    {
+      "id": "e21",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "thistle",
+      "x": 62,
+      "y": 35,
+      "battery": 64,
+      "text": "Tracker 2 checked in."
+    },
+    {
+      "id": "e22",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "clover",
+      "x": 48,
+      "y": 68,
+      "battery": 71,
+      "text": "Tracker 3 checked in."
+    },
+    {
+      "id": "e23",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "bramble",
+      "x": 72,
+      "y": 58,
+      "battery": 83,
+      "text": "Tracker 4 checked in."
+    },
+    {
+      "id": "e24",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "sage",
+      "x": 86,
+      "y": 70,
+      "battery": 58,
+      "text": "Sample: Tracker 5 walks farther into the paddock before evening."
+    },
+    {
+      "id": "e25",
+      "time": "2026-09-06T17:55:00",
+      "type": "silent",
+      "animalId": "willow",
+      "text": "Tracker 6 missed its evening check-in. Last heard at 14:40 by the creek."
+    },
+    {
+      "id": "e26",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "pippin",
+      "x": 40,
+      "y": 30,
+      "battery": 47,
+      "text": "Tracker 7 checked in."
+    },
+    {
+      "id": "e27",
+      "time": "2026-09-06T17:55:00",
+      "type": "checkin",
+      "animalId": "hazel",
+      "x": 66,
+      "y": 52,
+      "battery": 19,
+      "text": "Tracker 8 checked in."
+    },
+    {
+      "id": "e28",
+      "time": "2026-09-06T18:00:00",
+      "type": "battery",
+      "severity": "alert",
+      "animalId": "hazel",
+      "battery": 19,
+      "text": "Tracker 8 battery is at 19%. Charge or swap it today."
+    }
   ]
 }

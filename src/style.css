@@ -1081,6 +1081,8 @@ main.wrap {
 }
 .goat.is-low::after,
 .goat.is-silent::after,
+.goat.is-still::after,
+.goat.is-outside::after,
 .goat.is-sos::after {
   content: "";
   position: absolute;
@@ -1101,6 +1103,18 @@ main.wrap {
 }
 .goat.is-silent::after {
   background: #8a8173;
+}
+.goat.is-still {
+  border-style: dotted;
+}
+.goat.is-still::after {
+  background: #6b7c8a;
+}
+.goat.is-outside {
+  border-color: #c45c26;
+}
+.goat.is-outside::after {
+  background: #c45c26;
 }
 .goat.is-sos {
   border-color: #f2a08a;
@@ -1703,6 +1717,13 @@ button.feed-row:focus-visible {
 }
 .rancher-pin.is-silent span {
   background: #655d51;
+}
+.rancher-pin.is-still span {
+  background: #4f5f6c;
+}
+.rancher-pin.is-outside span {
+  background: #a3451a;
+  border-color: #f5c19a;
 }
 .rancher-pin.is-sos span {
   background: #a3341c;

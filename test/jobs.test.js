@@ -61,8 +61,10 @@ test("limits: a rancher can change them, within sane bounds", () => {
   assert.equal(readRules(s).lowBatteryPercent, ALERT_RULES.lowBatteryPercent);
   assert.equal(setLimit("lowBatteryPercent", 30, s).lowBatteryPercent, 30);
   assert.equal(setLimit("quietMinutes", 90, s).quietMinutes, 90);
+  assert.equal(setLimit("stillMinutes", 60, s).stillMinutes, 60);
   assert.equal(setLimit("lowBatteryPercent", 500, s).lowBatteryPercent, LIMITS.lowBatteryPercent.max);
   assert.equal(setLimit("quietMinutes", 1, s).quietMinutes, LIMITS.quietMinutes.min);
+  assert.equal(setLimit("stillMinutes", 1, s).stillMinutes, LIMITS.stillMinutes.min);
   assert.equal(setLimit("quietMinutes", "abc", s).quietMinutes, ALERT_RULES.quietMinutes);
   assert.equal(readRules(s).noteMaxLength, ALERT_RULES.noteMaxLength, "only the limits change");
   const jobs = jobsFor(readRules(s));
@@ -79,7 +81,7 @@ test("toggles: a job that is off raises nothing of its kind", () => {
   const all = computeAlerts({ animals: endState.animals, events: endState.shown, now: END });
   const kinds = new Set(all.map((a) => a.kind));
   assert.ok(kinds.has("battery") && kinds.has("quiet") && kinds.has("predator") && kinds.has("smoke"), "the sample day raises each kind");
-  for (const id of ["battery", "quiet", "predator", "smoke"]) {
+  for (const id of ["battery", "quiet", "still", "paddock", "predator", "smoke"]) {
     const some = computeAlerts({ animals: endState.animals, events: endState.shown, now: END, jobs: { ...readJobs(memory()), [id]: false } });
     assert.ok(!some.some((a) => a.kind === id), id + " off");
     assert.ok(some.length > 0, "the other jobs still run");
@@ -87,6 +89,12 @@ test("toggles: a job that is off raises nothing of its kind", () => {
   const sos = [{ id: "t", name: "T", lastSeen: END, sos: true }];
   assert.equal(trackerAlerts(sos, END, ALERT_RULES, { ...OFF, sos: true }).length, 1);
   assert.equal(trackerAlerts(sos, END, ALERT_RULES, OFF).length, 0);
+  const stuck = [{ id: "t", name: "T", lastSeen: END, lastMoved: "2026-09-06T14:00:00", x: 40, y: 40 }];
+  assert.equal(trackerAlerts(stuck, END, ALERT_RULES, { ...OFF, still: true }).filter((a) => a.kind === "still").length, 1);
+  assert.equal(trackerAlerts(stuck, END, ALERT_RULES, OFF).length, 0);
+  const outside = [{ id: "t", name: "T", lastSeen: END, x: 120, y: 40 }];
+  assert.equal(trackerAlerts(outside, END, ALERT_RULES, { ...OFF, paddock: true }).filter((a) => a.kind === "paddock").length, 1);
+  assert.equal(trackerAlerts(outside, END, ALERT_RULES, OFF).length, 0);
   assert.deepEqual(computeAlerts({ animals: endState.animals, events: endState.shown, now: END, jobs: OFF }), []);
 });
 
@@ -159,14 +167,14 @@ const mapSrc = readFileSync(new URL("../src/map.js", import.meta.url), "utf8");
 
 test("herd view: one plain line says which automated alerts run", () => {
   const on = readJobs(memory());
-  assert.equal(jobsLine(on, ALERT_RULES), "Automatic alerts on: battery below 20%, no check-in for 2 hours, SOS, Predator Watch, Wildfire Watch.");
-  assert.equal(jobsLine({ ...on, battery: false, smoke: false }, ALERT_RULES), "Automatic alerts on: no check-in for 2 hours, SOS, Predator Watch. Off: battery, Wildfire Watch.");
+  assert.equal(jobsLine(on, ALERT_RULES), "Automatic alerts on: battery below 20%, no check-in for 2 hours, not moving for 2 hours, outside the paddock, SOS, Predator Watch, Wildfire Watch.");
+  assert.equal(jobsLine({ ...on, battery: false, smoke: false }, ALERT_RULES), "Automatic alerts on: no check-in for 2 hours, not moving for 2 hours, outside the paddock, SOS, Predator Watch. Off: battery, Wildfire Watch.");
   assert.equal(jobsLine(OFF, ALERT_RULES), "Automatic alerts are off. Add alerts by hand below.");
   assert.match(jobsLine(on, { ...ALERT_RULES, lowBatteryPercent: 35, quietMinutes: 90 }), /battery below 35%, no check-in for 1 hour 30 min/);
 });
 
 test("herd view: a switch for each job, the limits, and the manual tools", () => {
-  for (const id of ["battery", "quiet", "sos", "predator", "smoke"]) assert.ok(mapSrc.includes('["' + id + '",'), id + " has a switch");
+  for (const id of ["battery", "quiet", "still", "paddock", "sos", "predator", "smoke"]) assert.ok(mapSrc.includes('["' + id + '",'), id + " has a switch");
   assert.match(mapSrc, /settingRow\("pull"/, "the pull loop has a switch in live mode");
   assert.match(mapSrc, /data-job-state=/, "each switch shows On or Off in words");
   assert.match(mapSrc, /data-limit="' \+ limitKey/, "limits are editable");
