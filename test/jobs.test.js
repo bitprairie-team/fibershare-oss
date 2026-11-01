@@ -202,9 +202,14 @@ test("herd view: a switch for each job, the limits, and the manual tools", () =>
 test("notice: shown only when every alert job is off", () => {
   const defs = [...JOBS, PULL_JOB];
   const exact =
-    "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving, animals that leave the paddock, SOS, Predator Watch reports, Wildfire Watch reports, a fiber lot traced back to the goat, or a check for a new live file until you turn them back on. FiberShare is an aid, not a guarantee. In an emergency, call 911.";
+    "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. Fiber lot tracing and live file checks are paused too. FiberShare is an aid, not a guarantee. In an emergency, call 911.";
   assert.deepEqual(ALERT_JOB_IDS, defs.map((job) => job.id));
   assert.deepEqual(ALERT_JOB_IDS, JOB_IDS);
+  assert.deepEqual(
+    defs.filter((job) => job.kind === "safety").map((job) => job.id),
+    ["battery", "quiet", "still", "paddock", "sos", "predator", "smoke"]
+  );
+  assert.deepEqual(defs.filter((job) => job.kind === "other").map((job) => job.id), ["trace", "pull"]);
   assert.equal(ALERTS_OFF_NOTICE, exact);
   for (const job of defs) assert.ok(exact.includes(job.plain), job.id + " is named");
 
