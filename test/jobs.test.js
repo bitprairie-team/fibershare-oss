@@ -4,7 +4,7 @@ import test from "node:test";
 import { ALERT_RULES } from "../src/alert-config.js";
 import { computeAlerts, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
 import { sortEvents, stateAt } from "../src/herd-state.js";
-import { ALERTS_OFF_NOTICE, ALERT_JOB_IDS, JOBS, PULL_JOB, alertJobsAreOff, alertsOffNoticeHtml, jobsFor, jobsLine, paintAlertsOffNotice } from "../src/loops.js";
+import { ALERTS_OFF_NOTICE, ALERT_JOB_IDS, JOBS, PULL_JOB, alertJobsAreOff, alertsOffNoticeHtml, alertsOffNoticeText, jobsFor, jobsLine, paintAlertsOffNotice } from "../src/loops.js";
 import { createRanchLog, entriesFor, lastChecked, normalizeEntry } from "../src/ranch-log.js";
 import { JOB_IDS, LIMITS, SETTINGS_KEYS, readJobs, readRules, setAllJobs, setJob, setLimit } from "../src/settings.js";
 
@@ -225,10 +225,23 @@ test("notice: shown only when every alert job is off", () => {
   assert.ok(!/hidden/.test(shown));
   assert.equal(jobsLine(alertsOff, ALERT_RULES), "Add alerts by hand below.");
   assert.ok(!jobsLine(alertsOff, ALERT_RULES).includes("Automatic alerts are off."));
-  for (const id of ALERT_JOB_IDS) {
+  const safetyIds = defs.filter((job) => job.kind === "safety").map((job) => job.id);
+  for (const id of safetyIds) {
     assert.match(alertsOffNoticeHtml({ ...alertsOff, [id]: true }), / hidden>/, id + " on hides the notice");
     assert.ok(!alertsOffNoticeHtml({ ...alertsOff, [id]: true }).includes("call 911"));
   }
+
+  const safetyOnly =
+    "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. FiberShare is an aid, not a guarantee. In an emergency, call 911.";
+  const safetyOffOthersOn = { ...alertsOff, trace: true, pull: true };
+  assert.equal(alertJobsAreOff(safetyOffOthersOn), true);
+  assert.equal(alertsOffNoticeText(safetyOffOthersOn), safetyOnly);
+  assert.equal(alertsOffNoticeHtml(safetyOffOthersOn).includes(safetyOnly), true);
+  assert.ok(!alertsOffNoticeHtml(safetyOffOthersOn).includes("paused too"));
+  assert.equal(
+    alertsOffNoticeText({ ...safetyOffOthersOn, trace: false }),
+    "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. Fiber lot tracing is paused too. FiberShare is an aid, not a guarantee. In an emergency, call 911."
+  );
 
   const el = { hidden: true, textContent: "" };
   paintAlertsOffNotice(el, alertsOff);
@@ -300,9 +313,9 @@ test("copy: pages lead with the job, and Reset demo keeps a rancher's own notes"
   assert.match(read("README.md"), /\*\*Herd view\.\*\* Eight sample goats on a virtual paddock grid/);
   assert.ok(!/\*\*[^*]+\*\* - /.test(read("README.md").split("## Docs and schemas")[0]), "feature bullets do not use a dash after the label");
   assert.match(mapSrc, /Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set\./);
-  assert.match(read(".env.example"), /referrer-restricted key limited to basemaps and features/);
+  assert.match(read(".env.example"), /Limit it to the basemaps privilege only/);
   assert.match(read("docs/rancher-access.md"), /The sign-in rate limiter is kept in memory, so it resets when the server restarts/);
-  assert.match(read("docs/rancher-access.md"), /Limit it to basemaps and features/);
+  assert.match(read("docs/rancher-access.md"), /referrer-restricted key limited to basemaps/);
   assert.equal(
     JSON.parse(read("public/data/events.json")).note,
     "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving and out-of-paddock alerts, paddock moves and grazing notes."

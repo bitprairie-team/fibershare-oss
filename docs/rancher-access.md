@@ -148,7 +148,7 @@ Without a key the map works. Only the three Esri basemaps are greyed out.
 
 To use them, make an API key in your ArcGIS Location Platform or ArcGIS Online account:
 
-- Limit it to basemaps and features.
+- Use a referrer-restricted key limited to basemaps.
 - Restrict it by HTTP referrer to your site's address, such as `http://localhost:5173` or your Pages hostname.
 - Set it as `ARCGIS_API_KEY`: in `.env` for local mode, or as a Pages secret.
 

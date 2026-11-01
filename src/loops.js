@@ -148,26 +148,27 @@ function pausedSentence(clauses) {
   return list + (clauses.length === 1 ? " is paused too." : " are paused too.");
 }
 
-export function alertsOffNoticeText(rules = ALERT_RULES) {
-  const jobs = alertJobList(rules);
-  const safety = noticeClauses(jobs.filter((job) => job.kind === "safety"));
-  const other = noticeClauses(jobs.filter((job) => job.kind === "other"));
+export function alertsOffNoticeText(state, rules = ALERT_RULES) {
+  const defs = alertJobList(rules);
+  const safety = noticeClauses(defs.filter((job) => job.kind === "safety"));
+  const other = noticeClauses(defs.filter((job) => job.kind === "other" && state?.[job.id] === false));
   const sentences = ["Automatic alerts are off. FiberShare will not flag " + joinOr(safety) + " until you turn them back on."];
   if (other.length) sentences.push(pausedSentence(other));
   sentences.push("FiberShare is an aid, not a guarantee. In an emergency, call 911.");
   return sentences.join(" ");
 }
 
-export const ALERTS_OFF_NOTICE = alertsOffNoticeText();
+const ALL_OFF = Object.fromEntries(ALERT_JOB_IDS.map((id) => [id, false]));
+export const ALERTS_OFF_NOTICE = alertsOffNoticeText(ALL_OFF);
 
-/** True when every automated job is off. */
+/** True when every safety job is off. Trace and the live-file check do not count. */
 export function alertJobsAreOff(jobs) {
-  return ALERT_JOB_IDS.every((id) => jobs?.[id] === false);
+  return alertJobList().filter((j) => j.kind === "safety").every((j) => jobs?.[j.id] === false);
 }
 
 export function alertsOffNoticeHtml(jobs) {
   const off = alertJobsAreOff(jobs);
-  return '<p class="notice notice-warn alerts-off" data-alerts-off role="status"' + (off ? "" : " hidden") + ">" + (off ? ALERTS_OFF_NOTICE : "") + "</p>";
+  return '<p class="notice notice-warn alerts-off" data-alerts-off role="status"' + (off ? "" : " hidden") + ">" + (off ? alertsOffNoticeText(jobs) : "") + "</p>";
 }
 
 /** Show or clear the notice. `el` is the [data-alerts-off] paragraph, or null. */
@@ -175,7 +176,7 @@ export function paintAlertsOffNotice(el, jobs) {
   if (!el) return;
   const off = alertJobsAreOff(jobs);
   el.hidden = !off;
-  el.textContent = off ? ALERTS_OFF_NOTICE : "";
+  el.textContent = off ? alertsOffNoticeText(jobs) : "";
 }
 
 /** One plain line on the herd view: which automated alerts run right now. */
@@ -184,6 +185,5 @@ export function jobsLine(jobs, rules = ALERT_RULES) {
   const on = ids.filter((id) => jobs[id]);
   const off = ids.filter((id) => !jobs[id]);
   if (alertJobsAreOff(jobs)) return "Add alerts by hand below.";
-  if (!on.length) return "Automatic alerts are off. Add alerts by hand below.";
   return "Automatic alerts on: " + on.map((id) => ALERT_JOB_LABELS[id](rules)).join(", ") + "." + (off.length ? " Off: " + off.map((id) => OFF_LABELS[id]).join(", ") + "." : "");
 }
