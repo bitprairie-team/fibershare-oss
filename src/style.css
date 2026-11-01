@@ -2420,3 +2420,108 @@ button.feed-row:focus-visible {
     text-decoration: none;
   }
 }
+
+/* Automated jobs: plain state, the reason, and the controls by hand */
+.jobs-line {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  max-width: 68ch;
+}
+.alert-why {
+  margin: var(--s-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+.settings {
+  margin-top: var(--s-3);
+}
+.settings-note {
+  margin-top: 0;
+  max-width: 60ch;
+}
+.settings-list {
+  list-style: none;
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.setting-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+.setting-row .toggle {
+  color: var(--ink);
+  min-width: 15rem;
+}
+.job-state {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  min-width: 2rem;
+}
+.limit {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.limit input {
+  font: inherit;
+  width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0 var(--s-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink);
+}
+.add-alert {
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+.add-alert-title,
+.note-label {
+  display: block;
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink);
+}
+.add-alert-animal {
+  flex: 0 1 11rem;
+  padding-right: var(--s-2);
+}
+.detail-log {
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+.note-form .alert-note {
+  width: 100%;
+  margin-top: var(--s-2);
+}
+.note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.note-list {
+  list-style: none;
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+.note-list li {
+  padding: var(--s-1) 0;
+}
+.note-list time {
+  color: var(--muted);
+  margin-right: var(--s-1);
+}

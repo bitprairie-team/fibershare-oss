@@ -65,3 +65,21 @@ export const PLANNED = [
   "tuning the alert rules from rancher answers",
   "sharing a confirmed predator report with nearby ranchers",
 ];
+
+const ALERT_JOB_LABELS = {
+  battery: (r) => "battery below " + r.lowBatteryPercent + "%",
+  quiet: (r) => "no check-in for " + minutesText(r.quietMinutes),
+  sos: () => "SOS",
+  predator: () => "Predator Watch",
+  smoke: () => "Wildfire Watch",
+};
+const OFF_LABELS = { battery: "battery", quiet: "quiet tracker", sos: "SOS", predator: "Predator Watch", smoke: "Wildfire Watch" };
+
+/** One plain line on the herd view: which automated alerts run right now. */
+export function jobsLine(jobs, rules = ALERT_RULES) {
+  const ids = Object.keys(ALERT_JOB_LABELS);
+  const on = ids.filter((id) => jobs[id]);
+  const off = ids.filter((id) => !jobs[id]);
+  if (!on.length) return "Automatic alerts are off. Add alerts by hand below.";
+  return "Automatic alerts on: " + on.map((id) => ALERT_JOB_LABELS[id](rules)).join(", ") + "." + (off.length ? " Off: " + off.map((id) => OFF_LABELS[id]).join(", ") + "." : "");
+}

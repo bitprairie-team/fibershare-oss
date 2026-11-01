@@ -4,7 +4,7 @@ import test from "node:test";
 import { ALERT_RULES } from "../src/alert-config.js";
 import { computeAlerts, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
 import { sortEvents, stateAt } from "../src/herd-state.js";
-import { JOBS, PULL_JOB, jobsFor } from "../src/loops.js";
+import { JOBS, PULL_JOB, jobsFor, jobsLine } from "../src/loops.js";
 import { createRanchLog, entriesFor, lastChecked, normalizeEntry } from "../src/ranch-log.js";
 import { JOB_IDS, LIMITS, SETTINGS_KEYS, readJobs, readRules, setAllJobs, setJob, setLimit } from "../src/settings.js";
 
@@ -151,4 +151,32 @@ test("by hand: entries are tidied and checked", () => {
   assert.equal(normalizeEntry({ type: "note", animalId: "<script>", text: "x" }).ok, false);
   assert.equal(normalizeEntry({ type: "alert", text: "Water trough empty" }).ok, true, "an alert needs no animal");
   assert.equal(normalizeEntry({ type: "delete" }).ok, false);
+});
+
+// ---- the herd view ------------------------------------------------------------
+
+const mapSrc = readFileSync(new URL("../src/map.js", import.meta.url), "utf8");
+
+test("herd view: one plain line says which automated alerts run", () => {
+  const on = readJobs(memory());
+  assert.equal(jobsLine(on, ALERT_RULES), "Automatic alerts on: battery below 20%, no check-in for 2 hours, SOS, Predator Watch, Wildfire Watch.");
+  assert.equal(jobsLine({ ...on, battery: false, smoke: false }, ALERT_RULES), "Automatic alerts on: no check-in for 2 hours, SOS, Predator Watch. Off: battery, Wildfire Watch.");
+  assert.equal(jobsLine(OFF, ALERT_RULES), "Automatic alerts are off. Add alerts by hand below.");
+  assert.match(jobsLine(on, { ...ALERT_RULES, lowBatteryPercent: 35, quietMinutes: 90 }), /battery below 35%, no check-in for 1 hour 30 min/);
+});
+
+test("herd view: a switch for each job, the limits, and the manual tools", () => {
+  for (const id of ["battery", "quiet", "sos", "predator", "smoke"]) assert.ok(mapSrc.includes('["' + id + '",'), id + " has a switch");
+  assert.match(mapSrc, /settingRow\("pull"/, "the pull loop has a switch in live mode");
+  assert.match(mapSrc, /data-job-state=/, "each switch shows On or Off in words");
+  assert.match(mapSrc, /data-limit="' \+ limitKey/, "limits are editable");
+  assert.match(mapSrc, /data-add-alert/, "add an alert by hand");
+  assert.match(mapSrc, /data-note-form/, "add a note by hand");
+  assert.match(mapSrc, /data-mark-checked/, "mark an animal checked");
+  assert.match(mapSrc, /Checked by hand/, "the check shows on the animal");
+  assert.match(mapSrc, /class="alert-why"/, "each automated alert shows why");
+  assert.match(mapSrc, /rules checked /, "and when the rules ran");
+  assert.match(mapSrc, /data-change-limit/, "an alert links to its limit");
+  assert.match(mapSrc, /view\.jobs\.predator \? state\.alertCells : \[\]/, "no predator marker with the job off");
+  assert.match(mapSrc, /view\.jobs\.smoke && state\.smoke/, "no haze with the job off");
 });
