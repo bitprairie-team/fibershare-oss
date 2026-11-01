@@ -137,11 +137,11 @@ test("copy: page source and sample data use no banned words", () => {
   }
 });
 
-test("copy: one demo line site-wide, one Planned note, and the support line wherever support comes up", () => {
+test("copy: one demo line site-wide, at most one Planned tag per page, and the support line wherever support comes up", () => {
   const all = Object.values(src).join("\n");
   assert.equal(all.split("This is a demo, not the FiberShare app").length - 1, 1, "one demo line, in the header");
   assert.match(src["layout.js"], /This is a demo, not the FiberShare app/);
-  assert.equal(all.split('class="tag">Planned<').length - 1, 1, "one Planned note");
+  for (const [file, text] of Object.entries(src)) assert.ok(text.split('class="tag">Planned<').length - 1 <= 1, "at most one Planned tag per page: " + file);
   assert.ok(!/class="badge/.test(all), "no badge pills");
   for (const [file, text] of Object.entries(src)) {
     if (/ranch support|support pays/i.test(text)) assert.match(text, /Support is not ownership or an investment return/, file);
@@ -312,4 +312,15 @@ test("on-screen copy does not name a network server, outside <code> command span
   // The rancher still sees the command where it is needed.
   assert.match(src["map.js"], /no live file yet\. Run <code>npm run chirpstack:pull<\/code>/);
   assert.match(src["map.js"], /Live from your network server/);
+});
+
+test("unbuilt features on screen are marked Planned", () => {
+  // Sharing with agencies or researchers is not built yet.
+  const line = src["setups.js"].split("\n").find((l) => /agencies or researchers/.test(l)) || "";
+  assert.match(line, /<span class="tag">Planned<\/span>/);
+  assert.match(src["architecture.js"], /<span class="tag">Planned<\/span>/);
+});
+
+test("the header line stays true when live trackers are shown", () => {
+  assert.ok(!/demo-bar[^<]*sample data/.test(src["layout.js"]), "the demo line does not claim sample data");
 });

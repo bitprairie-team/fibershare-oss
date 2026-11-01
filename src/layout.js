@@ -31,7 +31,7 @@ export function nav(active) {
   }).join("");
   return (
     '<a class="skip-link" href="#main">Skip to content</a>' +
-    '<header class="site-header"><p class="demo-bar">This is a demo, not the FiberShare app. It runs on sample data.</p>' +
+    '<header class="site-header"><p class="demo-bar">This is a demo, not the FiberShare app.</p>' +
     '<div class="wrap header-row">' +
     '<a class="brand" href="#/">' + MARK + '<span class="brand-name">FiberShare</span></a>' +
     '<nav class="nav" id="primary-nav" aria-label="Primary">' + links + "</nav>" +

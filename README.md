@@ -61,7 +61,7 @@ The community network is the main part of the project. Ranchers share through a 
 - Tracker positions stay on the server until the rancher signs in.
 - In the FiberShare app, positions become cells on a private grid when they arrive. GPS coordinates are not stored.
 - Each rancher owns their event history. It is shared only if they opt in.
-- Data shared with agencies or researchers is combined or delayed and never includes exact locations.
+- Planned: data shared with agencies or researchers is combined or delayed, with no exact locations.
 
 This repository holds no secrets, API keys, mail settings or real collar data. A test checks every committed file for DevEUI-like hex strings and coordinates.
 

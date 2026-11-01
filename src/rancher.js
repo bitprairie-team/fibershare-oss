@@ -98,7 +98,7 @@ export async function renderRancher() {
     nav("/rancher") +
     '<main class="wrap" id="main">' +
     '<section class="page-head"><h1>Rancher sign-in</h1>' +
-    '<p class="lede">Public visitors see trackers without names, device IDs or positions. A signed-in rancher sees the full data. The server checks the session on every request.</p></section>' +
+    '<p class="lede">Public visitors see trackers without names, device IDs or positions. A signed-in rancher sees the full data.</p></section>' +
     '<div class="rancher-grid">' + body + mockMap() + "</div>" +
     "</main>" +
     footer()

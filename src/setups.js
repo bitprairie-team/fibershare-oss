@@ -47,12 +47,13 @@ export function renderSetups() {
     '<h2 id="every-title">In every setup</h2>' +
     '<ul class="plain-list">' +
     "<li>Public pages never show where an animal is. Only a signed-in rancher sees tracker positions.</li>" +
-    "<li>Each rancher owns their event history. Data shared with agencies or researchers is combined or delayed and never includes exact locations.</li>" +
+    "<li>Each rancher owns their event history. It is shared only if they opt in.</li>" +
+    '<li><span class="tag">Planned</span> Data shared with agencies or researchers is combined or delayed, with no exact locations.</li>' +
     "</ul>" +
     "</section>" +
     '<section class="section" aria-labelledby="network-title">' +
     '<h2 id="network-title">Community network</h2>' +
-    "<p>Ranchers share data through a self-hosted or co-op server. It is free for non-commercial and research use. " +
+    "<p>The community network is self-hosted or run as a co-op. It is free for non-commercial and research use. " +
     'Talk with other ranchers on <a href="' + DISCORD + '"' + EXT + ">Discord</a>, or read the code on <a href=\"" + REPO + '"' + EXT + ">GitHub</a>.</p>" +
     "<p>Ranch support pays for animals and pasture. Support is not ownership or an investment return.</p>" +
     "</section></main>" +
