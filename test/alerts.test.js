@@ -110,6 +110,7 @@ test("paddock rule: a position outside the bounds opens an out-of-paddock alert"
   assert.equal(out.kind, "paddock");
   assert.equal(out.id, "paddock:s:108:66");
   assert.match(out.title, /outside the paddock/);
+  assert.equal(out.detail, "Last position is outside the active paddock. Tracker positions can be off, so confirm the fence or the animal before acting.");
   assert.match(out.why, /108,66/);
   assert.equal(trackerAlerts([{ id: "s", name: "Sage", lastSeen: now, x: 108, y: 66 }], now, ALERT_RULES, { paddock: false }).length, 0);
 });

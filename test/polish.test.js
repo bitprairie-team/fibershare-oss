@@ -170,6 +170,10 @@ test("copy: pages render plain headings, one primary button on home, and a BitPr
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, name + " has one h1");
   }
   assert.equal((pages.home.match(/btn-primary/g) || []).length, 1, "home has one primary button");
+  assert.match(
+    textOf(pages.home),
+    /Each of those jobs can be turned off\. When a job is off, its alerts stop, and you can still add alerts, notes and checks by hand\./
+  );
   const foot = footer();
   assert.match(textOf(foot), /© 2026 BitPrairie LLC/);
   assert.match(foot, /href="https:\/\/bitprairie\.com\/terms"/);

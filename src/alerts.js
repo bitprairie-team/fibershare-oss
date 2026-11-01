@@ -134,7 +134,7 @@ export function trackerAlerts(animals, now, rules = ALERT_RULES, jobs = ALL_ON) 
         kind: "paddock",
         animalId: a.id,
         title: name + ": outside the paddock",
-        detail: "Last position is outside the active paddock. Confirm the fence or the animal.",
+        detail: "Last position is outside the active paddock. Tracker positions can be off, so confirm the fence or the animal before acting.",
         why:
           "Position " +
           Math.round(a.x) +

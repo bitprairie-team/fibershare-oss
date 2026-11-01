@@ -8,14 +8,14 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 
 ## Features (what is shipped)
 
-- **Herd view** - Eight sample goats on a virtual paddock grid (a drawing, not GPS). Stats for trackers reporting, open alerts, and last check-in. Day **Play** scrubs one made-up day.
-- **Alerts** - Low battery, quiet tracker, not-moving, out-of-paddock, SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or reopen; answers stay in the browser on sample data.
-- **Paddock moves** - A short log of sample paddock moves and grazing notes that advances with Play.
-- **Tracker trail** - Select a goat during Play to see a short trail of its last few positioned check-ins.
-- **Fleece trace** - Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. Viewer modes for rancher, buyer, and public. Nothing is for sale.
-- **Setups** - Your own hardware, hosted by BitPrairie, or a mix.
-- **Rancher sign-in and map** - Public view hides tracker details; a signed-in rancher can see real names and positions. See [docs/rancher-access.md](docs/rancher-access.md).
-- **Tour** - Five short steps on the sample data (keyboard: arrows, Esc).
+- **Herd view.** Eight sample goats on a virtual paddock grid (a drawing, not GPS). Stats for trackers reporting, open alerts, and last check-in. Day **Play** scrubs one made-up day.
+- **Alerts.** Low battery, quiet tracker, not-moving, out-of-paddock, SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or reopen; answers stay in the browser on sample data.
+- **Paddock moves.** A short log of sample paddock moves and grazing notes that advances with Play.
+- **Tracker trail.** Select a goat during Play to see a short trail of its last few positioned check-ins.
+- **Fleece trace.** Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. Viewer modes for rancher, buyer, and public. Nothing is for sale.
+- **Setups.** Your own hardware, hosted by BitPrairie, or a mix.
+- **Rancher sign-in and map.** Public view hides tracker details; a signed-in rancher can see real names and positions. See [docs/rancher-access.md](docs/rancher-access.md).
+- **Tour.** Five short steps on the sample data (keyboard: arrows, Esc).
 
 | Herd view | Fleece trace |
 | --- | --- |
@@ -49,6 +49,8 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 
 Every job is on until you turn it off, on How it works or in the herd view's Alert settings. The setting is saved in the browser. Each automated alert says which rule and reading raised it and when the rules ran, for example "Battery 14%, below the 20% limit, not on outside power." With every job off, a rancher can still answer and add alerts, save notes, mark animals checked and change the battery, quiet, and not-moving limits.
 
+Alerts are an aid, not a guarantee. They can be late, wrong or missing, and turning a job off stops its alerts. Keep checking your animals in person. In an emergency, call 911.
+
 The default thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
 
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
@@ -63,7 +65,7 @@ The planned work covers fuller grazing records for each paddock, learning each t
 | Hosted by BitPrairie | BitPrairie runs the server and can supply the trackers. |
 | A mix | Your gateway and server on the ranch, with hosted alerts from BitPrairie. |
 
-The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. It is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's intelligence and realtime systems.
+The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's intelligence and realtime systems.
 
 | Open source (free) | BitPrairie (commercial) |
 | --- | --- |
@@ -71,6 +73,8 @@ The community network is the main part of the project. Ranchers share through a 
 | Record schemas (draft) | BitPrairie's trained models and datasets |
 | Self-hosting docs | Hosted alerts and relay |
 | | Hardware kits and support |
+
+Open models that BitPrairie builds on keep their own licenses.
 
 ## Your data
 
