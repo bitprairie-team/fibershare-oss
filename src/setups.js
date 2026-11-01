@@ -39,7 +39,7 @@ export function renderSetups() {
     '<main class="wrap editorial" id="main">' +
     '<section class="page-head">' +
     "<h1>Setups</h1>" +
-    '<p class="lede">The same trackers and records run three ways. You can switch later.</p>' +
+    '<p class="lede">Pick where the trackers, server and records run: your own hardware, hosted by BitPrairie, or a mix. You can switch later.</p>' +
     "</section>" +
     '<div class="table-scroll" data-tour="setups"><table class="data-table compare-table">' +
     '<thead><tr><td></td>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>" +

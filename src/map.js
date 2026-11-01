@@ -229,7 +229,7 @@ export async function renderMap() {
     ? data.privateView
       ? "Your trackers with real names, device IDs, tags and positions. Only a signed-in rancher gets this view."
       : "Trackers from your LoRaWAN network server, with names, device IDs, tags and positions hidden. Each grid cell comes from a hash, not a position."
-    : "8 sample goats on a paddock grid. The grid is a drawing, not a map.";
+    : "Check each goat's battery and last check-in, and answer open alerts. The 8 sample goats sit on a paddock grid, which is a drawing, not a map.";
 
   const cells = cellLabels()
     .map((label) => '<div class="cell" data-cell="' + label + '"><span>' + label + "</span></div>")

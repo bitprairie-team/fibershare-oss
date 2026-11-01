@@ -7,6 +7,7 @@ import { setHerdView } from "./map.js";
 import { resetTrace } from "./trace.js";
 import { icon } from "./icons.js";
 import { esc } from "./util.js";
+import { LOG_KEYS } from "./ranch-log.js";
 
 let index = -1;
 let els = null;
@@ -233,12 +234,15 @@ export function endTour() {
   back?.focus?.();
 }
 
-/** Put the demo back the way it starts: sample herd, end of day, home page. */
+/**
+ * Put the demo back the way it starts: sample herd, end of day, home page,
+ * every job on. A signed-in rancher's own notes on real trackers are kept.
+ */
 export function resetDemo() {
   for (const storage of [localStorage, sessionStorage]) {
     try {
       for (const key of Object.keys(storage)) {
-        if (key.startsWith("fs-") && key !== "fs-theme") storage.removeItem(key);
+        if (key.startsWith("fs-") && key !== "fs-theme" && key !== LOG_KEYS.rancher) storage.removeItem(key);
       }
     } catch {
       // nothing stored

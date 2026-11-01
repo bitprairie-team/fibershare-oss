@@ -215,3 +215,13 @@ test("fleece trace: says why the records are linked, and works by hand with trac
   assert.match(trace, /the lot lists fleece /);
   assert.match(trace, /viewer !== "rancher"/, "no record IDs in the reason for buyers or the public");
 });
+
+test("copy: pages lead with the job, and Reset demo keeps a rancher's own notes", () => {
+  const read = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
+  assert.match(read("src/home.js"), /checks each tracker\\?'s battery and check-ins/);
+  assert.match(read("src/home.js"), /Each of those jobs can be turned off, and everything also works by hand/);
+  assert.match(mapSrc, /Check each goat's battery and last check-in, and answer open alerts/);
+  assert.match(read("src/tour.js"), /key !== LOG_KEYS\.rancher/);
+  assert.match(read("README.md"), /Battery 14%, below the 20% limit, not on outside power/);
+  assert.match(read("README.md"), /With every job off, a rancher can still/);
+});
