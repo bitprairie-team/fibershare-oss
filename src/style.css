@@ -2363,3 +2363,58 @@ button.feed-row:focus-visible {
     grid-column: 2;
   }
 }
+.trace-print {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+}
+
+/* Print: a fleece trace prints as a plain record sheet, without the site
+   header, controls or footer. Only the chosen viewer is shown. */
+@media print {
+  :root,
+  [data-theme="dark"] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --ink: #000000;
+    --ink-2: #1a1a1a;
+    --muted: #444444;
+    --line: #bbbbbb;
+    --line-strong: #888888;
+    --accent: #000000;
+    --accent-ink: #000000;
+    --link: #000000;
+  }
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .tour-scrim,
+  .tour-spot,
+  .tour-card,
+  .trace-print,
+  .segmented .chip:not([aria-pressed="true"]) {
+    display: none !important;
+  }
+  .segmented .chip {
+    border: 0;
+    padding: 0;
+    min-height: 0;
+  }
+  main.wrap {
+    max-width: none;
+    padding: 0;
+  }
+  .page-head {
+    padding: 0 0 1rem;
+  }
+  .trace-chain {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .trace-card,
+  .data-table tr {
+    break-inside: avoid;
+  }
+  a {
+    text-decoration: none;
+  }
+}

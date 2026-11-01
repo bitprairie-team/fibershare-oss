@@ -124,8 +124,17 @@ async function loadLots() {
   }
 }
 
+// A shared link can open the trace as a buyer or the public sees it:
+// #/trace?view=buyers or #/trace?view=public.
+function viewerFromHash() {
+  const asked = new URLSearchParams(location.hash.split("?")[1] || "").get("view");
+  if (asked === "buyer") return "buyers";
+  return Object.hasOwn(VIEWER_LABELS, asked || "") ? asked : null;
+}
+
 export async function renderTrace() {
   const products = await loadLots();
+  viewer = viewerFromHash() || viewer;
   const chips = Object.entries(VIEWER_LABELS)
     .map(
       ([key, label]) =>
@@ -141,7 +150,7 @@ export async function renderTrace() {
     "</section>" +
     '<div class="trace-controls"><span class="row-meta" id="viewer-label">View as</span><div class="segmented" role="group" aria-labelledby="viewer-label">' +
     chips +
-    "</div></div>" +
+    '</div><button type="button" class="btn-link trace-print" data-print>Print</button></div>' +
     '<div data-chain aria-live="polite">' +
     chainHtml() +
     "</div>" +
@@ -167,6 +176,9 @@ export function bindTrace(root) {
       root.querySelectorAll("[data-viewer]").forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
       const holder = root.querySelector("[data-chain]");
       if (holder) holder.innerHTML = chainHtml();
+      // Keep the address in step, so the link can be shared as is.
+      history.replaceState(null, "", "#" + location.hash.replace(/^#/, "").split("?")[0] + (viewer === "rancher" ? "" : "?view=" + viewer));
     });
   });
+  root.querySelector("[data-print]")?.addEventListener("click", () => window.print());
 }

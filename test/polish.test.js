@@ -356,3 +356,11 @@ test("layout: no template tells (caps labels, pill tags, boxed card grids, many 
   const { renderArchitecture } = await import("../src/architecture.js");
   for (const html of [renderHome(), renderSetups(), renderArchitecture()]) assert.ok((html.match(/btn-primary/g) || []).length <= 1);
 });
+
+test("fleece trace: a shareable viewer link and a clean print sheet", () => {
+  assert.match(src["trace.js"], /\?view=/, "the viewer is kept in the address");
+  assert.match(src["trace.js"], /window\.print\(\)/);
+  const print = css.slice(css.indexOf("@media print"));
+  assert.ok(print.length > 20, "print styles exist");
+  for (const sel of [".site-header", ".site-footer", ".trace-print"]) assert.ok(print.includes(sel), "print hides " + sel);
+});
