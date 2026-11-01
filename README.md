@@ -46,7 +46,7 @@ The planned work covers grazing records for each paddock, learning each tracker'
 | Hosted by BitPrairie | BitPrairie runs the server and can supply the trackers. |
 | A mix | Your gateway and server on the ranch, with hosted alerts from BitPrairie. |
 
-The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. It is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's intelligence and realtime systems.
+The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's intelligence and realtime systems.
 
 | Open source (free) | BitPrairie (commercial) |
 | --- | --- |
@@ -54,6 +54,8 @@ The community network is the main part of the project. Ranchers share through a 
 | Record schemas (draft) | BitPrairie's trained models and datasets |
 | Self-hosting docs | Hosted alerts and relay |
 | | Hardware kits and support |
+
+Open models that BitPrairie builds on keep their own licenses.
 
 ## Your data
 

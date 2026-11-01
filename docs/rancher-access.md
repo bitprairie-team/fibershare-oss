@@ -40,7 +40,7 @@ There are two ways to sign in. Use the one that matches where the demo runs.
 How it works:
 
 - Signing in sets a `fs_session` cookie that is HttpOnly and SameSite=Strict, and lasts 12 hours. It is signed with a secret kept in `.local/rancher.json`.
-- Five wrong passphrases from one address lock sign-in for a minute.
+- Five wrong passphrases from one address lock sign-in for a minute. The sign-in rate limiter is kept in memory, so it resets when the server restarts.
 - Sign-in and sign-out only accept requests from the same origin.
 - Over plain `http` on your network, the cookie can be read by anyone watching that network. Keep the servers on localhost, or put them behind `https`.
 
@@ -148,8 +148,8 @@ Without a key the map works. Only the three Esri basemaps are greyed out.
 
 To use them, make an API key in your ArcGIS Location Platform or ArcGIS Online account:
 
-- Give it the basemaps privilege only.
-- Restrict it to your site's address (an HTTP referrer), such as `http://localhost:5173` or your Pages hostname.
+- Limit it to basemaps and features.
+- Restrict it by HTTP referrer to your site's address, such as `http://localhost:5173` or your Pages hostname.
 - Set it as `ARCGIS_API_KEY`: in `.env` for local mode, or as a Pages secret.
 
 The server sends the key only to a signed-in rancher, and it never goes into the build. The browser puts it in Esri tile URLs, so anyone who can sign in can see it. The referrer limit is what keeps it from being useful anywhere else.

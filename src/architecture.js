@@ -37,7 +37,7 @@ export function renderArchitecture() {
     "<p>You need Node 20.9 or newer.</p>" +
     "<pre><code>git clone " + REPO + ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
     "<p>Then open http://localhost:5173.</p>" +
-    "<p>The code is MIT licensed. Keep private ranch files and real tracker data out of the repository. " +
+    "<p>The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. Keep private ranch files and real tracker data out of the repository. " +
     'See the <a href="' + REPO + '/blob/main/CONTRIBUTING.md"' + EXT + ">contribution guide</a>, or ask on <a href=\"" + DISCORD + '"' + EXT + ">Discord</a>.</p>" +
     '<p>The FiberShare app is a separate product at <a href="' + APP + '"' + EXT + ">fibershare.app</a>.</p>" +
     "</section></main>" +

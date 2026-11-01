@@ -10,6 +10,7 @@ export function renderHome() {
     "<h1>Herd tracking for local ranchers</h1>" +
     '<p class="lede">FiberShare is a ranch program from BitPrairie LLC. It started with goats and fiber and is growing into a network of local ranchers in the western US.</p>' +
     '<p class="lede">This demo runs on 8 sample goats and one made-up day of tracker data.</p>' +
+    "<p>The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use.</p>" +
     '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view</a></div>' +
     "</section>" +
     '<section class="section" aria-labelledby="setups-title">' +
