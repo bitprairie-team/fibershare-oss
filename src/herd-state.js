@@ -128,6 +128,27 @@ export function keyMoments(events) {
  * animals: [{ lastSeen }], openAlerts: count, nowMs: the clock to measure from.
  * Returns [{ id, value, label, warn }]; value for "last" is an ISO time or "".
  */
+
+/**
+ * Paddock moves and grazing notes shown so far in the day. Used by the herd
+ * view's grazing log during Play. Only `move` and `graze` events are listed.
+ * Returns [{ id, type, time, text, animalId?, cell? }] in time order.
+ */
+export function grazingLog(events, count) {
+  const sorted = sortEvents(events);
+  const upto = sorted.slice(0, Math.max(0, count));
+  return upto
+    .filter((e) => e && (e.type === "move" || e.type === "graze"))
+    .map((e) => ({
+      id: e.id,
+      type: e.type,
+      time: e.time,
+      text: String(e.text || ""),
+      animalId: e.animalId || undefined,
+      cell: e.cell || undefined,
+    }));
+}
+
 export function herdStats({ animals = [], openAlerts = 0, nowMs = Date.now() } = {}) {
   const seen = animals.map((a) => (a.lastSeen ? new Date(a.lastSeen).getTime() : NaN)).filter(Number.isFinite);
   const reporting = seen.filter((t) => t <= nowMs && nowMs - t <= 3600000).length;

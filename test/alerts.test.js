@@ -129,14 +129,15 @@ test("SOS, Predator Watch and Wildfire Watch alerts; a cleared event stays until
 
 test("sample day: the alerts follow the story, from the hourly check-ins", () => {
   const events = sortEvents(day.events);
-  assert.equal(events.length, 34);
+  assert.equal(events.length, 37);
+  const after = (id) => events.findIndex((e) => e.id === id) + 1;
   // Morning: every tracker heard within the hour, so nothing is quiet.
-  assert.deepEqual(sampleAt(9).map((a) => a.id), [], "07:45 has no alert; Hazel is at 22%");
+  assert.deepEqual(sampleAt(after("e09")).map((a) => a.id), [], "07:45 has no alert; Hazel is at 22%");
   // 09:20: Pippin has been quiet since 07:00.
-  const at920 = sampleAt(10);
+  const at920 = sampleAt(after("e10"));
   assert.deepEqual(at920.map((a) => a.kind + ":" + a.animalId), ["quiet:pippin"]);
   // 10:05: Pippin is back (before the sample still/paddock story).
-  assert.deepEqual(sampleAt(11), []);
+  assert.deepEqual(sampleAt(after("e11")), []);
   // After thistle's noon check-in: not-moving sample alert.
   const stillStep = events.findIndex((e) => e.id === "e30") + 1;
   assert.ok(sampleAt(stillStep).some((a) => a.kind === "still" && a.animalId === "thistle"));

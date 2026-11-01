@@ -1,6 +1,6 @@
 {
   "simulated": true,
-  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving and out-of-paddock alerts.",
+  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving, out-of-paddock, and paddock-move or grazing notes.",
   "day": "2026-09-06",
   "events": [
     {
@@ -93,6 +93,14 @@
       "text": "Tracker 8 battery is at 22%. Charge or swap it in the next day or two."
     },
     {
+      "id": "e35",
+      "time": "2026-09-06T08:10:00",
+      "type": "move",
+      "severity": "info",
+      "cell": "E2",
+      "text": "Sample: Morning paddock move into the east cells for the first graze."
+    },
+    {
       "id": "e10",
       "time": "2026-09-06T09:20:00",
       "type": "silent",
@@ -119,6 +127,14 @@
       "y": 30,
       "battery": 65,
       "text": "Sample: Tracker 2 checked in near the same morning spot."
+    },
+    {
+      "id": "e36",
+      "time": "2026-09-06T11:00:00",
+      "type": "graze",
+      "severity": "info",
+      "cell": "E2",
+      "text": "Sample: East cells looked grazed down. Plan the afternoon on the west half."
     },
     {
       "id": "e30",
@@ -179,6 +195,14 @@
       "y": 66,
       "battery": 58,
       "text": "Sample: Tracker 5 is back inside the paddock."
+    },
+    {
+      "id": "e37",
+      "time": "2026-09-06T15:10:00",
+      "type": "move",
+      "severity": "info",
+      "cell": "B3",
+      "text": "Sample: Afternoon paddock move back toward the barn cells."
     },
     {
       "id": "e14",

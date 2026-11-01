@@ -2,7 +2,7 @@ import { ago, dateTime, dayTime, timeOf } from "./time.js";
 import { nav, footer } from "./layout.js";
 import { esc } from "./util.js";
 import { cellLabels, cellOf } from "./grid.js";
-import { herdStats, keyMoments, sortEvents, stateAt } from "./herd-state.js";
+import { grazingLog, herdStats, keyMoments, sortEvents, stateAt } from "./herd-state.js";
 import { icon } from "./icons.js";
 import { spreadPins } from "./pin-spread.js";
 import { loadHerd, setHideTrackers, setPreferSample } from "./data.js";
@@ -30,6 +30,8 @@ const EVENT_LABELS = {
   silent: "Missed check-in",
   still: "Not moving",
   "out-of-paddock": "Outside paddock",
+  move: "Paddock move",
+  graze: "Grazing note",
   smoke: "Wildfire Watch",
   "smoke-clear": "Wildfire Watch, cleared",
   predator: "Predator Watch",
@@ -255,6 +257,13 @@ export async function renderMap() {
           '<output class="clock" for="scrub" data-clock></output>' +
           "</div>"
         : "") +
+      (live
+        ? ""
+        : '<section class="grazing-log" data-grazing-log aria-labelledby="grazing-title">' +
+          '<h3 class="grazing-title" id="grazing-title">Paddock moves</h3>' +
+          '<p class="muted grazing-note">Sample paddock moves and grazing notes for this made-up day. They advance with Play.</p>' +
+          '<ol class="grazing-list" data-grazing-list></ol>' +
+          "</section>") +
       "</div>" +
       '<aside class="detail" data-detail data-tour="detail" aria-label="Animal details">' +
       '<button type="button" class="sheet-handle" data-sheet aria-expanded="false"><span class="avatar" data-sheet-avatar></span><span class="sheet-title"><strong data-sheet-name></strong><small data-sheet-meta></small></span>' +
@@ -583,6 +592,31 @@ function renderDetail(root, state, alerts) {
   renderLog(logHolder, animal);
 }
 
+
+function renderGrazingLog(root, state) {
+  const list = root.querySelector("[data-grazing-list]");
+  if (!list) return;
+  const entries = grazingLog(view.events, view.step);
+  if (!entries.length) {
+    list.innerHTML = '<li class="feed-empty">No paddock moves yet at this time of day.</li>';
+    return;
+  }
+  list.innerHTML = [...entries].reverse()
+    .map((entry) => {
+      const label = EVENT_LABELS[entry.type] || entry.type;
+      const cell = entry.cell ? " · " + entry.cell : "";
+      return (
+        '<li class="grazing-item">' +
+        '<div class="feed-row">' +
+        '<time datetime="' + esc(entry.time) + '">' + esc(timeOf(entry.time)) + "</time>" +
+        '<span class="feed-text"><span class="feed-type">' + esc(label) + esc(cell) + "</span>" +
+        '<span class="feed-body">' + esc(entry.text) + "</span></span>" +
+        "</div></li>"
+      );
+    })
+    .join("");
+}
+
 function renderFeed(root, state) {
   const holder = root.querySelector("[data-feed]");
   if (!holder) return;
@@ -858,6 +892,7 @@ function draw(root) {
   renderStats(root, state, alerts);
   renderGrid(root, state, alerts);
   renderDetail(root, state, alerts);
+  renderGrazingLog(root, state);
   renderFeed(root, state);
   renderAlerts(root, alerts);
   rancherMap?.setAlerts?.(alerts.open.map((a) => a.animalId).filter(Boolean));

@@ -5,7 +5,7 @@ import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { cellLabels, cellOf } from "../src/grid.js";
-import { sortEvents, stateAt } from "../src/herd-state.js";
+import { grazingLog, sortEvents, stateAt } from "../src/herd-state.js";
 import { traceLot, visibleRecord } from "../src/records.js";
 import { hideTrackerDetails, isLiveData } from "../src/live-format.js";
 import { localMap } from "../src/data.js";
@@ -39,7 +39,7 @@ test("the sample event feed is marked simulated and ends where herd.json says", 
     if (event.animalId) assert.ok(ids.has(event.animalId), event.id);
   }
   const types = new Set(events.events.map((e) => e.type));
-  for (const type of ["checkin", "battery", "silent", "still", "out-of-paddock", "predator", "smoke"]) assert.ok(types.has(type), type);
+  for (const type of ["checkin", "battery", "silent", "still", "out-of-paddock", "move", "graze", "predator", "smoke"]) assert.ok(types.has(type), type);
   const end = stateAt(herd.goats, events.events, events.events.length);
   for (const goat of herd.goats) {
     const state = end.animals.find((a) => a.id === goat.id);
@@ -134,3 +134,20 @@ test("new location and device key names are caught", async () => {
   for (const key of ["coords", "geo_hash", "gpsFix", "devEui", "dev_eui", "lon"]) assert.ok(isPrivateKey(key), key);
   for (const key of ["translate", "longevity", "alias", "signal"]) assert.ok(!isPrivateKey(key), key);
 });
+
+test("grazing log: sample day lists paddock moves and grazing notes as Play advances", () => {
+  const sorted = sortEvents(events.events);
+  assert.equal(grazingLog(sorted, 0).length, 0);
+  const morning = sorted.findIndex((e) => e.id === "e35") + 1;
+  const mid = sorted.findIndex((e) => e.id === "e36") + 1;
+  const afternoon = sorted.findIndex((e) => e.id === "e37") + 1;
+  assert.deepEqual(grazingLog(sorted, morning).map((e) => e.type), ["move"]);
+  assert.deepEqual(grazingLog(sorted, mid).map((e) => e.type), ["move", "graze"]);
+  const end = grazingLog(sorted, afternoon);
+  assert.deepEqual(end.map((e) => e.type), ["move", "graze", "move"]);
+  assert.equal(end[0].cell, "E2");
+  assert.equal(end[2].cell, "B3");
+  assert.match(end[1].text, /Sample:/);
+  assert.equal(grazingLog(sorted, sorted.length).length, 3);
+});
+
