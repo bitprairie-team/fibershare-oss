@@ -2313,6 +2313,7 @@ button.feed-row:focus-visible {
     border: 0;
   }
   .compare-table tbody th {
+    width: auto;
     font-weight: 600;
     margin-bottom: var(--s-2);
   }
