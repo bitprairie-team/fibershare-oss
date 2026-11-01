@@ -199,7 +199,7 @@ test("herd view: a switch for each job, the limits, and the manual tools", () =>
   );
 });
 
-test("notice: shown only when every alert job is off", () => {
+test("notice: shown when every safety job is off", () => {
   const defs = [...JOBS, PULL_JOB];
   const exact =
     "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. Fiber lot tracing and live file checks are paused too. FiberShare is an aid, not a guarantee. In an emergency, call 911.";
@@ -241,6 +241,10 @@ test("notice: shown only when every alert job is off", () => {
   assert.equal(
     alertsOffNoticeText({ ...safetyOffOthersOn, trace: false }),
     "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. Fiber lot tracing is paused too. FiberShare is an aid, not a guarantee. In an emergency, call 911."
+  );
+  assert.equal(
+    alertsOffNoticeText({ ...safetyOffOthersOn, pull: false }),
+    "Automatic alerts are off. FiberShare will not flag low batteries, quiet trackers, animals that stop moving or leave the paddock, SOS, Predator Watch reports or Wildfire Watch reports until you turn them back on. Live file checks are paused too. FiberShare is an aid, not a guarantee. In an emergency, call 911."
   );
 
   const el = { hidden: true, textContent: "" };
@@ -313,9 +317,10 @@ test("copy: pages lead with the job, and Reset demo keeps a rancher's own notes"
   assert.match(read("README.md"), /\*\*Herd view\.\*\* Eight sample goats on a virtual paddock grid/);
   assert.ok(!/\*\*[^*]+\*\* - /.test(read("README.md").split("## Docs and schemas")[0]), "feature bullets do not use a dash after the label");
   assert.match(mapSrc, /Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set\./);
-  assert.match(read(".env.example"), /Limit it to the basemaps privilege only/);
+  const envText = read(".env.example").replace(/\n# /g, " ");
+  assert.match(envText, /referrer-restricted key limited to the basemaps privilege only/);
   assert.match(read("docs/rancher-access.md"), /The sign-in rate limiter is kept in memory, so it resets when the server restarts/);
-  assert.match(read("docs/rancher-access.md"), /referrer-restricted key limited to basemaps/);
+  assert.match(read("docs/rancher-access.md"), /Give it the basemaps privilege only\./);
   assert.equal(
     JSON.parse(read("public/data/events.json")).note,
     "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving and out-of-paddock alerts, paddock moves and grazing notes."

@@ -88,6 +88,7 @@ export const PULL_JOB = {
   off: "The herd view keeps the data it opened with. Use Check now to load a newer file.",
   kind: "other",
   plain: "live file checks",
+  plural: true,
 };
 
 // Work that is not built yet. Shown once, on the How it works page.
@@ -142,16 +143,25 @@ function noticeClauses(jobs) {
   return clauses.map((clause) => clause.parts.join(" or "));
 }
 
-function pausedSentence(clauses) {
-  if (!clauses.length) return "";
-  const list = clauses.length === 1 ? clauses[0] : clauses.length === 2 ? clauses[0] + " and " + clauses[1] : clauses.slice(0, -1).join(", ") + " and " + clauses[clauses.length - 1];
-  return list + (clauses.length === 1 ? " is paused too." : " are paused too.");
+function pausedSentence(jobs) {
+  if (!jobs.length) return "";
+  const clauses = [];
+  for (const job of jobs) {
+    const prev = clauses[clauses.length - 1];
+    if (job.phraseGroup && prev && prev.group === job.phraseGroup) prev.parts.push(job.plain);
+    else clauses.push({ group: job.phraseGroup || "", parts: [job.plain] });
+  }
+  const texts = clauses.map((clause) => clause.parts.join(" or "));
+  const list = texts.length === 1 ? texts[0] : texts.length === 2 ? texts[0] + " and " + texts[1] : texts.slice(0, -1).join(", ") + " and " + texts[texts.length - 1];
+  const sentence = list.charAt(0).toUpperCase() + list.slice(1);
+  const plural = jobs.length > 1 || !!jobs[0].plural;
+  return sentence + (plural ? " are paused too." : " is paused too.");
 }
 
 export function alertsOffNoticeText(state, rules = ALERT_RULES) {
   const defs = alertJobList(rules);
   const safety = noticeClauses(defs.filter((job) => job.kind === "safety"));
-  const other = noticeClauses(defs.filter((job) => job.kind === "other" && state?.[job.id] === false));
+  const other = defs.filter((job) => job.kind === "other" && state?.[job.id] === false);
   const sentences = ["Automatic alerts are off. FiberShare will not flag " + joinOr(safety) + " until you turn them back on."];
   if (other.length) sentences.push(pausedSentence(other));
   sentences.push("FiberShare is an aid, not a guarantee. In an emergency, call 911.");
