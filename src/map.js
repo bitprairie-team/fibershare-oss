@@ -1,3 +1,4 @@
+import { ago, dateTime, dayTime, timeOf } from "./time.js";
 import { nav, footer } from "./layout.js";
 import { esc } from "./util.js";
 import { cellLabels, cellOf } from "./grid.js";
@@ -32,23 +33,8 @@ const STALE_MINUTES = 15;
 let view = null;
 let rancherMap = null;
 
-function timeOf(iso) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
-}
-
-function ago(iso, nowIso) {
-  if (!iso) return "not yet today";
-  const ms = new Date(nowIso).getTime() - new Date(iso).getTime();
-  if (!Number.isFinite(ms)) return "unknown";
-  const minutes = Math.max(0, Math.round(ms / 60000));
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return minutes + " min ago";
-  const hours = Math.round(minutes / 60);
-  if (hours < 48) return hours + (hours === 1 ? " hour ago" : " hours ago");
-  return Math.round(hours / 24) + " days ago";
-}
+// The sample day has no "today" before the first check-in.
+const agoOf = (iso, nowIso) => ago(iso, nowIso, "not yet today");
 
 function initials(name) {
   const parts = String(name).split(/\s+/).filter(Boolean);
@@ -154,10 +140,10 @@ export async function renderMap() {
 
   const pulledMs = live ? new Date(data.pulledAt).getTime() : NaN;
   const stale = live && Number.isFinite(pulledMs) && Date.now() - pulledMs > STALE_MINUTES * 60000;
-  const pulled = live ? (Number.isFinite(pulledMs) ? "Pulled " + ago(data.pulledAt, new Date().toISOString()) : "Pull time unknown") : "";
+  const pulled = live ? (Number.isFinite(pulledMs) ? "Pulled " + agoOf(data.pulledAt, new Date().toISOString()) : "Pull time unknown") : "";
   const sourceBadge = live
     ? '<div class="source-line"><span class="source-label">Live from your network server</span>' +
-      '<span class="muted source-time" data-pulled title="' + esc(timeOf(data.pulledAt)) + '">' + esc(pulled) + "</span></div>" +
+      '<span class="muted source-time" data-pulled title="' + esc(dateTime(data.pulledAt)) + '">' + esc(pulled) + "</span></div>" +
       '<div class="source-line">' +
       '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label>" +
       '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>' +
@@ -207,8 +193,18 @@ export async function renderMap() {
       '<details class="disclosure feed-section" data-tour="feed"><summary>Show all events <span class="count">' + events.length + "</span></summary>" +
       '<ol class="feed" data-feed></ol></details>'
     : data.loadFailed
-      ? stateBox("error", "alert", "The herd did not load", "The page could not read public/data/herd.json. Check that it is valid JSON, then try again.", '<button type="button" class="btn btn-primary" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>")
-      : stateBox("empty", "herd", "No animals yet", "Add goats to public/data/herd.json, then reload.", "");
+      ? stateBox(
+          "error",
+          "alert",
+          "The herd did not load",
+          typeof navigator !== "undefined" && navigator.onLine === false
+            ? "This device is offline. Reconnect, then try again."
+            : "The sample herd file could not be read. Try again in a moment.",
+          '<button type="button" class="btn btn-primary" data-retry>' + icon("reset", { size: 18 }) + "Try again</button>"
+        )
+      : live
+        ? stateBox("empty", "herd", "No trackers in the live file", "The last pull found no trackers. Check the network server, then run the pull again.", '<button type="button" class="btn btn-ghost" data-source="sample">Show sample data</button>')
+        : stateBox("empty", "herd", "No animals yet", "Add goats to public/data/herd.json, then reload.", "");
 
   return (
     nav("/map") +
@@ -299,15 +295,6 @@ function renderPins(root, state, alerts) {
   for (const pin of pins) pin.tabIndex = pin === current ? 0 : -1;
 }
 
-// The time of the last check-in, with the date when it was not today.
-function lastCheckIn(iso, nowMs) {
-  if (!iso) return "not yet";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "not yet";
-  const sameDay = date.toDateString() === new Date(nowMs).toDateString();
-  return sameDay ? timeOf(iso) : date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + ", " + timeOf(iso);
-}
-
 function renderStats(root, state, alerts) {
   const holder = root.querySelector("[data-stats]");
   if (!holder) return;
@@ -316,8 +303,8 @@ function renderStats(root, state, alerts) {
   const stats = herdStats({ animals: state.animals, openAlerts: alerts.open.length, nowMs });
   const html = stats
     .map((st) => {
-      const value = st.id === "last" ? lastCheckIn(st.value, nowMs) : st.value;
-      return '<div class="stat' + (st.warn && st.id === "open" ? " stat-warn" : "") + '"><dt>' + esc(st.label) + "</dt><dd>" + esc(value) + "</dd></div>";
+      const value = st.id === "last" ? (st.value ? dayTime(st.value, nowMs) : "not yet") : st.value;
+      return '<div class="stat' + ((st.warn && st.id === "open") || (st.id === "reporting" && /^0 of [1-9]/.test(st.value)) ? " stat-warn" : "") + '"><dt>' + esc(st.label) + "</dt><dd>" + esc(value) + "</dd></div>";
     })
     .join("");
   if (holder.dataset.html !== html) {
@@ -429,7 +416,7 @@ function renderDetail(root, state, alerts) {
     sheetName.textContent = animal.name;
     root.querySelector("[data-sheet-avatar]").textContent = initials(animal.alias || animal.name);
     root.querySelector("[data-sheet-meta]").textContent =
-      (Number.isFinite(animal.battery) ? "Battery " + Math.round(animal.battery) + "%" : "Battery not reported") + " · " + (animal.lastSeen ? "seen " + ago(animal.lastSeen, clockIso()) : "not seen yet");
+      (Number.isFinite(animal.battery) ? "Battery " + Math.round(animal.battery) + "%" : "Battery not reported") + " · " + (animal.lastSeen ? "seen " + agoOf(animal.lastSeen, clockIso()) : "not seen yet");
   }
   const live = view.data.mode === "live";
   const full = live && view.data.privateView;
@@ -437,7 +424,7 @@ function renderDetail(root, state, alerts) {
   const rows = [
     ...(live ? liveRows(animal, full) : []),
     ["Battery", batteryBar(animal.battery) + (animal.externalPower ? " · on outside power" : "")],
-    ["Last check-in", animal.lastSeen ? esc(timeOf(animal.lastSeen)) + ' <span class="muted">(' + esc(ago(animal.lastSeen, clockIso())) + ")</span>" : '<span class="muted">not yet</span>'],
+    ["Last check-in", animal.lastSeen ? esc(dayTime(animal.lastSeen, new Date(clockIso()).getTime())) + ' <span class="muted">(' + esc(ago(animal.lastSeen, clockIso())) + ")</span>" : '<span class="muted">not yet</span>'],
     ...(full && animal.onMap ? [] : [["Grid cell", esc(cellOf(animal.x, animal.y))]]),
     ...(live ? sensorRows(animal) : []),
     [
@@ -497,11 +484,6 @@ function renderFeed(root, state) {
   });
 }
 
-function answeredAt(iso) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-}
 
 function isEvent(kind) {
   return kind === "predator" || kind === "smoke";
@@ -537,7 +519,7 @@ function historyItem(entry) {
     '<div class="alert-body">' +
     '<p class="alert-title"><strong>' + esc(entry.title || label) + '</strong> <span class="alert-state">' + (confirmed ? "Confirmed" : "Dismissed") + "</span></p>" +
     (entry.note ? '<p class="alert-detail alert-note-text">“' + esc(entry.note) + "”</p>" : "") +
-    '<p class="row-meta">' + [isEvent(entry.kind) ? "" : label, entry.alertTime ? "alert at " + timeOf(entry.alertTime) : "", "answered " + answeredAt(entry.at)].filter(Boolean).map(esc).join(" · ") +
+    '<p class="row-meta">' + [isEvent(entry.kind) ? "" : label, entry.alertTime ? "alert at " + timeOf(entry.alertTime) : "", "answered " + dateTime(entry.at)].filter(Boolean).map(esc).join(" · ") +
     ' · <button type="button" class="btn-link" data-reopen>Reopen</button></p>' +
     "</div></li>"
   );
