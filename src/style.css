@@ -1418,8 +1418,6 @@ button.feed-row:focus-visible {
   padding: var(--s-4) 0 0;
   min-width: 0;
 }
-@media (max-width: 1100px) {
-  }
 .trace-card.is-hidden {
   border-top: 2px dashed var(--line-strong);
 }
@@ -2544,4 +2542,19 @@ button.feed-row:focus-visible {
 .job-all {
   margin-top: var(--s-3);
   font-size: var(--fs-sm);
+}
+.trace-why {
+  margin: 0 0 var(--s-5);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  max-width: 72ch;
+}
+.trace-why:focus {
+  outline: none;
+}
+.is-unlinked .trace-kind::before {
+  content: none;
+}
+.is-unlinked .trace-card {
+  border-top: 1px solid var(--line-strong);
 }

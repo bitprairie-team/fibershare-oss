@@ -3,6 +3,8 @@ import { esc, EXT } from "./util.js";
 import { REPO } from "./sites.js";
 import { RECORDS } from "./records-data.js";
 import { traceLot, visibleRecord } from "./records.js";
+import { readJobs } from "./settings.js";
+import { timeOf } from "./time.js";
 
 const LOT_ID = "mohair-bramble";
 const VIEWER_LABELS = {
@@ -28,6 +30,10 @@ const FIELD_LABELS = {
 };
 
 let viewer = "rancher";
+// When the trace job last linked the records, or null while it is off and
+// the rancher has not linked them by hand.
+let linkedAt = null;
+let linkedByHand = false;
 
 /** Back to the rancher's own view, for "Reset demo". */
 export function resetTrace() {
@@ -72,7 +78,37 @@ function card(kind, record) {
   );
 }
 
+// With the trace job off: every record as entered, not linked, so the
+// rancher can follow the IDs by hand.
+function unlinkedHtml() {
+  const cards = [
+    ...RECORDS.lots.map((r) => card("Fiber lot", r)),
+    ...RECORDS.fleeces.map((r) => card("Fleece", r)),
+    ...RECORDS.shearings.map((r) => card("Shearing", r)),
+    ...RECORDS.animals.map((r) => card("Animal", r)),
+  ];
+  return (
+    '<p class="trace-why" data-trace-why>Tracing is off, so the records are not linked. Each one lists the ID of the record before it. ' +
+    '<button type="button" class="btn-link" data-link-once>Link them once</button></p>' +
+    '<ol class="trace-chain is-unlinked" data-tour="chain" aria-label="Records as entered, not linked">' + cards.join("") + "</ol>"
+  );
+}
+
+function whyText(chain) {
+  const step = chain.steps[0] || {};
+  const how = linkedByHand ? "Linked by hand at " + timeOf(linkedAt) + ". Tracing stays off." : "Linked by the trace job at " + timeOf(linkedAt) + ".";
+  // Only the rancher may see the IDs of records that are not shared.
+  if (viewer !== "rancher") return how + " Only the records shared with this viewer are shown.";
+  const parts = [
+    step.fleece ? "the lot lists fleece " + step.fleece.id : "",
+    step.shearing ? "the fleece names shearing " + step.shearing.id : "",
+    step.animal ? "the shearing names animal " + step.animal.id : "",
+  ].filter(Boolean);
+  return how + (parts.length ? " Why: " + parts.join(", ").replace(/, ([^,]*)$/, " and $1") + "." : "");
+}
+
 function chainHtml() {
+  if (!linkedAt) return unlinkedHtml();
   const chain = traceLot(LOT_ID, RECORDS);
   if (!chain) return '<div class="empty">The sample lot was not found in docs/schemas/examples.</div>';
   const step = chain.steps[0] || {};
@@ -93,7 +129,10 @@ function chainHtml() {
     out.push(html);
     if (html.includes("is-hidden")) blocked = true;
   }
-  return '<ol class="trace-chain" data-tour="chain" aria-label="From fiber lot back to the animal">' + out.join("") + "</ol>";
+  return (
+    '<p class="trace-why" data-trace-why>' + esc(whyText(chain)) + "</p>" +
+    '<ol class="trace-chain" data-tour="chain" aria-label="From fiber lot back to the animal">' + out.join("") + "</ol>"
+  );
 }
 
 function lotsTable(products) {
@@ -135,6 +174,8 @@ function viewerFromHash() {
 export async function renderTrace() {
   const products = await loadLots();
   viewer = viewerFromHash() || viewer;
+  linkedByHand = false;
+  linkedAt = readJobs().trace ? new Date().toISOString() : null;
   const chips = Object.entries(VIEWER_LABELS)
     .map(
       ([key, label]) =>
@@ -146,7 +187,11 @@ export async function renderTrace() {
     '<main class="wrap wrap-wide" id="main">' +
     '<section class="page-head">' +
     "<h1>Fleece trace</h1>" +
-    '<p class="lede">The mohair-bramble lot traced back to Bramble, the goat it came from. The rancher sets who can see each record.</p>' +
+    '<p class="lede">' +
+    (linkedAt
+      ? "The mohair-bramble lot traced back to Bramble, the goat it came from."
+      : "The records for the mohair-bramble lot, as the rancher entered them. Follow each ID back to the goat.") +
+    " The rancher sets who can see each record.</p>" +
     "</section>" +
     '<div class="trace-controls"><span class="row-meta" id="viewer-label">View as</span><div class="segmented" role="group" aria-labelledby="viewer-label">' +
     chips +
@@ -181,4 +226,13 @@ export function bindTrace(root) {
     });
   });
   root.querySelector("[data-print]")?.addEventListener("click", () => window.print());
+  root.querySelector("[data-chain]")?.addEventListener("click", (event) => {
+    if (!event.target.closest("[data-link-once]")) return;
+    linkedAt = new Date().toISOString();
+    linkedByHand = true;
+    const holder = root.querySelector("[data-chain]");
+    holder.innerHTML = chainHtml();
+    holder.querySelector("[data-trace-why]")?.setAttribute("tabindex", "-1");
+    holder.querySelector("[data-trace-why]")?.focus();
+  });
 }

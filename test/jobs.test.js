@@ -204,3 +204,14 @@ test("How it works: a switch for each job and the pull loop, with its state in w
     globalThis.localStorage = saved;
   }
 });
+
+test("fleece trace: says why the records are linked, and works by hand with tracing off", () => {
+  const trace = readFileSync(new URL("../src/trace.js", import.meta.url), "utf8");
+  assert.match(trace, /readJobs\(\)\.trace/, "the trace job can be off");
+  assert.match(trace, /Tracing is off, so the records are not linked/);
+  assert.match(trace, /data-link-once/, "link once by hand");
+  assert.match(trace, /Linked by hand at /);
+  assert.match(trace, /Linked by the trace job at /);
+  assert.match(trace, /the lot lists fleece /);
+  assert.match(trace, /viewer !== "rancher"/, "no record IDs in the reason for buyers or the public");
+});
