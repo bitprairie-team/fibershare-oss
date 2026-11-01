@@ -123,19 +123,6 @@ export function keyMoments(events) {
 }
 
 /**
- * The few numbers the herd view shows above the paddock. At most three, so
- * the page stays easy to scan in a live demo.
- * animals: [{ lastSeen }], openAlerts: count, nowMs: the clock to measure from.
- * Returns [{ id, value, label, warn }]; value for "last" is an ISO time or "".
- */
-
-/**
- * Paddock moves and grazing notes shown so far in the day. Used by the herd
- * view's grazing log during Play. Only `move` and `graze` events are listed.
- * Returns [{ id, type, time, text, animalId?, cell? }] in time order.
- */
-
-/**
  * The last `limit` positioned check-ins for one animal up to `count` events.
  * Used to draw a short trail on the paddock during day Play. Oldest first.
  * Returns [{ time, x, y }].
@@ -153,6 +140,11 @@ export function positionTrail(events, animalId, count, { limit = 5 } = {}) {
   return points.slice(-Math.max(1, Math.floor(limit)));
 }
 
+/**
+ * Paddock moves and grazing notes shown so far in the day. Used by the herd
+ * view's grazing log during Play. Only `move` and `graze` events are listed.
+ * Returns [{ id, type, time, text, animalId?, cell? }] in time order.
+ */
 export function grazingLog(events, count) {
   const sorted = sortEvents(events);
   const upto = sorted.slice(0, Math.max(0, count));
@@ -168,6 +160,12 @@ export function grazingLog(events, count) {
     }));
 }
 
+/**
+ * The few numbers the herd view shows above the paddock. At most three, so
+ * the page stays easy to scan in a live demo.
+ * animals: [{ lastSeen }], openAlerts: count, nowMs: the clock to measure from.
+ * Returns [{ id, value, label, warn }]; value for "last" is an ISO time or "".
+ */
 export function herdStats({ animals = [], openAlerts = 0, nowMs = Date.now() } = {}) {
   const seen = animals.map((a) => (a.lastSeen ? new Date(a.lastSeen).getTime() : NaN)).filter(Number.isFinite);
   const reporting = seen.filter((t) => t <= nowMs && nowMs - t <= 3600000).length;

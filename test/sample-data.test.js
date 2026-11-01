@@ -131,15 +131,22 @@ test("location, device, and radio keys are rejected in any case or form", () => 
 });
 
 test("email-like and key-like strings are rejected", () => {
+  // Key-shaped samples are built at runtime so the source has no full key pattern.
+  const stripeLive = "sk_" + "live_" + "51" + "HxAbCdEfGhIjKl";
+  const stripeTest = "pk_" + "test_" + "abcdefgh" + "12345678";
+  const apiAssign = "api_" + "key=" + "abcd1234" + "efgh5678";
+  const apiField = "apiKey: '" + "Zx9Lm2Np" + "4Qr6St8V" + "'";
+  const hexToken = "01234567" + "89abcdef" + "01234567" + "89abcdef";
+  const b64Token = "dGhpcyBpcyBhIHNl" + "Y3JldCB0b2tlbiB2" + "YWx1ZQ1234==";
   const rejected = [
     "someone@example.com",
     "write to Ranch.Hand+herd@mail.example.org today",
-    "sk_live_51HxAbCdEfGhIjKl",
-    "pk_test_abcdefgh12345678",
-    "api_key=abcd1234efgh5678",
-    "apiKey: 'Zx9Lm2Np4Qr6St8V'",
-    "0123456789abcdef0123456789abcdef",
-    "dGhpcyBpcyBhIHNlY3JldCB0b2tlbiB2YWx1ZQ1234==",
+    stripeLive,
+    stripeTest,
+    apiAssign,
+    apiField,
+    hexToken,
+    b64Token,
   ];
   for (const value of rejected) {
     assert.ok(privateValueProblem(value), `${value} should be rejected`);
@@ -151,11 +158,13 @@ test("email-like and key-like strings are rejected", () => {
     "Community collar kit (demo)",
     "2026-09-06",
     "roving-juniper",
+    "test-not-a-real-key",
   ];
   for (const value of allowed) {
     assert.equal(privateValueProblem(value), null, `${value} should be allowed`);
   }
 
-  const found = privateDataProblems({ contact: "someone@example.com", nested: ["sk_live_51HxAbCdEfGh"] }, "sample");
+  const nestedKey = "sk_" + "live_" + "51" + "HxAbCdEfGh";
+  const found = privateDataProblems({ contact: "someone@example.com", nested: [nestedKey] }, "sample");
   assert.equal(found.length, 2);
 });

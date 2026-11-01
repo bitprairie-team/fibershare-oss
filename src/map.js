@@ -12,7 +12,7 @@ import { computeAlerts, latestAnswers, splitAlerts } from "./alerts.js";
 import { alertScope, createAlertStore } from "./alert-store.js";
 import { LIMITS, readJobs, readRules, setJob, setLimit } from "./settings.js";
 import { createRanchLog, entriesFor, lastChecked } from "./ranch-log.js";
-import { PULL_SECONDS, jobsLine } from "./loops.js";
+import { PULL_SECONDS, alertsOffNoticeHtml, jobsLine, paintAlertsOffNotice } from "./loops.js";
 
 const ALERT_KIND = {
   manual: ["info", "Added by hand"],
@@ -64,7 +64,7 @@ function stage(data, animals, live, cells) {
     const placed = animals.filter((a) => Number.isFinite(a.details?.position?.latitude)).length;
     return (
       '<div class="rancher-map" data-rancher-map role="region" aria-label="Map of tracker positions"><p class="muted map-loading">Loading the map…</p></div>' +
-      '<p class="pasture-legend map-legend">' + placed + " of " + animals.length + " trackers have a position. Map layers come from public agencies.</p>"
+      '<p class="pasture-legend map-legend">' + placed + " of " + animals.length + " trackers have a position. Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set.</p>"
     );
   }
   const legend = data.mapSpan
@@ -142,6 +142,7 @@ function alertsSection(data, live) {
     '<section class="section alerts-section" data-tour="alerts" aria-labelledby="alerts-title">' +
     '<h2 class="section-rule" id="alerts-title">Open alerts <span class="count" data-open-count></span></h2>' +
     '<p class="jobs-line"><span data-jobs-line>' + esc(jobsLine(view.jobs, view.rules)) + '</span> <button type="button" class="btn-link" data-open-settings>Change</button></p>' +
+    alertsOffNoticeHtml(view.jobs) +
     (live ? "" : '<p class="muted feed-note">Predator Watch, Wildfire Watch, not-moving, and out-of-paddock reports on the sample day are simulated.</p>') +
     '<p class="notice notice-warn alert-error" data-alert-error role="alert" hidden></p>' +
     '<p class="visually-hidden" data-alert-status role="status"></p>' +
@@ -885,6 +886,7 @@ function openSettings(root, focus) {
 function settingsChanged(root, message) {
   const line = root.querySelector("[data-jobs-line]");
   if (line) line.textContent = jobsLine(view.jobs, view.rules);
+  paintAlertsOffNotice(root.querySelector("[data-alerts-off]"), view.jobs);
   const pull = root.querySelector("[data-pull-line]");
   if (pull) pull.firstChild.textContent = view.jobs.pull ? "Checks for a new file every " + PULL_SECONDS / 60 + " minutes. " : "Automatic check is off. ";
   const status = root.querySelector("[data-alert-status]");
@@ -926,6 +928,7 @@ function draw(root) {
   const state = currentState();
   const alerts = alertsFor(state);
   renderPins(root, state, alerts);
+  renderTrail(root, state);
   renderStats(root, state, alerts);
   renderGrid(root, state, alerts);
   renderDetail(root, state, alerts);

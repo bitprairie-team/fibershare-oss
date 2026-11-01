@@ -1,7 +1,7 @@
 import { nav, footer } from "./layout.js";
 import { APP, DISCORD, REPO } from "./sites.js";
 import { EXT } from "./util.js";
-import { PLANNED, PULL_JOB, jobsFor } from "./loops.js";
+import { PLANNED, PULL_JOB, alertsOffNoticeHtml, jobsFor, paintAlertsOffNotice } from "./loops.js";
 import { readJobs, readRules, setAllJobs, setJob } from "./settings.js";
 
 const PARTS = [
@@ -44,6 +44,7 @@ export function renderArchitecture() {
     '<h2 id="jobs-title">Automated jobs</h2>' +
     '<div class="job-block">' +
     '<p class="job-intro">Every job is on until you turn it off. With all of them off, the herd view still works by hand: answer and add alerts, save notes, and mark animals checked. Saved in this browser.</p>' +
+    alertsOffNoticeHtml(state) +
     '<ul class="job-list">' + jobs + "</ul>" +
     '<p class="job-all"><button type="button" class="btn-link" data-all-jobs>' + (Object.values(state).some(Boolean) ? "Turn every job off" : "Turn every job on") + "</button>" +
     '<span class="visually-hidden" role="status" data-job-status></span></p>' +
@@ -59,7 +60,7 @@ export function renderArchitecture() {
     "<p>You need Node 20.9 or newer.</p>" +
     "<pre><code>git clone " + REPO + ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
     "<p>Then open http://localhost:5173.</p>" +
-    "<p>The code is MIT licensed. Keep private ranch files and real tracker data out of the repository. " +
+    "<p>The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. Keep private ranch files and real tracker data out of the repository. " +
     'See the <a href="' + REPO + '/blob/main/CONTRIBUTING.md"' + EXT + ">contribution guide</a>, or ask on <a href=\"" + DISCORD + '"' + EXT + ">Discord</a>.</p>" +
     '<p>The FiberShare app is a separate product at <a href="' + APP + '"' + EXT + ">fibershare.app</a>.</p>" +
     "</section></main>" +
@@ -80,6 +81,7 @@ export function bindArchitecture(root) {
     if (all) all.textContent = Object.values(state).some(Boolean) ? "Turn every job off" : "Turn every job on";
     const status = root.querySelector("[data-job-status]");
     if (status) status.textContent = message;
+    paintAlertsOffNotice(root.querySelector("[data-alerts-off]"), state);
   };
   root.querySelectorAll("[data-job]").forEach((box) => {
     box.addEventListener("change", () => {

@@ -1,6 +1,6 @@
 {
   "simulated": true,
-  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving, out-of-paddock, and paddock-move or grazing notes.",
+  "note": "Simulated events for one day on the sample herd. None of this happened. Positions are cells on a virtual paddock grid. Events labeled Sample are made-up demos of not-moving and out-of-paddock alerts, paddock moves and grazing notes.",
   "day": "2026-09-06",
   "events": [
     {
