@@ -825,10 +825,9 @@ main.wrap {
 }
 .source-box {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-2) var(--s-3);
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
 }
 .source-line {
   display: flex;
@@ -1845,20 +1844,24 @@ button.feed-row:focus-visible {
 }
 .layer-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0 0.35rem;
   padding: 0.12rem 0;
 }
 .layer-row label {
   flex: 1 1 auto;
+  min-width: 0;
+}
+.layer-src {
+  white-space: nowrap;
+}
+.layer-error {
+  white-space: nowrap;
 }
 .layer-panel a.layer-src {
   color: var(--link);
   text-decoration: underline;
-}
-.layer-row.is-off {
-  color: var(--muted);
 }
 .layer-src,
 .layer-remove {
@@ -1956,7 +1959,7 @@ button.feed-row:focus-visible {
     flex: 1 1 auto;
   }
   .source-box {
-    justify-content: flex-start;
+    align-items: flex-start;
   }
   .source-note {
     text-align: left;

@@ -9,6 +9,7 @@ import { esc } from "./util.js";
 import { ALERT_RULES } from "./alert-config.js";
 
 const STATE_KEY = "fs-rancher-map";
+const FALLBACK_BASEMAP = "osm-streets";
 const CUSTOM_KEY = "fs-rancher-layers";
 
 function readStore(key, fallback) {
@@ -139,14 +140,13 @@ function makeLayer(layer, apiKey) {
 }
 
 function panelHtml(layers, hasKey, state, custom) {
-  const basemaps = LAYERS.filter((l) => l.group === "basemap");
+  // Basemaps that need a key are left out until a key is set.
+  const basemaps = LAYERS.filter((l) => l.group === "basemap" && (hasKey || !l.needsKey));
   const overlays = layers.filter((l) => l.group === "overlay");
   const radio = (l) => {
-    const off = l.needsKey && !hasKey;
     return (
-      '<label class="layer-row' + (off ? " is-off" : "") + '"><input type="radio" name="basemap" value="' + esc(l.id) + '"' +
-      (state.basemap === l.id ? " checked" : "") + (off ? " disabled" : "") + " /> " + esc(l.name) +
-      (off ? ' <span class="muted">needs a key</span>' : "") + "</label>"
+      '<label class="layer-row"><input type="radio" name="basemap" value="' + esc(l.id) + '"' +
+      (state.basemap === l.id ? " checked" : "") + " /> " + esc(l.name) + "</label>"
     );
   };
   const box = (l) =>
@@ -163,7 +163,7 @@ function panelHtml(layers, hasKey, state, custom) {
     '<input name="name" type="text" placeholder="Name, such as Paddocks" maxlength="60" />' +
     '<button type="submit" class="btn btn-ghost btn-small">Add</button>' +
     '<p class="layer-error" data-add-error hidden></p></form>' +
-    '<p class="layer-note">' + (hasKey ? "Using your ArcGIS key for Esri basemaps." : "No ArcGIS key is set, so Esri basemaps are off. The other layers work without one.") + "</p>" +
+    (hasKey ? '<p class="layer-note">Using your ArcGIS key for Esri basemaps.</p>' : "") +
     "</details>"
   );
 }
@@ -205,8 +205,20 @@ export function mountRancherMap(el, { animals, apiKey, now, onSelect }) {
       loaded = true;
       showError(id, false);
     });
+    let failed = 0;
     made.on?.("tileerror", () => {
-      if (!loaded) showError(id, true);
+      if (loaded) return;
+      showError(id, true);
+      // A basemap with no tiles for this area (the USGS maps cover the US
+      // only) falls back to Streets once, so the map is never blank.
+      failed += 1;
+      if (id === state.basemap && id !== FALLBACK_BASEMAP && failed >= 4) {
+        disable(id);
+        state.basemap = FALLBACK_BASEMAP;
+        enable(FALLBACK_BASEMAP);
+        live.get(FALLBACK_BASEMAP)?.bringToBack?.();
+        drawPanel();
+      }
     });
     made.on?.("requesterror loaderror", () => showError(id, true));
     made.addTo(map);

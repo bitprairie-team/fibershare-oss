@@ -121,12 +121,14 @@ export function createLocalApi({ liveFile, rancherFile, alertsFile, env = proces
     if (path === "/api/live") {
       if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, { error: "Use GET." }, { Allow: "GET" });
       let live = null;
+      let unreadable = false;
       try {
         live = JSON.parse(await readFile(liveFile, "utf8"));
-      } catch {
+      } catch (error) {
         live = null;
+        unreadable = error?.code !== "ENOENT";
       }
-      return send(res, 200, liveBody({ live, rancher: signedIn(req), arcgisApiKey: env.ARCGIS_API_KEY }));
+      return send(res, 200, liveBody({ live, rancher: signedIn(req), arcgisApiKey: env.ARCGIS_API_KEY, unreadable }));
     }
 
     if (path === "/api/alerts") {

@@ -151,7 +151,14 @@ test("liveBody hides a full file for the public and passes a hidden file through
   const hidden = hideTrackerDetails(full);
   assert.deepEqual(liveBody({ live: hidden, rancher: false }).live, hidden);
   assert.equal(liveBody({ live: full, rancher: true, arcgisApiKey: " " }).arcgisApiKey, undefined, "blank key is left out");
-  assert.deepEqual(liveBody({ live: { nope: 1 }, rancher: true }), { view: "rancher", live: null });
+  assert.deepEqual(liveBody({ live: null, rancher: true }), { view: "rancher", live: null }, "no file");
+});
+
+test("liveBody tells only a signed-in rancher that the live file is unreadable", () => {
+  assert.deepEqual(liveBody({ live: { nope: 1 }, rancher: true }), { view: "rancher", live: null, problem: "unreadable" });
+  assert.deepEqual(liveBody({ live: null, rancher: true, unreadable: true }), { view: "rancher", live: null, problem: "unreadable" });
+  assert.deepEqual(liveBody({ live: null, rancher: false, unreadable: true }), { view: "public", live: null });
+  assert.deepEqual(liveBody({ live: { nope: 1 }, rancher: false }), { view: "public", live: null });
 });
 
 // ---- Cloudflare Access mode ------------------------------------------------

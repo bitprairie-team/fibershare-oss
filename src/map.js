@@ -118,6 +118,12 @@ function stateBox(kind, iconName, title, text, action) {
 }
 
 function notices(data) {
+  if (data.mode === "sample" && data.liveStatus === "unreadable") {
+    return (
+      '<p class="notice notice-warn">' + icon("info", { size: 18 }) +
+      "<span>The live file on this server could not be read. Run <code>npm run chirpstack:pull</code> again, then reload. Until then you see the sample herd.</span></p>"
+    );
+  }
   if (data.mode === "sample" && data.liveStatus === "missing" && data.rancherSignedIn) {
     return (
       '<p class="notice notice-warn">' + icon("info", { size: 18 }) +
@@ -146,26 +152,26 @@ export async function renderMap() {
   view.selected = (animals.find((a) => a.id === "bramble") || animals[0] || {}).id || null;
   const live = data.mode === "live";
 
-  const pulledMinutes = live ? Math.max(0, Math.round((Date.now() - new Date(data.pulledAt).getTime()) / 60000)) : 0;
-  const stale = live && pulledMinutes > STALE_MINUTES;
+  const pulledMs = live ? new Date(data.pulledAt).getTime() : NaN;
+  const stale = live && Number.isFinite(pulledMs) && Date.now() - pulledMs > STALE_MINUTES * 60000;
+  const pulled = live ? (Number.isFinite(pulledMs) ? "Pulled " + ago(data.pulledAt, new Date().toISOString()) : "Pull time unknown") : "";
   const sourceBadge = live
     ? '<div class="source-line"><span class="source-label">Live from your network server</span>' +
-      '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label></div>" +
-      (data.rancher
-        ? '<p class="fine-print source-note">Signed in as the rancher.</p>'
-        : '<p class="fine-print source-note">Public view, with tracker details hidden. <a href="#/rancher">Rancher sign-in</a></p>') +
-      (data.rancher && !data.hide && data.exportHidden
-        ? '<p class="fine-print source-note">This file was written with tracker details hidden. Run the pull with FIBERSHARE_HIDE_TRACKERS=0 to see real values.</p>'
-        : "") +
-      '<div class="source-line"><span class="muted source-time" data-pulled>Pulled ' + esc(pulledMinutes < 1 ? "just now" : pulledMinutes + " min ago") + " (" + esc(timeOf(data.pulledAt)) + ")" + (data.sources?.includes("mqtt") ? " · REST and MQTT" : " · REST") + "</span>" +
+      '<span class="muted source-time" data-pulled title="' + esc(timeOf(data.pulledAt)) + '">' + esc(pulled) + "</span></div>" +
+      '<div class="source-line">' +
+      '<label class="toggle"><input type="checkbox" data-hide' + (data.hide ? " checked" : "") + (data.rancher ? "" : " disabled") + " /> Hide tracker details</label>" +
       '<button type="button" class="btn btn-ghost btn-small" data-source="sample">Show sample data</button></div>' +
+      (data.rancher ? "" : '<p class="fine-print source-note">Tracker details are hidden for the public. <a href="#/rancher">Rancher sign-in</a></p>') +
+      (data.rancher && !data.hide && data.exportHidden
+        ? '<p class="fine-print source-note">This file was written with tracker details hidden. Run the pull with <code>FIBERSHARE_HIDE_TRACKERS=0</code> to see real values.</p>'
+        : "") +
       (stale
-        ? '<p class="fine-print source-note stale-note">This file is more than ' + STALE_MINUTES + " minutes old." +
+        ? '<p class="fine-print source-note stale-note">This file is more than ' + STALE_MINUTES + " minutes old, so check-ins may look missed." +
           (data.rancher ? " Keep it fresh with <code>npm run chirpstack:pull -- --watch=120</code>." : "") + "</p>"
         : "")
-    : (data.liveAvailable
-        ? '<button type="button" class="btn btn-ghost btn-small" data-source="live">Show live data</button>'
-        : "");
+    : data.liveAvailable
+      ? '<button type="button" class="btn btn-ghost btn-small" data-source="live">Show live data</button>'
+      : "";
 
   const lede = live
     ? data.privateView
