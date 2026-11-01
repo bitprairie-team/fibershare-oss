@@ -324,3 +324,16 @@ test("unbuilt features on screen are marked Planned", () => {
 test("the header line stays true when live trackers are shown", () => {
   assert.ok(!/demo-bar[^<]*sample data/.test(src["layout.js"]), "the demo line does not claim sample data");
 });
+
+test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by default", () => {
+  const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf('[data-theme="dark"]'));
+  for (const [token, hex] of [["--bg", "#f2ede4"], ["--ink", "#141416"], ["--accent", "#6b4a2e"], ["--brand", "#6b4a2e"]]) {
+    assert.match(rootBlock, new RegExp(token + ": " + hex + ";"), token);
+  }
+  assert.ok(!/font-weight:\s*(700|800|900|bold)/.test(css), "no weight above 600");
+  assert.ok(!/latin-700/.test(src["main.js"]), "the 700 face is not loaded");
+  for (const w of ["400", "500", "600"]) assert.match(src["main.js"], new RegExp("latin-" + w + "\\.css"));
+  const html = read("index.html");
+  assert.ok(!/prefers-color-scheme: dark\)"\)\.matches/.test(html), "the system dark setting does not switch the theme");
+  assert.match(html, /=== "dark" \? "dark" : "light"/);
+});

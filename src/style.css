@@ -41,81 +41,82 @@
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --dur: 180ms;
 
-  /* Color, light theme. Neutrals plus one accent (field green). */
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --surface-2: #f0f0ed;
-  --surface-3: #e4e4e0;
-  --ink: #1b1c1a;
-  --ink-2: #3b3d39;
-  --muted: #5c5f59;
-  --line: #e1e2de;
-  --line-strong: #c6c8c2;
-  --brand: #2f5d48;
-  --brand-hover: #24493a;
-  --on-brand: #ffffff;
-  --accent: #2f5d48;
-  --accent-ink: #2f5d48;
-  --link: #2a5541;
-  --ok: #2f5d48;
-  --ok-soft: #e6efe9;
+  /* Color, light theme. BitPrairie paper and ink, with leather as the one
+     accent. Pasture colours the paddock drawing. */
+  --bg: #f2ede4;
+  --surface: #fffcf6;
+  --surface-2: #e8e0d2;
+  --surface-3: #ddd3c2;
+  --ink: #141416;
+  --ink-2: #3a342d;
+  --muted: #5f574c;
+  --line: #ddd4c5;
+  --line-strong: #c4b7a3;
+  --brand: #6b4a2e;
+  --brand-hover: #573b23;
+  --on-brand: #fffcf6;
+  --accent: #6b4a2e;
+  --accent-ink: #6b4a2e;
+  --link: #6b4a2e;
+  --ok: #5c6b4a;
+  --ok-soft: #e4e6da;
   --warn: #7a5410;
-  --warn-soft: #f6eedc;
+  --warn-soft: #f3e8d2;
   --alert: #9b3220;
-  --alert-soft: #f8e6e1;
+  --alert-soft: #f5e2da;
   --info: #3b4f5e;
-  --info-soft: #eaeef1;
-  --field-1: #6f7a62;
-  --field-2: #5b6650;
-  --field-line: rgba(255, 255, 255, 0.2);
-  --field-label: rgba(255, 255, 255, 0.86);
-  --pin-bg: #ffffff;
-  --pin-ink: #1b1c1a;
+  --info-soft: #e6e8e8;
+  --field-1: #5c6b4a;
+  --field-2: #5c6b4a;
+  --field-line: rgba(255, 255, 255, 0.22);
+  --field-label: rgba(255, 255, 255, 0.88);
+  --pin-bg: #fffcf6;
+  --pin-ink: #141416;
   --focus-ring: #1f5f8f;
-  --shadow-1: 0 1px 2px rgba(20, 22, 20, 0.05);
-  --shadow-2: 0 4px 12px rgba(20, 22, 20, 0.08);
-  --shadow-3: 0 12px 32px rgba(20, 22, 20, 0.14);
-  --skeleton: #e8e8e5;
-  --skeleton-hi: #f2f2f0;
+  --shadow-1: none;
+  --shadow-2: 0 4px 12px rgba(20, 20, 22, 0.08);
+  --shadow-3: 0 12px 32px rgba(20, 20, 22, 0.14);
+  --skeleton: #e8e0d2;
+  --skeleton-hi: #f2ede4;
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --bg: #141514;
-  --surface: #1c1d1b;
-  --surface-2: #242522;
-  --surface-3: #2e2f2c;
-  --ink: #ecede9;
-  --ink-2: #cfd1cb;
-  --muted: #a2a59e;
-  --line: #31332f;
-  --line-strong: #464942;
-  --brand: #8fc2a7;
-  --brand-hover: #a8d3bc;
-  --on-brand: #10140f;
-  --accent: #8fc2a7;
-  --accent-ink: #9fcbb3;
-  --link: #9fcbb3;
-  --ok: #9fcbb3;
-  --ok-soft: #1f2b24;
+  --bg: #161310;
+  --surface: #1f1b17;
+  --surface-2: #29231d;
+  --surface-3: #342c24;
+  --ink: #f7f1e8;
+  --ink-2: #ddd4c6;
+  --muted: #b3a999;
+  --line: #3a3229;
+  --line-strong: #52473a;
+  --brand: #c49a6c;
+  --brand-hover: #d4b088;
+  --on-brand: #161310;
+  --accent: #c49a6c;
+  --accent-ink: #c49a6c;
+  --link: #d4b088;
+  --ok: #b7c29f;
+  --ok-soft: #262a1f;
   --warn: #e2bb6c;
   --warn-soft: #352d1a;
   --alert: #f09b85;
   --alert-soft: #3b231d;
   --info: #b5c4cf;
   --info-soft: #232a30;
-  --field-1: #3c4535;
-  --field-2: #2f372a;
+  --field-1: #3d4632;
+  --field-2: #3d4632;
   --field-line: rgba(255, 255, 255, 0.12);
-  --field-label: rgba(255, 255, 255, 0.78);
-  --pin-bg: #ecede9;
-  --pin-ink: #1b1c1a;
+  --field-label: rgba(255, 255, 255, 0.8);
+  --pin-bg: #f7f1e8;
+  --pin-ink: #141416;
   --focus-ring: #8cc4f0;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-1: none;
   --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.35);
   --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.5);
-  --skeleton: #242522;
-  --skeleton-hi: #2c2d2a;
+  --skeleton: #29231d;
+  --skeleton-hi: #342c24;
   color-scheme: dark;
 }
 
@@ -159,13 +160,11 @@ h4 {
   margin: 0;
   line-height: var(--lh-tight);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
   color: var(--ink);
 }
 h1 {
   font-size: var(--fs-3xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
 }
 h2 {
   font-size: var(--fs-2xl);
@@ -308,7 +307,7 @@ main.wrap {
   gap: var(--s-2);
   color: var(--ink);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--fs-lg);
   letter-spacing: -0.01em;
   margin-right: auto;
@@ -874,21 +873,8 @@ main.wrap {
   border-radius: var(--r-md);
   overflow: hidden;
   isolation: isolate;
-  background:
-    radial-gradient(120% 90% at 15% 10%, rgba(255, 255, 240, 0.12), transparent 60%),
-    radial-gradient(80% 60% at 85% 95%, rgba(0, 0, 0, 0.14), transparent 70%),
-    linear-gradient(160deg, var(--field-1), var(--field-2));
-}
-.paddock::before {
-  /* A soft grass grain, drawn with gradients, no image request. */
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.35;
-  background-image:
-    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(65deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 9px);
+  /* A flat pasture colour. The grid lines carry the drawing. */
+  background: var(--field-1);
 }
 .paddock-cells {
   position: absolute;
@@ -960,7 +946,7 @@ main.wrap {
   display: none;
 }
 .paddock-map {
-  background: linear-gradient(160deg, var(--field-1), var(--field-2));
+  background: var(--field-1);
 }
 .pasture-legend {
   position: absolute;
@@ -1173,7 +1159,7 @@ main.wrap {
   border-radius: 50%;
   background: var(--surface-2);
   color: var(--brand);
-  font-weight: 700;
+  font-weight: 600;
   flex: none;
   border: 1px solid var(--line);
 }

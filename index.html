@@ -9,8 +9,7 @@
       content="Open-source FiberShare demo from BitPrairie LLC, with a sample goat herd, tracker alerts and fiber records. This is a demo, not the FiberShare app."
     />
     <link rel="canonical" href="https://github.com/steelhead99x/fibershare-oss" />
-    <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141514" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2ede4" />
     <meta property="og:title" content="FiberShare demo" />
     <meta
       property="og:description"
@@ -74,10 +73,8 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("fs-theme");
-          if (t !== "light" && t !== "dark") {
-            t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          }
+          // Light by default. The dark theme is a choice, kept once made.
+          var t = localStorage.getItem("fs-theme") === "dark" ? "dark" : "light";
           document.documentElement.setAttribute("data-theme", t);
           document.documentElement.style.colorScheme = t;
         } catch (e) {
