@@ -1,25 +1,37 @@
 # FiberShare (open source)
 
-FiberShare is a ranch program from BitPrairie LLC. It started with goats and fiber and is growing into a network of local ranchers in the western US, with collar trackers, paddock cameras, and predator and wildfire alerts.
+**FiberShare OSS** is a browser demo of ranch herd tracking and fiber traceability: a sample goat herd on a paddock grid, day Play with alerts, paddock moves, and a short tracker trail, plus a fleece lot you can trace back to the animal. It runs on sample data, works offline, and is meant for ranchers, hardware makers, and developers who want to see the idea before wiring real collars.
 
-This repository is the open-source demo. It is not the FiberShare app at [fibershare.app](https://fibershare.app). It runs on sample data and works offline.
-
-Ranch support pays for animals and pasture. Support is not ownership or an investment return.
+This repository is **not** the FiberShare app at [fibershare.app](https://fibershare.app). Ranch support pays for animals and pasture. Support is not ownership or an investment return. BitPrairie LLC builds FiberShare.
 
 ![The demo home page](docs/screenshots/home.png)
 
-## What the demo shows
+## Features (what is shipped)
 
-- **Herd view.** 8 sample goats on a paddock grid. The grid is a drawing, not GPS. Three numbers sit above it: trackers reporting in the last hour, open alerts and the last check-in. Select a goat to see its breed, battery, last check-in and grid cell. Play steps through one made-up day of events. A paddock-move log lists sample moves and grazing notes as the day advances. Selecting a goat during Play draws a short trail of its last few check-ins. Show all events opens the full log.
-- **Alerts.** Open alerts come from the trackers and from Predator Watch and Wildfire Watch. On the sample day the Predator Watch and Wildfire Watch reports are simulated. Confirm or dismiss each alert, with an optional note, and reopen it under Answered alerts. On sample data the answers stay in your browser.
-- **Fleece trace.** The `mohair-bramble` lot traced back through its fleece and shearing to the goat Bramble, using the draft records in `docs/schemas/examples/`. Switch the viewer between rancher, buyer and public to see what each record shares. The page also lists the sample fiber lots. Nothing is for sale.
-- **Setups.** Your own hardware, hosted by BitPrairie, or a mix, side by side.
-- **Rancher sign-in and map.** The public always gets hidden tracker data. A signed-in rancher gets real names and positions on a map with public map layers. See [docs/rancher-access.md](docs/rancher-access.md).
-- **Tour.** Press Tour in the header for 5 short steps. The tour uses the sample data. Arrow keys change steps and Esc closes it. The last step has Reset demo, which clears saved settings except the theme.
+- **Herd view** - Eight sample goats on a virtual paddock grid (a drawing, not GPS). Stats for trackers reporting, open alerts, and last check-in. Day **Play** scrubs one made-up day.
+- **Alerts** - Low battery, quiet tracker, not-moving, out-of-paddock, SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or reopen; answers stay in the browser on sample data.
+- **Paddock moves** - A short log of sample paddock moves and grazing notes that advances with Play.
+- **Tracker trail** - Select a goat during Play to see a short trail of its last few positioned check-ins.
+- **Fleece trace** - Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. Viewer modes for rancher, buyer, and public. Nothing is for sale.
+- **Setups** - Your own hardware, hosted by BitPrairie, or a mix.
+- **Rancher sign-in and map** - Public view hides tracker details; a signed-in rancher can see real names and positions. See [docs/rancher-access.md](docs/rancher-access.md).
+- **Tour** - Five short steps on the sample data (keyboard: arrows, Esc).
 
 | Herd view | Fleece trace |
 | --- | --- |
 | ![Sample herd on the paddock grid](docs/screenshots/herd-map.png) | ![Fleece trace for the mohair-bramble lot](docs/screenshots/fleece-trace.png) |
+
+## Docs and schemas
+
+| Link | What it is |
+| --- | --- |
+| [docs/DIRECTION.md](docs/DIRECTION.md) | Demo vs the FiberShare app |
+| [docs/rancher-access.md](docs/rancher-access.md) | Local passphrase and Cloudflare Access |
+| [docs/chirpstack.md](docs/chirpstack.md) | Pull live trackers from ChirpStack v4 |
+| [docs/schemas/](docs/schemas/README.md) | Draft animal, shearing, fleece, and fiber-lot JSON Schemas |
+| [docs/schemas/examples/](docs/schemas/examples/) | Example records used by the fleece trace |
+| [ROADMAP.md](ROADMAP.md) | Shipped vs planned work |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to help |
 
 ## Automated jobs
 
@@ -27,13 +39,15 @@ Ranch support pays for animals and pasture. Support is not ownership or an inves
 | --- | --- |
 | Flags tracker batteries below 20% | Trackers on outside power are skipped |
 | Flags trackers that stop reporting | No check-in for over 2 hours |
+| Flags trackers not moving near the same spot | Still checking in for over 2 hours with little movement |
+| Flags a position outside the paddock | Active paddock bounds are 0-100 on the grid |
 | Raises an alert when a tracker sends an SOS | The alert names the animal |
 | Lists Predator Watch reports near the herd | The sample day has one simulated report |
 | Lists Wildfire Watch smoke reports upwind | The rancher map adds public fire, smoke and air quality layers |
 | Traces a fiber lot back to the goat | Through the fleece and shearing records |
 | Checks for a new live file every 2 minutes | Live data only. The pull script runs only when you start it |
 
-Every job is on until you turn it off, on How it works or in the herd view's Alert settings. The setting is saved in the browser. Each automated alert says which rule and reading raised it and when the rules ran, for example "Battery 14%, below the 20% limit, not on outside power." With every job off, a rancher can still answer and add alerts, save notes, mark animals checked and change the battery and quiet limits.
+Every job is on until you turn it off, on How it works or in the herd view's Alert settings. The setting is saved in the browser. Each automated alert says which rule and reading raised it and when the rules ran, for example "Battery 14%, below the 20% limit, not on outside power." With every job off, a rancher can still answer and add alerts, save notes, mark animals checked and change the battery, quiet, and not-moving limits.
 
 The default thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
 
