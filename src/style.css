@@ -226,7 +226,9 @@ pre code {
   border: 0;
   padding: 0;
   color: inherit;
-  overflow-wrap: normal;
+  /* Long commands wrap instead of hiding off the edge on phones. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 :focus {
   outline: none;

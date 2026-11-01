@@ -294,6 +294,15 @@ function renderPins(root, state, alerts) {
   }
 }
 
+// The time of the last check-in, with the date when it was not today.
+function lastCheckIn(iso, nowMs) {
+  if (!iso) return "not yet";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "not yet";
+  const sameDay = date.toDateString() === new Date(nowMs).toDateString();
+  return sameDay ? timeOf(iso) : date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + ", " + timeOf(iso);
+}
+
 function renderStats(root, state, alerts) {
   const holder = root.querySelector("[data-stats]");
   if (!holder) return;
@@ -302,7 +311,7 @@ function renderStats(root, state, alerts) {
   const stats = herdStats({ animals: state.animals, openAlerts: alerts.open.length, nowMs });
   const html = stats
     .map((st) => {
-      const value = st.id === "last" ? (st.value ? timeOf(st.value) : "none") : st.value;
+      const value = st.id === "last" ? lastCheckIn(st.value, nowMs) : st.value;
       return '<div class="stat' + (st.warn && st.id === "open" ? " stat-warn" : "") + '"><dt>' + esc(st.label) + "</dt><dd>" + esc(value) + "</dd></div>";
     })
     .join("");
