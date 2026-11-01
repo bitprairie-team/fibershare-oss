@@ -233,10 +233,6 @@ export function endTour() {
   back?.focus?.();
 }
 
-export function tourActive() {
-  return index >= 0;
-}
-
 /** Put the demo back the way it starts: sample herd, end of day, home page. */
 export function resetDemo() {
   for (const storage of [localStorage, sessionStorage]) {
@@ -259,7 +255,6 @@ export function resetDemo() {
 /** Called by the router after each page renders. */
 export function tourAfterRender(root) {
   root.querySelectorAll("[data-tour-start]").forEach((btn) => btn.addEventListener("click", () => startTour(0)));
-  root.querySelectorAll("[data-demo-reset]").forEach((btn) => btn.addEventListener("click", resetDemo));
   if (index < 0) {
     // Pick up a tour that was running before a reload.
     let saved = null;

@@ -322,17 +322,7 @@ main.wrap {
   height: 2rem;
   border-radius: 7px;
 }
-.brand-tag {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-pill);
-  padding: 0.05rem 0.5rem;
-  margin-left: var(--s-1);
-}
+
 .nav {
   display: flex;
   align-items: center;
@@ -490,14 +480,7 @@ main.wrap {
   background: var(--surface-2);
   color: var(--ink);
 }
-.btn-text {
-  background: none;
-  color: var(--link);
-  padding-inline: var(--s-2);
-}
-.btn-text:hover {
-  background: var(--surface-2);
-}
+
 .btn-small {
   min-height: 2.25rem;
   padding: 0 var(--s-3);
@@ -523,17 +506,6 @@ main.wrap {
   align-items: center;
   gap: var(--s-3);
   margin-top: var(--s-6);
-}
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
-  font-weight: 600;
-  font-size: var(--fs-sm);
-  text-decoration: none;
-}
-.link-arrow:hover {
-  text-decoration: underline;
 }
 
 /* Badges and chips */
@@ -771,7 +743,6 @@ main.wrap {
   border-radius: var(--r-lg);
   background: var(--surface);
 }
-
 
 /* Footer */
 .site-footer {
@@ -1141,9 +1112,6 @@ main.wrap {
 }
 .goat.is-sos::after {
   background: #c8371b;
-}
-.goat-tip {
-  display: none;
 }
 
 /* Playback */
@@ -1931,9 +1899,7 @@ button.feed-row:focus-visible {
     width: 2.5rem;
     padding: 0;
   }
-  .brand-tag {
-    display: none;
-  }
+
   .rancher-callout {
     padding: var(--s-5);
   }
@@ -1952,8 +1918,7 @@ button.feed-row:focus-visible {
   .feed-row {
     padding-inline: var(--s-3);
   }
-  
-  
+
   .paddock {
     aspect-ratio: 1 / 1;
   }
@@ -1970,8 +1935,7 @@ button.feed-row:focus-visible {
   .clock {
     min-width: 0;
   }
-  
-  
+
 }
 
 /* Motion and contrast preferences */
@@ -2418,12 +2382,7 @@ button.feed-row:focus-visible {
   color: var(--muted);
   margin-left: var(--s-1);
 }
-.flag-warn {
-  color: var(--warn);
-}
-.flag-alert {
-  color: var(--alert);
-}
+
 .alert-state {
   font-size: var(--fs-xs);
   font-weight: 600;
