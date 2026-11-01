@@ -7,6 +7,7 @@ import { setHerdView } from "./map.js";
 import { resetTrace } from "./trace.js";
 import { icon } from "./icons.js";
 import { esc } from "./util.js";
+import { LOG_KEYS } from "./ranch-log.js";
 
 let index = -1;
 let els = null;
@@ -233,16 +234,15 @@ export function endTour() {
   back?.focus?.();
 }
 
-export function tourActive() {
-  return index >= 0;
-}
-
-/** Put the demo back the way it starts: sample herd, end of day, home page. */
+/**
+ * Put the demo back the way it starts: sample herd, end of day, home page,
+ * every job on. A signed-in rancher's own notes on real trackers are kept.
+ */
 export function resetDemo() {
   for (const storage of [localStorage, sessionStorage]) {
     try {
       for (const key of Object.keys(storage)) {
-        if (key.startsWith("fs-") && key !== "fs-theme") storage.removeItem(key);
+        if (key.startsWith("fs-") && key !== "fs-theme" && key !== LOG_KEYS.rancher) storage.removeItem(key);
       }
     } catch {
       // nothing stored
@@ -259,7 +259,6 @@ export function resetDemo() {
 /** Called by the router after each page renders. */
 export function tourAfterRender(root) {
   root.querySelectorAll("[data-tour-start]").forEach((btn) => btn.addEventListener("click", () => startTour(0)));
-  root.querySelectorAll("[data-demo-reset]").forEach((btn) => btn.addEventListener("click", resetDemo));
   if (index < 0) {
     // Pick up a tour that was running before a reload.
     let saved = null;

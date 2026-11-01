@@ -1,8 +1,6 @@
 // Follow a fiber lot back to its fleeces, shearings, and animals, and apply
 // each record's sharing setting for a given viewer.
 
-export const VIEWERS = ["rancher", "buyers", "public"];
-
 /** Build the chain for one lot from flat lists of records. */
 export function traceLot(lotId, records) {
   const lot = (records.lots || []).find((item) => item.id === lotId);

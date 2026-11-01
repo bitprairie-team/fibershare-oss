@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { dynamicMapLayer, featureLayer } from "esri-leaflet";
 import { availableLayers, customLayer, DEFAULT_BASEMAP, KEYED_DEFAULT_BASEMAP, LAYERS, tileUrl } from "./map-layers.js";
 import { esc } from "./util.js";
+import { ago, dateTime } from "./time.js";
 import { ALERT_RULES } from "./alert-config.js";
 
 const STATE_KEY = "fs-rancher-map";
@@ -29,15 +30,6 @@ function writeStore(key, value) {
   }
 }
 
-function ago(iso, now) {
-  if (!iso) return "not yet";
-  const minutes = Math.max(0, Math.round((new Date(now).getTime() - new Date(iso).getTime()) / 60000));
-  if (!Number.isFinite(minutes)) return "unknown";
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return minutes + " min ago";
-  const hours = Math.round(minutes / 60);
-  return hours < 48 ? hours + (hours === 1 ? " hour ago" : " hours ago") : Math.round(hours / 24) + " days ago";
-}
 
 function trackerPopup(animal, now) {
   const s = animal.sensors || {};
@@ -60,7 +52,7 @@ function trackerPopup(animal, now) {
 }
 
 function fieldValue(value) {
-  if (typeof value === "number" && value > 1e11 && value < 1e14) return new Date(value).toLocaleString();
+  if (typeof value === "number" && value > 1e11 && value < 1e14) return dateTime(new Date(value).toISOString());
   return value === null || value === undefined || value === "" ? "not given" : String(value);
 }
 

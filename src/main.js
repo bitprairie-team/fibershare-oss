@@ -1,14 +1,13 @@
 import "@fontsource/ibm-plex-sans/latin-400.css";
 import "@fontsource/ibm-plex-sans/latin-500.css";
 import "@fontsource/ibm-plex-sans/latin-600.css";
-import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./style.css";
 import { bindTheme, nav, footer } from "./layout.js";
 import { renderHome } from "./home.js";
 import { renderMap, bindMap, leaveMap } from "./map.js";
 import { renderTrace, bindTrace } from "./trace.js";
 import { renderSetups } from "./setups.js";
-import { renderArchitecture } from "./architecture.js";
+import { renderArchitecture, bindArchitecture } from "./architecture.js";
 import { renderRancher, bindRancher } from "./rancher.js";
 import { tourAfterRender } from "./tour.js";
 import { skeleton } from "./skeleton.js";
@@ -37,7 +36,7 @@ function renderNotFound() {
     '<section class="page-head">' +
     "<h1>Page not found</h1>" +
     '<p class="lede">Nothing is at this address.</p>' +
-    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a class="btn btn-ghost" href="#/map">Herd view</a></div>' +
+    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a href="#/map">Herd view</a></div>' +
     "</section></main>" +
     footer()
   );
@@ -91,6 +90,7 @@ async function render() {
   if (path === "/map") bindMap(app);
   if (path === "/trace" || path === "/shop") bindTrace(app);
   if (path === "/rancher") bindRancher(app);
+  if (path === "/architecture") bindArchitecture(app);
   app.querySelectorAll("[data-retry]").forEach((btn) => btn.addEventListener("click", () => render()));
   app.querySelector(".skip-link")?.addEventListener("click", (event) => {
     event.preventDefault();

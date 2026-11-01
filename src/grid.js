@@ -25,11 +25,3 @@ export function cellLabels() {
   return labels;
 }
 
-/** The center of a cell, as a position on the grid. */
-export function cellCenter(label) {
-  const match = /^([A-F])([1-4])$/.exec(String(label));
-  if (!match) return null;
-  const col = COL_LETTERS.indexOf(match[1]);
-  const row = Number(match[2]) - 1;
-  return { x: ((col + 0.5) / GRID_COLS) * 100, y: ((row + 0.5) / GRID_ROWS) * 100 };
-}

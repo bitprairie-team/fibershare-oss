@@ -324,3 +324,50 @@ test("unbuilt features on screen are marked Planned", () => {
 test("the header line stays true when live trackers are shown", () => {
   assert.ok(!/demo-bar[^<]*sample data/.test(src["layout.js"]), "the demo line does not claim sample data");
 });
+
+test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by default", () => {
+  const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf('[data-theme="dark"]'));
+  for (const [token, hex] of [["--bg", "#f2ede4"], ["--ink", "#141416"], ["--accent", "#6b4a2e"], ["--brand", "#6b4a2e"]]) {
+    assert.match(rootBlock, new RegExp(token + ": " + hex + ";"), token);
+  }
+  assert.ok(!/font-weight:\s*(700|800|900|bold)/.test(css), "no weight above 600");
+  assert.ok(!/latin-700/.test(src["main.js"]), "the 700 face is not loaded");
+  for (const w of ["400", "500", "600"]) assert.match(src["main.js"], new RegExp("latin-" + w + "\\.css"));
+  const html = read("index.html");
+  assert.ok(!/prefers-color-scheme: dark\)"\)\.matches/.test(html), "the system dark setting does not switch the theme");
+  assert.match(html, /=== "dark" \? "dark" : "light"/);
+});
+
+test("layout: no template tells (caps labels, pill tags, boxed card grids, many filled buttons)", async () => {
+  const rule = (sel) => (css.match(new RegExp("\\n" + sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + " \\{([^}]*)\\}")) || [])[1] || "";
+  assert.ok(!/text-transform:\s*uppercase/.test(css), "no all-caps labels");
+  assert.ok(!/border|radius/.test(rule(".tag")), "Planned is flat text, not a pill");
+  for (const sel of [".trace-card", ".alert-item", ".rancher-callout", ".herd-main"]) {
+    const body = rule(sel);
+    assert.ok(body, sel + " rule exists");
+    assert.ok(!/box-shadow|border-radius|background:/.test(body), sel + " is a ruled block, not a boxed card");
+  }
+  assert.ok(!/repeat\(3, minmax\(0, 1fr\)\)/.test(rule(".setup-list")), "home setups are rows, not three equal cards");
+  // One filled button at most on any page.
+  assert.ok(!/btn-primary[^>]*data-answer/.test(src["map.js"]), "herd view answers are outlined buttons");
+  assert.ok((src["map.js"].match(/btn-primary/g) || []).length <= 1, "only the load-error retry is filled");
+  const { renderHome } = await import("../src/home.js");
+  const { renderSetups } = await import("../src/setups.js");
+  const { renderArchitecture } = await import("../src/architecture.js");
+  for (const html of [renderHome(), renderSetups(), renderArchitecture()]) assert.ok((html.match(/btn-primary/g) || []).length <= 1);
+});
+
+test("fleece trace: a shareable viewer link and a clean print sheet", () => {
+  assert.match(src["trace.js"], /\?view=/, "the viewer is kept in the address");
+  assert.match(src["trace.js"], /window\.print\(\)/);
+  const print = css.slice(css.indexOf("@media print"));
+  assert.ok(print.length > 20, "print styles exist");
+  for (const sel of [".site-header", ".site-footer", ".trace-print"]) assert.ok(print.includes(sel), "print hides " + sel);
+});
+
+test("herd view keyboard and screen reader flow", () => {
+  const map = src["map.js"];
+  assert.match(map, /pin\.tabIndex = pin === current \? 0 : -1/, "the grid is one tab stop");
+  assert.match(map, /aria-valuetext/, "the time slider reads as a time");
+  assert.match(map, /data-answer="confirmed" aria-describedby=/, "Confirm names its alert");
+});

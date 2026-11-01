@@ -31,8 +31,11 @@ Ranch support pays for animals and pasture. Support is not ownership or an inves
 | Lists Predator Watch reports near the herd | The sample day has one simulated report |
 | Lists Wildfire Watch smoke reports upwind | The rancher map adds public fire, smoke and air quality layers |
 | Traces a fiber lot back to the goat | Through the fleece and shearing records |
+| Checks for a new live file every 2 minutes | Live data only. The pull script runs only when you start it |
 
-The thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
+Every job is on until you turn it off, on How it works or in the herd view's Alert settings. The setting is saved in the browser. Each automated alert says which rule and reading raised it and when the rules ran, for example "Battery 14%, below the 20% limit, not on outside power." With every job off, a rancher can still answer and add alerts, save notes, mark animals checked and change the battery and quiet limits.
+
+The default thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
 
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
 

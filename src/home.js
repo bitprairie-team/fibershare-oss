@@ -8,8 +8,8 @@ export function renderHome() {
     '<main class="wrap" id="main">' +
     '<section class="hero" data-tour="hero">' +
     "<h1>Herd tracking for local ranchers</h1>" +
-    '<p class="lede">FiberShare is a ranch program from BitPrairie LLC. It started with goats and fiber and is growing into a network of local ranchers in the western US.</p>' +
-    '<p class="lede">This demo runs on 8 sample goats and one made-up day of tracker data.</p>' +
+    '<p class="lede">FiberShare checks each tracker\'s battery and check-ins, lists Predator Watch and Wildfire Watch reports, and traces fiber back to the goat. Each of those jobs can be turned off, and everything also works by hand.</p>' +
+    '<p class="lede">FiberShare is a ranch program from BitPrairie LLC, growing into a network of local ranchers in the western US. This demo runs on 8 sample goats and one made-up day of tracker data.</p>' +
     '<div class="cta-row"><a class="btn btn-primary" href="#/map">Open the herd view</a></div>' +
     "</section>" +
     '<section class="section" aria-labelledby="setups-title">' +
