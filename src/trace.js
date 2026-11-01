@@ -44,7 +44,7 @@ function value(key, v) {
 // Record IDs are long. Show them in a smaller mono face that can break anywhere.
 const ID_FIELDS = new Set(["id", "fleeceIds", "shearingId", "animalId"]);
 
-function card(kind, file, record, schemaFile) {
+function card(kind, record) {
   const shown = visibleRecord(record, viewer);
   const audience = record?.sharing?.audience || "private";
   const head =
@@ -57,7 +57,9 @@ function card(kind, file, record, schemaFile) {
       " record with " + esc(audience) + " only.</p></li>"
     );
   }
+  // The record ID is already the card heading, so it is not repeated below.
   const rows = Object.entries(shown.fields)
+    .filter(([k]) => k !== "id")
     .map(([k, v]) => "<dt>" + esc(FIELD_LABELS[k] || k) + "</dt><dd" + (ID_FIELDS.has(k) ? ' class="fact-id"' : "") + ">" + value(k, v) + "</dd>")
     .join("");
   const hidden = shown.hidden.length
@@ -66,8 +68,7 @@ function card(kind, file, record, schemaFile) {
   return (
     '<li class="trace-card">' + head +
     "<h2><code title=\"" + esc(record.id) + "\">" + esc(record.id) + "</code></h2>" +
-    '<dl class="facts">' + rows + "</dl>" + hidden +
-    '<p class="trace-file"><a href="' + REPO + "/blob/main/docs/schemas/" + esc(schemaFile) + '"' + EXT + ">" + esc(file) + "</a></p></li>"
+    '<dl class="facts">' + rows + "</dl>" + hidden + "</li>"
   );
 }
 
@@ -76,10 +77,10 @@ function chainHtml() {
   if (!chain) return '<div class="empty">The sample lot was not found in docs/schemas/examples.</div>';
   const step = chain.steps[0] || {};
   const cards = [
-    card("Fiber lot", "fiber-lot.example.json", chain.lot, "fiber-lot.schema.json"),
-    card("Fleece", "fleece.example.json", step.fleece, "fleece.schema.json"),
-    card("Shearing", "shearing.example.json", step.shearing, "shearing.schema.json"),
-    card("Animal", "animal.example.json", step.animal, "animal.schema.json"),
+    card("Fiber lot", chain.lot),
+    card("Fleece", step.fleece),
+    card("Shearing", step.shearing),
+    card("Animal", step.animal),
   ];
   // Once one record is hidden, the links after it are hidden too.
   let blocked = false;
@@ -144,8 +145,8 @@ export async function renderTrace() {
     '<div data-chain aria-live="polite">' +
     chainHtml() +
     "</div>" +
-    '<p class="fine-print trace-note">Each record names the one before it. The lot lists its fleeces, each fleece names its shearing, and each shearing names the goat. ' +
-    'Bramble is a sample goat and the weights and dates are made up. The record format is a draft. <a href="' +
+    '<p class="fine-print trace-note">Each record names the one before it, from the lot back to the goat. ' +
+    'Bramble is a sample goat, and the weights and dates are made up. The record format is a draft. <a href="' +
     REPO +
     '/blob/main/docs/schemas/README.md"' +
     EXT +

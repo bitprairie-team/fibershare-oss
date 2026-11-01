@@ -770,12 +770,6 @@ main.wrap {
   background: var(--surface);
 }
 
-.compare-table {
-  min-width: 46rem;
-}
-.compare-table tbody th {
-  width: 22%;
-}
 
 /* Footer */
 .site-footer {
@@ -1540,17 +1534,6 @@ button.feed-row:focus-visible {
 .trace-card .fine-print {
   margin: 0;
 }
-.trace-file {
-  margin-top: auto;
-  font-size: var(--fs-xs);
-}
-
-/* Shop */
-
-/* Setups */
-
-/* Build page */
-
 /* Rancher */
 .rancher-grid {
   display: grid;
@@ -2296,10 +2279,49 @@ button.feed-row:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 .compare-table {
-  min-width: 44rem;
+  table-layout: fixed;
 }
+.compare-table thead td,
 .compare-table tbody th {
   width: 22%;
+}
+/* On phones each row becomes a block: the part, then one line per setup. */
+@media (max-width: 640px) {
+  .compare-table,
+  .compare-table tbody,
+  .compare-table tr,
+  .compare-table th,
+  .compare-table td {
+    display: block;
+    width: auto;
+  }
+  .compare-table thead {
+    display: none;
+  }
+  .compare-table tr {
+    padding: var(--s-3) var(--s-4);
+    border-bottom: 1px solid var(--line);
+  }
+  .compare-table tr:last-child {
+    border-bottom: 0;
+  }
+  .compare-table tbody th,
+  .compare-table td {
+    padding: 0;
+    border: 0;
+  }
+  .compare-table tbody th {
+    font-weight: 600;
+    margin-bottom: var(--s-2);
+  }
+  .compare-table td {
+    padding: 0.15rem 0;
+  }
+  .compare-table td::before {
+    content: attr(data-setup) ": ";
+    font-weight: 500;
+    color: var(--ink);
+  }
 }
 .plain-list {
   margin: 0;

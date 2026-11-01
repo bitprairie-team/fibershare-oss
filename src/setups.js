@@ -33,7 +33,7 @@ const ROWS = [
 
 export function renderSetups() {
   const head = SETUPS.map((s) => '<th scope="col">' + s.name + "</th>").join("");
-  const body = ROWS.map(([part, ...cells]) => '<tr><th scope="row">' + part + "</th>" + cells.map((c) => "<td>" + c + "</td>").join("") + "</tr>").join("");
+  const body = ROWS.map(([part, ...cells]) => '<tr><th scope="row">' + part + "</th>" + cells.map((c, i) => '<td data-setup="' + SETUPS[i].name + '">' + c + "</td>").join("") + "</tr>").join("");
   return (
     nav("/setups") +
     '<main class="wrap" id="main">' +
