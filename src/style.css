@@ -2138,7 +2138,6 @@ button.feed-row:focus-visible {
   .setup-list li {
     grid-template-columns: 1fr;
   }
-  .setup-list li,
 }
 .section p + p,
 .section p + pre,
