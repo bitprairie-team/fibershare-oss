@@ -4,7 +4,7 @@ import test from "node:test";
 import { ALERT_RULES } from "../src/alert-config.js";
 import { computeAlerts, normalizeFeedback, splitAlerts, trackerAlerts } from "../src/alerts.js";
 import { sortEvents, stateAt } from "../src/herd-state.js";
-import { JOBS, PULL_JOB, jobsFor, jobsLine } from "../src/loops.js";
+import { ALERTS_OFF_NOTICE, ALERT_JOB_IDS, JOBS, PULL_JOB, alertJobsAreOff, alertsOffNoticeHtml, jobsFor, jobsLine, paintAlertsOffNotice } from "../src/loops.js";
 import { createRanchLog, entriesFor, lastChecked, normalizeEntry } from "../src/ranch-log.js";
 import { JOB_IDS, LIMITS, SETTINGS_KEYS, readJobs, readRules, setAllJobs, setJob, setLimit } from "../src/settings.js";
 
@@ -179,6 +179,42 @@ test("herd view: a switch for each job, the limits, and the manual tools", () =>
   assert.match(mapSrc, /data-change-limit/, "an alert links to its limit");
   assert.match(mapSrc, /view\.jobs\.predator \? state\.alertCells : \[\]/, "no predator marker with the job off");
   assert.match(mapSrc, /view\.jobs\.smoke && state\.smoke/, "no haze with the job off");
+  assert.match(mapSrc, /alertsOffNoticeHtml\(view\.jobs\)/);
+  assert.match(mapSrc, /paintAlertsOffNotice\(root\.querySelector\("\[data-alerts-off\]"\), view\.jobs\)/);
+  assert.match(
+    readFileSync(new URL("../src/architecture.js", import.meta.url), "utf8"),
+    /alertsOffNoticeHtml\(state\)[\s\S]*paintAlertsOffNotice\(root\.querySelector\("\[data-alerts-off\]"\), state\)/
+  );
+});
+
+test("notice: shown only when every alert job is off", () => {
+  const on = readJobs(memory());
+  assert.equal(alertJobsAreOff(on), false);
+  assert.equal(alertJobsAreOff({ ...on, trace: false, pull: false }), false, "trace and the live-file check are not alert jobs");
+  assert.match(alertsOffNoticeHtml(on), /data-alerts-off role="status" hidden><\/p>/);
+  assert.ok(!alertsOffNoticeHtml(on).includes(ALERTS_OFF_NOTICE));
+
+  const alertsOff = { ...on };
+  for (const id of ALERT_JOB_IDS) alertsOff[id] = false;
+  assert.equal(alertsOff.trace, true, "the trace job can stay on");
+  assert.equal(alertsOff.pull, true, "the live-file check can stay on");
+  assert.equal(alertJobsAreOff(alertsOff), true);
+  const shown = alertsOffNoticeHtml(alertsOff);
+  assert.equal(shown.includes(ALERTS_OFF_NOTICE), true);
+  assert.ok(!/hidden/.test(shown));
+  for (const id of ALERT_JOB_IDS) {
+    assert.match(alertsOffNoticeHtml({ ...alertsOff, [id]: true }), / hidden>/, id + " on hides the notice");
+    assert.ok(!alertsOffNoticeHtml({ ...alertsOff, [id]: true }).includes("call 911"));
+  }
+
+  const el = { hidden: true, textContent: "" };
+  paintAlertsOffNotice(el, alertsOff);
+  assert.equal(el.hidden, false);
+  assert.equal(el.textContent, ALERTS_OFF_NOTICE);
+  paintAlertsOffNotice(el, { ...alertsOff, quiet: true });
+  assert.equal(el.hidden, true);
+  assert.equal(el.textContent, "");
+  assert.doesNotThrow(() => paintAlertsOffNotice(null, alertsOff));
 });
 
 // ---- How it works and the fleece trace ----------------------------------------
@@ -192,6 +228,8 @@ test("How it works: a switch for each job and the pull loop, with its state in w
     for (const id of JOB_IDS) assert.match(html, new RegExp('data-job="' + id + '" checked'), id + " is on by default");
     assert.equal((html.match(/data-job-what="[a-z]+">On\. /g) || []).length, JOB_IDS.length);
     assert.match(html, />Turn every job off</);
+    assert.match(html, /data-alerts-off role="status" hidden><\/p>/, "the notice is hidden while an alert job is on");
+    assert.ok(!html.includes(ALERTS_OFF_NOTICE));
     setAllJobs(false, globalThis.localStorage);
     setLimit("lowBatteryPercent", 30, globalThis.localStorage);
     html = renderArchitecture();
@@ -200,6 +238,12 @@ test("How it works: a switch for each job and the pull loop, with its state in w
     assert.match(html, />Turn every job on</);
     assert.match(html, /Flags tracker batteries below 30%/, "the list reads the rancher's own limit");
     assert.match(html, /still works by hand/);
+    assert.ok(html.includes(ALERTS_OFF_NOTICE), "every alert job off shows the notice");
+    assert.match(html, /data-alerts-off role="status">Automatic alerts are off/);
+    setJob("sos", true, globalThis.localStorage);
+    html = renderArchitecture();
+    assert.match(html, /data-alerts-off role="status" hidden><\/p>/, "one alert job on hides the notice");
+    assert.ok(!html.includes("call 911"));
   } finally {
     globalThis.localStorage = saved;
   }
@@ -219,9 +263,18 @@ test("fleece trace: says why the records are linked, and works by hand with trac
 test("copy: pages lead with the job, and Reset demo keeps a rancher's own notes", () => {
   const read = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
   assert.match(read("src/home.js"), /checks each tracker\\?'s battery and check-ins/);
-  assert.match(read("src/home.js"), /Each of those jobs can be turned off, and everything also works by hand/);
+  assert.match(read("src/home.js"), /Each of those jobs can be turned off\. When a job is off, its alerts stop, and you can still add alerts, notes and checks by hand/);
   assert.match(mapSrc, /Check each goat's battery and last check-in, and answer open alerts/);
   assert.match(read("src/tour.js"), /key !== LOG_KEYS\.rancher/);
   assert.match(read("README.md"), /Battery 14%, below the 20% limit, not on outside power/);
   assert.match(read("README.md"), /With every job off, a rancher can still/);
+  const license = "The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use.";
+  assert.ok(read("src/home.js").includes(license));
+  assert.ok(read("src/architecture.js").includes(license));
+  assert.ok(read("README.md").includes(license));
+  assert.match(read("README.md"), /Open models that BitPrairie builds on keep their own licenses\./);
+  assert.match(mapSrc, /Map layers come from public agencies, plus Esri basemaps when an ArcGIS key is set\./);
+  assert.match(read(".env.example"), /referrer-restricted key limited to basemaps and features/);
+  assert.match(read("docs/rancher-access.md"), /The sign-in rate limiter is kept in memory, so it resets when the server restarts/);
+  assert.match(read("docs/rancher-access.md"), /Limit it to basemaps and features/);
 });

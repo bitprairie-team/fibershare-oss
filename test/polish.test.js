@@ -170,6 +170,10 @@ test("copy: pages render plain headings, one primary button on home, and a bare 
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, name + " has one h1");
   }
   assert.equal((pages.home.match(/btn-primary/g) || []).length, 1, "home has one primary button");
+  assert.match(
+    textOf(pages.home),
+    /Each of those jobs can be turned off\. When a job is off, its alerts stop, and you can still add alerts, notes and checks by hand\./
+  );
   assert.equal(textOf(footer()), "BitPrairie LLC");
 });
 
