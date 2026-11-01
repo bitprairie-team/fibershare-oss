@@ -36,7 +36,7 @@ function renderNotFound() {
     '<section class="page-head">' +
     "<h1>Page not found</h1>" +
     '<p class="lede">Nothing is at this address.</p>' +
-    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a class="btn btn-ghost" href="#/map">Herd view</a></div>' +
+    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a href="#/map">Herd view</a></div>' +
     "</section></main>" +
     footer()
   );
