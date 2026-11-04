@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Review and comment only. CodeRabbit must not edit this repository.
+language: en-US
+early_access: false
+tone_instructions: >-
+  Comment on the pull request only. Do not commit, push, open pull requests,
+  or edit files. Answer questions in chat without implementing changes.
+reviews:
+  profile: assertive
+  # Current key for the request-changes workflow. Do not also set the legacy
+  # alias reviews.request_changes_workflow.
+  auto_approvals:
+    enabled: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  poem: false
+  in_progress_fortune: false
+  changed_files_summary: true
+  enable_prompt_for_ai_agents: false
+  auto_apply_labels: false
+  auto_assign_reviewers: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    # 0 disables the pause so every new push is reviewed, including agent fix loops.
+    auto_pause_after_reviewed_commits: 0
+    drafts: false
+  path_filters:
+    # Exclusions only. An include pattern would limit review to that allowlist.
+    # dist/, node_modules/, and package-lock.json are also in CodeRabbit's defaults.
+    - "!**/dist/**"
+    - "!**/node_modules/**"
+    - "!**/package-lock.json"
+    - "!**/.wrangler/**"
+    - "!.local/**"
+    - "!public/licenses/**"
+  path_instructions:
+    - path: "functions/**/*.js"
+      instructions: |
+        Cloudflare Pages Functions. Each handler exports onRequest, onRequestGet, or onRequestPost and should stay a thin wrapper around server/.
+        Flag Node.js built-ins (fs, net, child_process, process) and any secret (ACCESS_TEAM_DOMAIN, ACCESS_AUD, PUSH_TOKEN, ARCGIS_API_KEY, ChirpStack or MQTT credentials) written into source. Read those only from the Pages env binding.
+        Require authentication on rancher and push routes. Public responses must not return the full live tracker file, the ArcGIS key, or JWT contents.
+    - path: "server/**/*.js"
+      instructions: |
+        Shared by Pages Functions and the local Node server. Code imported from functions/ must use Web APIs (Request, Response, fetch, Web Crypto, KV) and must not rely on Node built-ins.
+        Check Cloudflare Access JWT verification: team host, audience, signature, expiry, and clock skew. Reasons returned to clients must stay short codes, never token or claim contents.
+        Check the push token, body size limit, and that the public path reads only the hidden live copy. The full live copy and ARCGIS_API_KEY are for a verified rancher only.
+    - path: "src/**/*.{js,css}"
+      instructions: |
+        Vite browser bundle shipped to Cloudflare Pages. No secrets, Access credentials, push tokens, or service tokens in client code.
+        Treat herd, alert, map, and record data as untrusted when it is rendered as HTML. Keep alert rules aligned with the copy used on the server.
+        Do not send the ArcGIS key, tracker identities, or the full live file to a logged-out visitor.
+    - path: "vite.config.js"
+      instructions: |
+        Local dev and preview only. The Node middleware may read .env and .local/, but those files must not be copied into the client bundle or dist/. pages_build_output_dir is dist.
+    - path: "scripts/**/*.js"
+      instructions: |
+        Node CLIs for ChirpStack pull, local serve, and passphrase setup. Do not print API tokens, MQTT passwords, Cloudflare Access secrets, or the push token.
+        Live tracker files belong under .local/ and must not be committed. Plain HTTP is acceptable only for localhost or an explicit private-network opt-in.
+    - path: "test/**/*.js"
+      instructions: |
+        node:test. Keep coverage for auth failure, push rejection, and the hidden-versus-full live split. Do not weaken assertions to match a bug, and do not put real secrets in fixtures.
+    - path: ".github/workflows/**"
+      instructions: |
+        GitHub Actions. Keep permissions least-privilege (contents: read unless a job must write). Pin actions to a full commit SHA when versions are introduced. Do not echo secrets. Install with npm ci.
+    - path: "wrangler.toml"
+      instructions: |
+        Cloudflare Pages config. Do not put secret values in this file. KV namespace ids are not secrets, but do not invent them. pages_build_output_dir stays dist. Flag a compatibility_date that drops Workers APIs this code uses.
+    - path: "docs/schemas/**/*.json"
+      instructions: |
+        Draft JSON Schemas and examples for animal, shearing, fleece, and fiber-lot records. Flag a required-field or type change that breaks an example, and examples that do not match the schema.
+    - path: ".env.example"
+      instructions: |
+        Placeholders only. Flag any real token, password, or API key. Document which values must stay blank in git and which are server-only.
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: false
+    autofix:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
+      enabled: false
+    custom: []
+  post_merge_actions: []
+  tools:
+    eslint:
+      enabled: true
+    oxc:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true
+    gitleaks:
+      enabled: true
+    htmlhint:
+      enabled: true
+    stylelint:
+      enabled: true
+    dotenvLint:
+      enabled: true
+    osvScanner:
+      enabled: true
+    semgrep:
+      enabled: true
+chat:
+  art: false
+  auto_reply: true
+  integrations:
+    jira:
+      usage: disabled
+    linear:
+      usage: disabled
+issue_enrichment:
+  auto_enrich:
+    enabled: false
+  planning:
+    enabled: false
+    auto_planning:
+      enabled: false
+  labeling:
+    auto_apply_labels: false
