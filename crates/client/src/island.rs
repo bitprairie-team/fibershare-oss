@@ -166,6 +166,9 @@ fn bind_herd() {
         .add_event_listener_with_callback("keydown", key.as_ref().unchecked_ref())
         .ok();
     key.forget();
+    if let Some(holder) = doc().get_element_by_id("herd-dynamic") {
+        holder.set_attribute("data-island", "1").ok();
+    }
 }
 
 fn remember_check(animal: &str) {
