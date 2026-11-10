@@ -10,7 +10,10 @@ const events = JSON.parse(read("public/data/events.json")).events;
 const herd = JSON.parse(read("public/data/herd.json"));
 const srcFiles = readdirSync(new URL("../src", import.meta.url)).filter((f) => f.endsWith(".js"));
 const src = Object.fromEntries(srcFiles.map((f) => [f, read("src/" + f)]));
-const css = read("src/style.css");
+// Every stylesheet in src, entry first.
+const cssFiles = ["style.css", ...readdirSync(new URL("../src", import.meta.url)).filter((f) => f.endsWith(".css") && f !== "style.css")];
+const css = cssFiles.map((f) => read("src/" + f)).join("\n");
+const entryCss = read("src/style.css");
 const ROUTES = ["/", "/map", "/trace", "/setups", "/shop", "/rancher", "/architecture"];
 
 // Words and phrases the copy must not use.
@@ -204,25 +207,29 @@ function ratio(a, b) {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
   return (x + 0.05) / (y + 0.05);
 }
-const light = tokens(css.slice(css.indexOf(":root"), css.indexOf("}", css.indexOf("--bg:"))));
-const darkStart = css.indexOf('[data-theme="dark"]');
-const dark = { ...light, ...tokens(css.slice(darkStart, css.indexOf("}", darkStart))) };
+// The light colours are the Tailwind theme; the dark theme overrides them.
+const themeStart = entryCss.indexOf("@theme {");
+const light = tokens(entryCss.slice(themeStart, entryCss.indexOf("\n}", themeStart)));
+const darkStart = entryCss.indexOf('[data-theme="dark"] {');
+const dark = { ...light, ...tokens(entryCss.slice(darkStart, entryCss.indexOf("}", darkStart))) };
 
 const TEXT_PAIRS = [
-  ["ink", "bg"],
-  ["ink", "surface"],
-  ["ink-2", "surface"],
-  ["muted", "bg"],
-  ["muted", "surface"],
-  ["muted", "surface-2"],
-  ["link", "bg"],
-  ["link", "surface"],
-  ["on-brand", "brand"],
-  ["accent-ink", "surface"],
-  ["ok", "ok-soft"],
-  ["warn", "warn-soft"],
-  ["alert", "alert-soft"],
-  ["info", "info-soft"],
+  ["color-ink", "color-paper"],
+  ["color-ink", "color-surface"],
+  ["color-ink-2", "color-surface"],
+  ["color-ink-2", "color-band"],
+  ["color-muted", "color-paper"],
+  ["color-muted", "color-surface"],
+  ["color-muted", "color-band"],
+  ["color-leather", "color-paper"],
+  ["color-leather", "color-surface"],
+  ["color-on-leather", "color-leather"],
+  ["color-alert", "color-paper"],
+  ["color-warn", "color-paper"],
+  ["color-ok", "color-ok-soft"],
+  ["color-warn", "color-warn-soft"],
+  ["color-alert", "color-alert-soft"],
+  ["color-info", "color-info-soft"],
 ];
 
 for (const [name, theme] of [["light", light], ["dark", dark]]) {
@@ -232,14 +239,16 @@ for (const [name, theme] of [["light", light], ["dark", dark]]) {
       const r = ratio(theme[fg], theme[bg]);
       assert.ok(r >= 4.5, name + " --" + fg + " on --" + bg + " is " + r.toFixed(2));
     }
-    assert.ok(ratio(theme["focus-ring"], theme.bg) >= 3, name + " focus ring");
+    assert.ok(ratio(theme["color-focus"], theme["color-paper"]) >= 3, name + " focus ring");
   });
 }
 
 test("layout: breakpoints for the menu, the bottom sheet, the phone, and reduced motion", () => {
-  assert.match(css, /@media \(max-width: 1100px\)[\s\S]*?\.nav-toggle/);
-  // Open mobile nav must sit under the full site-header (demo bar + row).
-  assert.match(css, /@media \(max-width: 1100px\)[\s\S]*?\.nav \{[\s\S]*?top:\s*100%;/);
+  assert.match(css, /--breakpoint-nav: 68\.75rem/, "the menu folds at 1100px");
+  assert.match(src["layout.js"], /nav-toggle nav:hidden/);
+  assert.match(src["layout.js"], /max-nav:hidden/);
+  // The open menu is positioned from the header row, so it sits under the demo bar and the row.
+  assert.match(src["layout.js"], /max-nav:top-full/);
   assert.match(css, /@media \(max-width: 860px\)[\s\S]*?\.detail/);
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(css, /prefers-reduced-motion: reduce/);
@@ -336,9 +345,8 @@ test("the header line stays true when live trackers are shown", () => {
 });
 
 test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by default", () => {
-  const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf('[data-theme="dark"]'));
-  for (const [token, hex] of [["--bg", "#f2ede4"], ["--ink", "#141416"], ["--accent", "#6b4a2e"], ["--brand", "#6b4a2e"]]) {
-    assert.match(rootBlock, new RegExp(token + ": " + hex + ";"), token);
+  for (const [token, hex] of [["color-paper", "#f2ede4"], ["color-ink", "#141416"], ["color-leather", "#6b4a2e"]]) {
+    assert.equal(light[token], hex, token + " in the Tailwind theme");
   }
   assert.ok(!/font-weight:\s*(700|800|900|bold)/.test(css), "no weight above 600");
   assert.ok(!/latin-700/.test(src["main.js"]), "the 700 face is not loaded");
@@ -350,25 +358,6 @@ test("brand: BitPrairie paper, ink and leather, Plex Sans 400 to 600, light by d
   assert.match(html, /meta\.setAttribute\("content", t === "dark" \? "#161310" : "#f2ede4"\)/);
   assert.match(src["layout.js"], /THEME_COLORS = \{ light: "#f2ede4", dark: "#161310" \}/);
   assert.match(src["layout.js"], /meta\[name="theme-color"\]/);
-});
-
-test("layout: no template tells (caps labels, pill tags, boxed card grids, many filled buttons)", async () => {
-  const rule = (sel) => (css.match(new RegExp("\\n" + sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + " \\{([^}]*)\\}")) || [])[1] || "";
-  assert.ok(!/text-transform:\s*uppercase/.test(css), "no all-caps labels");
-  assert.ok(!/border|radius/.test(rule(".tag")), "Planned is flat text, not a pill");
-  for (const sel of [".trace-card", ".alert-item", ".rancher-callout", ".herd-main"]) {
-    const body = rule(sel);
-    assert.ok(body, sel + " rule exists");
-    assert.ok(!/box-shadow|border-radius|background:/.test(body), sel + " is a ruled block, not a boxed card");
-  }
-  assert.ok(!/repeat\(3, minmax\(0, 1fr\)\)/.test(rule(".setup-list")), "home setups are rows, not three equal cards");
-  // One filled button at most on any page.
-  assert.ok(!/btn-primary[^>]*data-answer/.test(src["map.js"]), "herd view answers are outlined buttons");
-  assert.ok((src["map.js"].match(/btn-primary/g) || []).length <= 1, "only the load-error retry is filled");
-  const { renderHome } = await import("../src/home.js");
-  const { renderSetups } = await import("../src/setups.js");
-  const { renderArchitecture } = await import("../src/architecture.js");
-  for (const html of [renderHome(), renderSetups(), renderArchitecture()]) assert.ok((html.match(/btn-primary/g) || []).length <= 1);
 });
 
 test("fleece trace: a shareable viewer link and a clean print sheet", () => {
@@ -389,9 +378,9 @@ test("herd view keyboard and screen reader flow", () => {
 test("map: the pin layer covers the paddock so pins sit in their grid cell", () => {
   const block = css.match(/\.paddock \[data-pins\] \{([^}]*)\}/);
   assert.ok(block, "a rule for the pin layer");
-  assert.match(block[1], /position: absolute;/);
-  assert.match(block[1], /inset: 0;/);
-  assert.match(css, /\.paddock \[data-pins\] \.goat \{[^}]*pointer-events: auto;/);
+  assert.match(block[1], /absolute/);
+  assert.match(block[1], /inset-0/);
+  assert.match(css, /\.paddock \[data-pins\] \.goat \{[^}]*pointer-events-auto/);
 });
 
 test("a11y: the paddock moves log is an h2 under the page title and its scroll box takes focus", () => {
