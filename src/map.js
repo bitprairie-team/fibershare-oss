@@ -269,9 +269,11 @@ export async function renderMap() {
           "</section>") +
       "</div>" +
       '<aside class="detail" data-detail data-tour="detail" aria-label="Animal details">' +
-      '<button type="button" class="sheet-handle" data-sheet aria-expanded="false"><span class="avatar" data-sheet-avatar></span><span class="sheet-title"><strong data-sheet-name></strong><small data-sheet-meta></small></span>' +
+      '<div class="sheet-handle">' +
+      '<button type="button" data-sheet aria-expanded="false" aria-controls="animal-detail"><span class="avatar" data-sheet-avatar></span><span class="sheet-title"><strong data-sheet-name></strong><small data-sheet-meta></small></span>' +
       icon("chevronUp", { cls: "i-up" }) + icon("chevronDown", { cls: "i-down" }) + "</button>" +
-      '<div class="detail-body" data-detail-body aria-live="polite"></div></aside>' +
+      '<button type="button" class="sheet-close" data-sheet-close>Close</button></div>' +
+      '<div class="detail-body" id="animal-detail" data-detail-body aria-live="polite"></div></aside>' +
       "</div>" +
       alertsSection(data, live) +
       '<section class="' + SECTION + '" aria-labelledby="ledger-title">' +
@@ -1009,15 +1011,96 @@ function select(root, id, { open = true } = {}) {
   if (open) setSheet(root, true);
   draw(root);
   rancherMap?.select(id);
+  if (open) revealSelectedPin(root);
 }
 
-function setSheet(root, open) {
+function sheetMode() {
+  return typeof window !== "undefined" && window.matchMedia?.(SHEET_QUERY).matches;
+}
+
+function focusSelectedPin(root) {
+  const id = view?.selected;
+  if (!id) return;
+  const pin = root.querySelector('[data-pins] .goat[data-id="' + CSS.escape(id) + '"]');
+  pin?.focus();
+}
+
+// Keep the selected pin in the gap between the header and the open sheet.
+function revealSelectedPin(root) {
+  if (!sheetMode() || !view?.selected) return;
+  const pin = root.querySelector('[data-pins] .goat[data-id="' + CSS.escape(view.selected) + '"]');
+  if (!pin) return;
+  const headerH =
+    document.querySelector(".site-header")?.getBoundingClientRect().height ||
+    root.querySelector("header")?.getBoundingClientRect().height ||
+    0;
+  // Use the planned open height, not the height mid-transition, or the pin
+  // stays behind the sheet.
+  const sheetH = window.innerHeight * 0.45;
+  const gapTop = headerH + 12;
+  const gapBottom = window.innerHeight - sheetH - 12;
+  if (gapBottom <= gapTop) return;
+  const rect = pin.getBoundingClientRect();
+  if (rect.top >= gapTop && rect.bottom <= gapBottom) return;
+  const pinMid = (rect.top + rect.bottom) / 2;
+  const gapMid = (gapTop + gapBottom) / 2;
+  window.scrollBy({ top: pinMid - gapMid, behavior: reducedMotion() ? "auto" : "smooth" });
+}
+
+let sheetPushed = false;
+
+function setSheet(root, open, { fromPop = false } = {}) {
   const aside = root.querySelector("[data-detail]");
   const handle = root.querySelector("[data-sheet]");
   if (!aside || !handle) return;
+  const wasOpen = aside.classList.contains("is-open");
   aside.classList.toggle("is-open", open);
   handle.setAttribute("aria-expanded", String(open));
   syncSheetInert(root);
+  if (sheetMode() && open && !wasOpen && !fromPop) {
+    history.pushState({ fsSheet: true }, "");
+    sheetPushed = true;
+  }
+  if (sheetMode() && !open && sheetPushed && !fromPop) {
+    sheetPushed = false;
+    history.back();
+  }
+  if (!open && fromPop) sheetPushed = false;
+  if (open) revealSelectedPin(root);
+}
+
+function closeSheet(root) {
+  if (!root.querySelector("[data-detail]")?.classList.contains("is-open")) return;
+  setSheet(root, false);
+  focusSelectedPin(root);
+}
+
+function onSheetKey(event) {
+  if (event.key !== "Escape") return;
+  if (document.querySelector(".tour-card")) return;
+  const app = document.getElementById("app");
+  if (app?.querySelector("#primary-nav")?.classList.contains("is-open")) return;
+  if (!app?.querySelector("[data-detail]")?.classList.contains("is-open") || !sheetMode()) return;
+  event.preventDefault();
+  closeSheet(app);
+}
+
+function onSheetPop() {
+  const app = document.getElementById("app");
+  if (!app?.querySelector("[data-detail]")?.classList.contains("is-open")) {
+    sheetPushed = false;
+    return;
+  }
+  setSheet(app, false, { fromPop: true });
+  focusSelectedPin(app);
+}
+
+let sheetListenersBound = false;
+function bindSheetListeners() {
+  if (sheetListenersBound) return;
+  sheetListenersBound = true;
+  document.addEventListener("keydown", onSheetKey);
+  window.addEventListener("popstate", onSheetPop);
 }
 
 // On phones the detail is a bottom sheet. While it is closed, its links and
@@ -1054,6 +1137,7 @@ export function setHerdView({ moment, select: id, openSheet = false } = {}) {
   if (id && view.data.animals.some((a) => a.id === id)) view.selected = id;
   setSheet(root, openSheet);
   draw(root);
+  if (openSheet) revealSelectedPin(root);
   return true;
 }
 
@@ -1153,10 +1237,14 @@ export function bindMap(root) {
   });
   watchSheet();
   syncSheetInert(root);
+  bindSheetListeners();
   root.querySelector("[data-sheet]")?.addEventListener("click", () => {
-    setSheet(root, !root.querySelector("[data-detail]").classList.contains("is-open"));
+    const open = !root.querySelector("[data-detail]").classList.contains("is-open");
+    setSheet(root, open);
+    if (!open) focusSelectedPin(root);
     draw(root);
   });
+  root.querySelector("[data-sheet-close]")?.addEventListener("click", () => closeSheet(root));
   // Arrow keys move between pins, toward the nearest one in that direction.
   root.querySelector("[data-pins]")?.addEventListener("keydown", (event) => {
     const dirs = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
@@ -1222,6 +1310,7 @@ export function leaveMap() {
   if (view?.timer) clearInterval(view.timer);
   if (view?.pullTimer) clearInterval(view.pullTimer);
   if (view) view.timer = view.pullTimer = null;
+  sheetPushed = false;
   rancherMap?.destroy();
   rancherMap = null;
 }

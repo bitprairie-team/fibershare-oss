@@ -713,8 +713,12 @@
     .herd-page {
       @apply pb-28;
     }
+    .herd-page:has(.detail.is-open) {
+      /* Beat MAIN's pb-24 utility so a bottom-row pin can scroll above the sheet. */
+      padding-bottom: 45dvh !important;
+    }
     .detail {
-      @apply fixed inset-x-0 top-auto bottom-0 z-30 max-h-[5.25rem] overflow-hidden rounded-t-md border border-b-0 border-rule bg-surface;
+      @apply fixed inset-x-0 top-auto bottom-0 z-30 flex max-h-[5.25rem] flex-col overflow-hidden rounded-t-md border border-b-0 border-rule bg-surface;
       box-shadow: 0 -4px 16px rgb(20 20 22 / 0.12);
       padding-bottom: env(safe-area-inset-bottom);
       transition: max-height 280ms var(--ease-out);
@@ -723,14 +727,17 @@
       box-shadow: 0 -4px 16px rgb(0 0 0 / 0.5);
     }
     .detail.is-open {
-      @apply max-h-[min(72vh,36rem)] overflow-y-auto overscroll-contain;
+      @apply max-h-[45dvh];
     }
     .sheet-handle {
-      @apply sticky top-0 z-[1] flex min-h-[5.25rem] w-full cursor-pointer items-center gap-3 border-0 bg-surface px-5 py-3 text-left text-ink;
+      @apply sticky top-0 z-[1] flex min-h-[5.25rem] w-full flex-none items-center gap-3 bg-surface px-5 py-2 text-ink;
     }
     .sheet-handle::before {
       content: "";
       @apply absolute top-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-sm bg-rule-strong;
+    }
+    .sheet-handle [data-sheet] {
+      @apply flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 text-left text-ink;
     }
     .sheet-handle .sheet-title {
       @apply min-w-0 flex-1;
@@ -741,12 +748,18 @@
     .sheet-handle small {
       @apply block text-sm text-muted;
     }
+    .sheet-close {
+      @apply hidden shrink-0 cursor-pointer border-0 bg-transparent px-1 py-2 text-sm font-medium text-ink-2 hover:text-ink;
+    }
+    .detail.is-open .sheet-close {
+      @apply inline;
+    }
     .detail:not(.is-open) .sheet-handle .i-down,
     .detail.is-open .sheet-handle .i-up {
       @apply hidden;
     }
     .detail-body {
-      @apply px-5 pt-0 pb-5;
+      @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-0 pb-5;
     }
     .detail-body .detail-top,
     .detail-skel {
@@ -754,6 +767,9 @@
     }
     #app:has(.herd-page) .site-footer {
       @apply pb-[5.25rem];
+    }
+    #app:has(.herd-page .detail.is-open) .site-footer {
+      @apply pb-[45dvh];
     }
   }
 
@@ -962,7 +978,7 @@
       bottom: auto;
     }
     .tour-sheet .detail.is-open {
-      max-height: calc(100dvh - var(--tour-reserve, 0px));
+      max-height: min(45dvh, calc(100dvh - var(--tour-reserve, 0px)));
     }
   }
 

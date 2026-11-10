@@ -38,7 +38,7 @@ export function nav(active) {
     '<a class="mr-auto inline-flex flex-none items-center gap-2.5 text-lg font-semibold tracking-tight text-ink no-underline hover:text-ink" href="#/">' + MARK + "<span>FiberShare</span></a>" +
     '<nav class="flex items-center gap-1 max-nav:absolute max-nav:inset-x-0 max-nav:top-full max-nav:z-10 max-nav:hidden max-nav:max-h-[calc(100dvh-7rem)] max-nav:flex-col max-nav:items-stretch max-nav:gap-0 max-nav:overflow-y-auto max-nav:border-y max-nav:border-rule max-nav:bg-surface max-nav:px-gutter max-nav:pt-2 max-nav:pb-4 max-nav:[&.is-open]:flex" id="primary-nav" aria-label="Primary">' + links + "</nav>" +
     '<div class="relative z-20 flex flex-none items-center gap-1">' +
-    '<button class="h-10 cursor-pointer px-2 text-sm font-medium text-ink underline decoration-rule-strong underline-offset-[0.25em] hover:text-leather hover:decoration-current" type="button" data-tour-start>Tour</button>' +
+    '<button class="h-10 cursor-pointer px-2 text-sm font-medium text-ink-2 hover:text-ink" type="button" data-tour-start>Tour</button>' +
     '<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">' + icon("moon", { cls: "i-moon" }) + icon("sun", { cls: "i-sun" }) + "</button>" +
     '<button class="icon-btn nav-toggle nav:hidden" type="button" data-nav-toggle aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">' + icon("menu", { cls: "i-open" }) + icon("close", { cls: "i-close" }) + "</button>" +
     "</div></div></header>"

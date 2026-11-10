@@ -375,6 +375,30 @@ test("herd view keyboard and screen reader flow", () => {
   assert.match(map, /data-answer="confirmed" aria-describedby=/, "Confirm names its alert");
 });
 
+test("herd view: the phone sheet stays short, has a Close control, and returns focus to the pin", () => {
+  const sheet = css.match(/@media \(max-width: 860px\)[\s\S]*?\.detail\.is-open \{([^}]*)\}/);
+  assert.ok(sheet, "open-sheet rule on phones");
+  assert.match(sheet[1], /max-h-\[45dvh\]/);
+  assert.match(css, /\.detail-body \{[^}]*overflow-y-auto/, "the sheet body scrolls");
+  const map = src["map.js"];
+  assert.match(map, /data-sheet-close/);
+  assert.match(map, />Close</);
+  assert.match(map, /history\.pushState/);
+  assert.match(map, /popstate/);
+  assert.match(map, /event\.key !== "Escape"/);
+  assert.match(map, /focusSelectedPin/);
+  assert.match(map, /revealSelectedPin/);
+});
+
+test("layout: Tour is a plain control, and only the current nav link is underlined", () => {
+  const tour = src["layout.js"].match(/<button[^>]*data-tour-start[^>]*>/);
+  assert.ok(tour, "Tour control exists");
+  assert.ok(!/underline/.test(tour[0]), "Tour is not underlined");
+  assert.match(tour[0], /text-ink-2/, "Tour reads as a secondary control");
+  assert.match(css, /\.nav-link\[aria-current="page"\]::after/, "the current page has the underline");
+  assert.ok(!/btn-tour/.test(src["layout.js"]));
+});
+
 test("map: the pin layer covers the paddock so pins sit in their grid cell", () => {
   const block = css.match(/\.paddock \[data-pins\] \{([^}]*)\}/);
   assert.ok(block, "a rule for the pin layer");
