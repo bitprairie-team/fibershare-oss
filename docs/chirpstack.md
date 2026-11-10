@@ -50,7 +50,8 @@ That pulls every 120 seconds until you stop it with Ctrl-C. With MQTT on, each p
 In the `chirpstack-docker` stack the REST gateway and Mosquitto are only reachable inside the compose network. This runs the pull in a throwaway Node container on that network. The token file and the MQTT login stay in `~/.config/fibershare/`, mounted read-only:
 
 ```bash
-podman run --rm --network chirpstack-docker_default -v $PWD:/app:Z -v ~/.config/fibershare:/cfg:ro,Z -w /app --env-file ~/.config/fibershare/mqtt.env -e CHIRPSTACK_URL=http://chirpstack-rest-api:8090 -e CHIRPSTACK_API_TOKEN_FILE=/cfg/chirpstack-token -e CHIRPSTACK_MQTT_URL=mqtt://mosquitto:1883 node:22-alpine node scripts/chirpstack/pull.js
+podman build -t fibershare -f Containerfile .
+podman run --rm --network chirpstack-docker_default -v $PWD:/app:Z -v ~/.config/fibershare:/cfg:ro,Z -w /app --env-file ~/.config/fibershare/mqtt.env -e CHIRPSTACK_URL=http://chirpstack-rest-api:8090 -e CHIRPSTACK_API_TOKEN_FILE=/cfg/chirpstack-token -e CHIRPSTACK_MQTT_URL=mqtt://mosquitto:1883 fibershare pull
 ```
 
 - `chirpstack-docker_default` is the network compose makes for a folder named `chirpstack-docker`. Check yours with `podman network ls`.

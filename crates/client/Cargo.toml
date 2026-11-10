@@ -1,0 +1,31 @@
+[package]
+name = "fibershare-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Browser island for the herd view."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+serde_json = { workspace = true }
+fibershare-core = { workspace = true }
+fibershare-html = { workspace = true }
+web-sys = { version = "0.3", features = [
+  "Window",
+  "Document",
+  "Element",
+  "HtmlElement",
+  "HtmlInputElement",
+  "Event",
+  "EventTarget",
+  "KeyboardEvent",
+  "Storage",
+  "History",
+  "Node",
+  "DomTokenList",
+] }

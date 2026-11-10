@@ -53,7 +53,7 @@ Every job is on until you turn it off, on How it works or in the herd view's Ale
 
 Alerts are an aid, not a guarantee. They can be late, wrong or missing, and turning a job off stops its alerts. Keep checking your animals in person. In an emergency, call 911.
 
-The default thresholds are in `src/alert-config.js`. The rules are in `src/alerts.js`, and the browser and the server run the same code. Each answer is stored with the rule that raised the alert.
+The default thresholds and the rules live in `crates/core`. The pages and the server call that same crate. Each answer is stored with the rule that raised the alert.
 
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
 
@@ -103,35 +103,32 @@ This repository holds no secrets, API keys, mail settings or real collar data. A
 
 ## Quick start
 
-You need Node 20.9 or newer. `npm run pages:dev` needs Node 22 or newer.
+You need Rust 1.85 or newer.
 
 ```bash
 git clone https://github.com/bitprairie-team/fibershare-oss.git
 cd fibershare-oss
-npm install
-npm run dev
+cargo run -p fibershare -- serve
 ```
 
-Then open http://localhost:5173.
+Then open http://127.0.0.1:4174.
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Serves the site with Vite at http://localhost:5173 |
-| `npm run build` | Builds the site into `dist/` |
-| `npm run preview` | Serves the built site |
-| `npm run pages:dev` | Serves `dist/` with Wrangler 4, including `/api/health` |
-| `npm run lint` | Checks the JavaScript files for syntax errors |
-| `npm test` | Runs the tests for data, schemas, alerts, sign-in, map layers, the live-data pull and the page copy |
-| `npm run chirpstack:pull` | Reads your trackers from your network server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
-| `npm run rancher:passphrase` | Sets the rancher passphrase for local sign-in. See [docs/rancher-access.md](docs/rancher-access.md) |
-| `npm run serve:local` | Serves `dist/` and the API at http://127.0.0.1:4174 |
-| `npm run layers:check` | Checks that every map layer still answers |
+| `cargo run -p fibershare -- serve` | Serves the pages and the API at http://127.0.0.1:4174 |
+| `cargo run -p fibershare -- build` | Writes static pages into `dist/` |
+| `cargo test --workspace --exclude fibershare-client --exclude fibershare-worker` | Runs the tests |
+| `cargo fmt --all -- --check` and `cargo clippy -p fibershare-core -p fibershare-html -p fibershare --all-targets -- -D warnings` | Format and lint |
+| `fibershare pull` | Reads your trackers from your network server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
+| `fibershare passphrase` | Sets the rancher passphrase for local sign-in. See [docs/rancher-access.md](docs/rancher-access.md) |
+
+The previous Vite site and Pages Functions are retired. Pages are rendered in Rust. A small WebAssembly island runs Play, the phone sheet, the theme, and the tour. Without it, the pages still show the end of the sample day.
 
 The sample goats, events and fiber lots are in `public/data/herd.json`, `public/data/events.json` and `public/data/shop.json`.
 
 ## Live data from your own network server
 
-The pull script supports ChirpStack v4. If your LoRaWAN collar trackers report to it, `npm run chirpstack:pull` reads your devices and writes `.local/live.json`. Git ignores that file and the build leaves it out. `npm run dev` then shows your trackers, how long ago they were pulled, and a **Hide tracker details** setting. Add `--watch=120` to keep pulling.
+The pull command supports ChirpStack v4. If your LoRaWAN collar trackers report to it, `fibershare pull` reads your devices and writes `.local/live.json`. Git ignores that file and the build leaves it out. `fibershare serve` then shows your trackers, how long ago they were pulled, and a **Hide tracker details** setting. Add `--watch=120` to keep pulling. The checks and packet format are in `crates/core`. The HTTP walk that writes the file is not finished in this branch; `fibershare pull` stops after checking the configuration.
 
 The page reads the data from `/api/live`, never from the file. The public gets the hidden view: aliases such as Tracker 3, no device IDs, tags or positions, and grid cells from a hash. A signed-in rancher gets real values if the pull ran with `FIBERSHARE_HIDE_TRACKERS=0`. Sign-in is a passphrase on your own hardware, or Cloudflare Access on Pages, where `--push` sends the data to a KV namespace.
 
@@ -141,21 +138,26 @@ Setup is in [docs/chirpstack.md](docs/chirpstack.md) and [docs/rancher-access.md
 
 ```
 Browser
-  └── Cloudflare Pages (project name fibershare-dev)
+  └── fibershare (one Rust binary, or a Cloudflare Worker in front of the static pages)
         ├── Pages (home, herd view, fleece trace, setups, how it works, rancher sign-in)
         ├── /data/*.json  (sample goats, events and fiber lots)
-        └── Pages Functions
+        └── /api
               ├── /api/health  (the site is up)
-              ├── /api/live    (hidden data, or full data for a signed-in rancher, from KV)
-              ├── /api/alerts  (a signed-in rancher's answers, in KV)
-              ├── /api/log     (shared notes and checks for signed-in ranchers, in KV)
-              ├── /api/session and /api/rancher/login  (Cloudflare Access sign-in)
+              ├── /api/live    (hidden data, or full data for a signed-in rancher)
+              ├── /api/alerts  (a signed-in rancher's answers)
+              ├── /api/log     (shared notes and checks for signed-in ranchers)
+              ├── /api/session and /api/rancher/login  (passphrase, or Cloudflare Access)
               └── /api/push    (your pull sends data here with a token)
 ```
 
-`fibershare-dev` is the project name for a copy of this demo, not the FiberShare app.
+On your own hardware, `fibershare serve` answers `/api/live`, `/api/session`, `/api/alerts` and `/api/log` from `.local/`. The access rules are in `crates/core`. The rancher page draws an offline map so the tour works without a network. A signed-in live map of real positions is still the Leaflet view described in [docs/rancher-access.md](docs/rancher-access.md).
 
-On your own hardware, `npm run dev`, `npm run preview` and `npm run serve:local` answer `/api/live`, `/api/session`, `/api/alerts` and `/api/log` from `.local/`. The access rules are in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
+Self-host with podman from the `Containerfile`. The container listens on port 4174 and expects the repository mounted at `/app` so `.local` stays on the machine:
+
+```bash
+podman build -t fibershare -f Containerfile .
+podman run --rm -p 127.0.0.1:4174:4174 -v "$PWD":/app:Z -w /app -e FIBERSHARE_HOST=0.0.0.0 fibershare serve
+```
 
 ## Related sites
 

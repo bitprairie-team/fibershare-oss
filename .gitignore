@@ -1,4 +1,6 @@
 node_modules/
+.vite/
+/target/
 dist/
 .wrangler/
 .dev.vars

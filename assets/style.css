@@ -1,0 +1,1203 @@
+/* FiberShare demo styles: Tailwind CSS v4 with the BitPrairie theme.
+   Light paper and ink by default, a dark theme on [data-theme="dark"].
+   Only the house palette, three weights, small radii and no shadows exist,
+   so template looks cannot creep back in through a utility class. */
+@import "tailwindcss";
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-600.woff2") format("woff2");
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* Colour: BitPrairie paper, ink and leather. Nothing else is defined. */
+  --color-*: initial;
+  --color-paper: #f2ede4;
+  --color-surface: #fffcf6;
+  --color-band: #e8e0d2;
+  --color-band-2: #ddd3c2;
+  --color-ink: #141416;
+  --color-ink-2: #3a342d;
+  --color-muted: #5f574c;
+  --color-rule: #ddd4c5;
+  --color-rule-strong: #c4b7a3;
+  --color-leather: #6b4a2e;
+  --color-leather-hover: #573b23;
+  --color-on-leather: #fffcf6;
+  --color-pasture: #5c6b4a;
+  --color-ok: #5c6b4a;
+  --color-ok-soft: #e4e6da;
+  --color-warn: #7a5410;
+  --color-warn-soft: #f3e8d2;
+  --color-alert: #9b3220;
+  --color-alert-soft: #f5e2da;
+  --color-info: #3b4f5e;
+  --color-info-soft: #e6e8e8;
+  --color-focus: #1f5f8f;
+  --color-code: #1d1f1c;
+  --color-code-ink: #ecede9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Type: IBM Plex Sans at 400, 500 and 600, on a 1.25 scale. */
+  --font-*: initial;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --text-*: initial;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.55;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.3;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.2;
+  --text-3xl: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+  --text-3xl--line-height: 1.12;
+  --text-display: clamp(2.25rem, 1.4rem + 3.2vw, 3.5rem);
+  --text-display--line-height: 1.08;
+  --tracking-*: initial;
+  --tracking-tight: -0.012em;
+  --tracking-normal: 0;
+
+  /* Shape: small radii only, and no shadows. */
+  --radius-*: initial;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-full: 9999px;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --blur-*: initial;
+
+  /* Widths: one page width that lines up with the logo, one text measure. */
+  --container-page: 82rem;
+  --container-content: 52rem;
+  --container-measure: 62ch;
+  --container-form: 26rem;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Light unless the visitor picks dark. */
+:root {
+  color-scheme: light;
+}
+
+/* The dark theme: the same names, night colours. */
+[data-theme="dark"] {
+  --color-paper: #161310;
+  --color-surface: #1f1b17;
+  --color-band: #29231d;
+  --color-band-2: #342c24;
+  --color-ink: #f7f1e8;
+  --color-ink-2: #ddd4c6;
+  --color-muted: #b3a999;
+  --color-rule: #3a3229;
+  --color-rule-strong: #52473a;
+  --color-leather: #c49a6c;
+  --color-leather-hover: #d4b088;
+  --color-on-leather: #161310;
+  --color-pasture: #3d4632;
+  --color-ok: #b7c29f;
+  --color-ok-soft: #262a1f;
+  --color-warn: #e2bb6c;
+  --color-warn-soft: #352d1a;
+  --color-alert: #f09b85;
+  --color-alert-soft: #3b231d;
+  --color-info: #b5c4cf;
+  --color-info-soft: #232a30;
+  --color-focus: #8cc4f0;
+  color-scheme: dark;
+}
+
+/* Page gutters that grow with the screen. */
+@utility px-gutter {
+  padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+@theme {
+  /* The menu folds away below 1100px, where six links no longer fit. */
+  --breakpoint-nav: 68.75rem;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-paper font-sans text-base text-ink antialiased;
+    overflow-x: clip;
+  }
+  #app {
+    @apply flex min-h-screen flex-col;
+  }
+  #app > main {
+    flex: 1 0 auto;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold tracking-tight text-ink;
+    line-height: 1.15;
+  }
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-lg;
+  }
+  /* Bold is the 600 face. No synthetic 700. */
+  b,
+  strong,
+  th {
+    @apply font-semibold;
+  }
+  p + p {
+    @apply mt-3;
+  }
+  a {
+    @apply text-leather underline decoration-1 underline-offset-[0.18em];
+  }
+  a:hover {
+    @apply text-leather-hover decoration-2;
+  }
+  .icon {
+    @apply inline-block flex-none align-middle;
+  }
+  code,
+  pre {
+    @apply font-mono text-[0.9em];
+  }
+  code {
+    @apply rounded-sm border border-rule bg-band px-[0.35em] py-[0.05em];
+    overflow-wrap: anywhere;
+  }
+  pre {
+    @apply overflow-x-auto rounded-md bg-code px-5 py-4 text-sm leading-[1.7] text-code-ink;
+  }
+  pre code {
+    @apply border-0 bg-transparent p-0 text-inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    @apply rounded-sm outline-3 outline-offset-2 outline-focus;
+  }
+  #main:focus-visible {
+    outline: none;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-leather) 35%, transparent);
+  }
+  input,
+  select,
+  textarea {
+    @apply text-ink;
+  }
+}
+
+@layer components {
+  /* Buttons: one filled action per screen, outlined for the rest, and a
+     text link style for small actions inside rows. */
+  .btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-transparent px-5 text-sm leading-none font-semibold whitespace-nowrap no-underline transition-colors duration-150;
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-55;
+  }
+  .btn-primary {
+    @apply bg-leather text-on-leather hover:bg-leather-hover hover:text-on-leather;
+  }
+  .btn-ghost {
+    @apply border-rule-strong bg-surface text-ink hover:bg-band hover:text-ink;
+  }
+  .btn-small {
+    @apply min-h-9 px-3;
+  }
+  .btn-link {
+    @apply cursor-pointer border-0 bg-transparent p-0 text-leather underline decoration-1 underline-offset-[0.18em] hover:text-ink;
+    font: inherit;
+  }
+  .icon-btn {
+    @apply inline-grid size-10 cursor-pointer place-items-center rounded-md border-0 bg-transparent p-0 text-ink hover:bg-band;
+  }
+  .nav-link {
+    @apply relative inline-flex h-10 items-center px-3 text-sm font-medium whitespace-nowrap text-ink-2 no-underline hover:text-ink;
+  }
+  .nav-link[aria-current="page"] {
+    @apply font-semibold text-ink;
+  }
+  .nav-link[aria-current="page"]::after {
+    @apply absolute inset-x-3 bottom-1 h-0.5 bg-leather content-[""];
+  }
+  @variant max-nav {
+    .nav-link {
+      @apply h-12 border-b border-rule px-0 text-base last:border-b-0;
+    }
+    .nav-link[aria-current="page"]::after {
+      @apply inset-x-auto top-3 bottom-3 -left-3 h-auto w-0.5;
+    }
+  }
+  .i-sun,
+  [data-theme="dark"] .i-moon,
+  .nav-toggle .i-close,
+  .nav-toggle[aria-expanded="true"] .i-open {
+    display: none;
+  }
+  [data-theme="dark"] .i-sun,
+  .nav-toggle[aria-expanded="true"] .i-close {
+    display: inline-block;
+  }
+
+  /* Planned work: flat leather text, never a pill. */
+  .tag {
+    @apply mr-1 font-medium text-leather after:content-[":"];
+  }
+
+  /* An on/off setting: a plain checkbox in the leather colour, with its
+     state written next to it. */
+  .toggle {
+    @apply inline-flex min-h-9 cursor-pointer items-center gap-2.5 text-sm text-ink-2;
+  }
+  .toggle input {
+    @apply m-0 size-[1.125rem] flex-none cursor-pointer accent-leather disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Tables read like a ranch ledger: an ink rule on top, quiet rules
+     between rows, aligned columns and tabular numbers. */
+  .data-table {
+    @apply w-full border-collapse text-sm tabular-nums;
+  }
+  .data-table th,
+  .data-table td {
+    @apply border-b border-rule py-3 pr-6 text-left align-top last:pr-0;
+  }
+  .data-table thead :is(th, td) {
+    @apply border-b-ink pt-0 pb-2 align-bottom text-xs font-medium text-muted;
+  }
+  .data-table tbody th {
+    @apply font-medium text-ink;
+  }
+  .data-table td {
+    @apply text-ink-2;
+  }
+  .data-table .num {
+    @apply text-right;
+  }
+  .compare-table {
+    @apply table-fixed;
+  }
+  .compare-table thead td,
+  .compare-table tbody th {
+    @apply w-[22%];
+  }
+  /* On phones each row becomes a block: the part, then one line per setup. */
+  @variant max-sm {
+    .compare-table,
+    .compare-table :is(tbody, tr, th, td) {
+      @apply block w-auto;
+    }
+    .compare-table thead {
+      @apply hidden;
+    }
+    .compare-table tr {
+      @apply border-b border-rule py-3;
+    }
+    .compare-table tr:first-child {
+      @apply pt-0;
+    }
+    .compare-table :is(tbody th, td) {
+      @apply border-0 p-0;
+    }
+    .compare-table tbody th {
+      @apply mb-1 w-auto font-semibold;
+    }
+    .compare-table td {
+      @apply py-0.5 before:font-medium before:text-ink before:content-[attr(data-setup)_":_"];
+    }
+  }
+
+  /* View-as tabs: underlined text, not pills. */
+  .segmented {
+    @apply inline-flex gap-5;
+  }
+  .segmented .chip {
+    @apply min-h-9 cursor-pointer border-0 border-b-2 border-transparent bg-transparent p-0 text-sm font-medium text-muted hover:text-ink;
+  }
+  .segmented .chip[aria-pressed="true"] {
+    @apply border-leather text-ink;
+  }
+
+  /* Form fields */
+  .input {
+    @apply min-h-11 w-full rounded-sm border border-rule-strong bg-surface px-3 text-ink focus-visible:border-focus aria-invalid:border-alert;
+  }
+  .form-error {
+    @apply flex items-start gap-2 text-sm font-medium text-alert;
+  }
+  .form-error[hidden] {
+    @apply hidden;
+  }
+}
+
+/* Herd view, tour and rancher map. Flat colour, quiet rules, small radii.
+   Shadows only on things that float over the page: pins, the bottom sheet,
+   the tour and the map's layer list. */
+@layer components {
+  .muted {
+    @apply text-muted;
+  }
+  .fine-print {
+    @apply mt-3 text-sm text-muted;
+  }
+  .row-meta {
+    @apply mt-1 text-sm text-muted;
+  }
+  .count {
+    @apply font-normal text-muted tabular-nums;
+  }
+
+  /* Status notes and empty or error states */
+  .notice {
+    @apply flex items-start gap-3 rounded-sm border border-rule bg-info-soft px-4 py-3 text-sm text-ink;
+  }
+  .notice .icon {
+    @apply mt-0.5 text-info;
+  }
+  .notice-warn {
+    @apply bg-warn-soft;
+  }
+  .notice-warn .icon {
+    @apply text-warn;
+  }
+  .notice[hidden] {
+    @apply hidden;
+  }
+  .alerts-off {
+    @apply my-3 max-w-measure;
+  }
+  .state {
+    @apply grid max-w-content justify-items-start gap-3 border-t border-ink pt-5 text-ink-2;
+  }
+  .state h2 {
+    @apply text-xl;
+  }
+  .state p {
+    @apply max-w-measure;
+  }
+
+  /* Loading shapes: flat bands that fade, not a shimmer */
+  .skel {
+    @apply block animate-pulse rounded-sm bg-band;
+  }
+  .skel-line {
+    @apply mt-3 h-4;
+  }
+  .skel-title {
+    @apply h-10;
+  }
+  .skel-paddock {
+    @apply aspect-[3/2] max-h-[34rem] w-full max-sm:aspect-square;
+  }
+
+  /* Where the data comes from, beside the page title */
+  .source-box {
+    @apply flex flex-col items-end gap-2 max-sm:items-start;
+  }
+  .source-line {
+    @apply flex flex-wrap items-center gap-x-3 gap-y-2;
+  }
+  .source-label {
+    @apply text-sm font-semibold;
+  }
+  .source-time {
+    @apply text-sm;
+  }
+  .source-note {
+    @apply m-0 basis-full text-right max-sm:text-left;
+  }
+  .stale-note {
+    @apply text-warn;
+  }
+
+  /* Three numbers under the title, read across like a ledger header */
+  .stat-row {
+    @apply mb-6 flex flex-wrap gap-x-12 gap-y-3 border-y border-rule py-4 max-sm:gap-x-6;
+  }
+  .stat {
+    @apply flex min-w-0 flex-col-reverse;
+  }
+  .stat dt {
+    @apply text-sm text-muted;
+  }
+  .stat dd {
+    @apply text-2xl leading-tight font-semibold tabular-nums max-sm:text-xl;
+  }
+  .stat-warn dd {
+    @apply text-alert;
+  }
+
+  .herd-layout {
+    @apply grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10;
+  }
+  .herd-layout > * {
+    @apply min-w-0;
+  }
+
+  /* Paddock grid: a flat pasture colour, the grid lines carry the drawing */
+  .paddock-wrap {
+    @apply relative;
+  }
+  .paddock {
+    @apply relative isolate aspect-[3/2] max-h-[34rem] w-full overflow-hidden rounded-sm border border-rule bg-band max-sm:aspect-square;
+  }
+  .paddock-cells {
+    @apply absolute inset-0 grid grid-cols-6 grid-rows-4;
+  }
+  .cell {
+    @apply relative border-r border-b border-rule;
+  }
+  .cell:nth-child(6n) {
+    @apply border-r-0;
+  }
+  .cell:nth-last-child(-n + 6) {
+    @apply border-b-0;
+  }
+  .cell span {
+    @apply absolute top-1.5 left-2 text-xs leading-none font-medium text-muted tabular-nums max-sm:top-1 max-sm:left-1.5;
+  }
+  .cell.is-alert {
+    @apply bg-alert-soft;
+  }
+  .paddock-haze {
+    @apply pointer-events-none absolute top-0 right-0 h-[55%] w-1/2 bg-paper/35;
+  }
+  .paddock-haze[hidden] {
+    @apply hidden;
+  }
+  .paddock-map {
+    @apply bg-band;
+  }
+  .pasture-legend {
+    @apply absolute right-2 bottom-2 z-[3] max-w-[calc(100%-1rem)] rounded-sm bg-black/55 px-2 py-0.5 text-xs font-medium text-white;
+  }
+  .map-legend {
+    @apply static mt-2 inline-block bg-band text-ink-2;
+  }
+
+  /* Alert notes over the grid, so the layout does not move */
+  .paddock-banner {
+    @apply pointer-events-none absolute inset-x-3 top-3 z-[4] grid justify-items-start gap-2;
+  }
+  .paddock-banner[hidden] {
+    @apply hidden;
+  }
+  .alert-card {
+    @apply flex max-w-full items-center gap-3 rounded-sm border border-rule-strong bg-surface px-3 py-2 text-ink;
+  }
+  .alert-card strong {
+    @apply block text-sm leading-tight;
+  }
+
+  /* Goat pins: round markers that float over the pasture */
+  .goat {
+    @apply absolute z-[2] inline-grid h-[2.125rem] min-w-[2.125rem] -translate-1/2 cursor-pointer place-items-center rounded-full border-2 border-white/90 bg-surface px-1 text-xs leading-none font-semibold text-ink touch-manipulation max-sm:h-[1.875rem] max-sm:min-w-[1.875rem] max-sm:text-[0.6875rem];
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+    transition: left 600ms var(--ease-out), top 600ms var(--ease-out), scale 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  }
+  [data-theme="dark"] .goat {
+    @apply bg-[#f7f1e8] text-[#141416];
+  }
+  .goat::before {
+    /* A larger touch target than the pin itself */
+    content: "";
+    @apply absolute -inset-1.5 rounded-[inherit];
+  }
+  .goat:hover {
+    @apply z-[5] scale-108;
+  }
+  .goat .goat-full {
+    @apply hidden px-1;
+  }
+  .goat.is-active,
+  [data-theme="dark"] .goat.is-active {
+    @apply z-[6] border-white bg-[#5c4030] text-[#fffaf2] outline-2 outline-offset-1 outline-white/60;
+  }
+  .goat.is-active .goat-short {
+    @apply hidden;
+  }
+  .goat.is-active .goat-full {
+    @apply inline;
+  }
+  .goat.is-low {
+    @apply border-[#e7b04b];
+  }
+  .goat.is-low::after,
+  .goat.is-silent::after,
+  .goat.is-still::after,
+  .goat.is-outside::after,
+  .goat.is-sos::after {
+    content: "";
+    @apply absolute -top-[3px] -right-[3px] size-[0.7rem] rounded-full border-2 border-white bg-[#d99a26];
+  }
+  .goat.has-alert {
+    box-shadow: 0 0 0 3px rgb(217 154 38 / 0.8), 0 1px 3px rgb(0 0 0 / 0.3);
+  }
+  .goat.is-silent {
+    @apply border-dashed opacity-80;
+  }
+  .goat.is-silent::after {
+    @apply bg-[#8a8173];
+  }
+  .goat.is-still {
+    @apply border-dotted;
+  }
+  .goat.is-still::after {
+    @apply bg-[#6b7c8a];
+  }
+  .goat.is-outside {
+    @apply border-[#c45c26];
+  }
+  .goat.is-outside::after {
+    @apply bg-[#c45c26];
+  }
+  .goat.is-sos {
+    @apply border-[#f2a08a];
+  }
+  .goat.is-sos::after {
+    @apply bg-[#c8371b];
+  }
+
+  /* The pin layer covers the whole grid, so top and left percentages land in the right cell. */
+  .paddock [data-pins] {
+    @apply pointer-events-none absolute inset-0 z-[2];
+  }
+  .paddock [data-pins] .goat {
+    @apply pointer-events-auto;
+  }
+  .trail-layer {
+    @apply pointer-events-none absolute inset-0 z-[1] h-full w-full overflow-visible;
+  }
+  .trail-line {
+    @apply stroke-leather stroke-[3px];
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.55;
+  }
+  .trail-dot {
+    fill: none;
+    stroke: var(--color-leather);
+    stroke-width: 10px;
+    stroke-linecap: round;
+  }
+
+  /* Playback */
+  .playback {
+    @apply flex items-center gap-3 px-1 pt-3 pb-1;
+  }
+  .playback input[type="range"] {
+    @apply h-9 min-w-0 flex-[1_1_12rem] cursor-pointer accent-leather;
+  }
+  .clock {
+    @apply min-w-14 font-semibold whitespace-nowrap text-ink tabular-nums max-sm:min-w-0;
+  }
+
+  /* Paddock moves on the sample day, under the grid */
+  .grazing-log {
+    @apply mt-3 border-t border-rule pt-3;
+  }
+  .grazing-title {
+    @apply mb-1 text-base font-semibold;
+  }
+  .grazing-note {
+    @apply mb-2 text-sm;
+  }
+  .grazing-list {
+    @apply m-0 flex max-h-44 list-none flex-col gap-1.5 overflow-auto p-0 max-[414px]:max-h-36;
+  }
+  .grazing-item .feed-row {
+    @apply py-1.5;
+  }
+
+  /* Detail panel beside the grid; a bottom sheet on phones */
+  .detail {
+    @apply sticky top-20 min-w-0 border-t border-ink;
+  }
+  .detail-body {
+    @apply py-4;
+  }
+  .sheet-handle {
+    @apply hidden;
+  }
+  .detail h2 {
+    @apply mt-1 text-xl;
+  }
+  .detail-top {
+    @apply mb-4 flex items-center gap-3;
+  }
+  .detail .fine-print {
+    @apply mt-4;
+  }
+  .detail-link {
+    @apply mt-5;
+  }
+  .avatar {
+    @apply grid size-11 flex-none place-items-center rounded-full border border-rule bg-band font-semibold text-leather;
+  }
+  .facts {
+    @apply grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm tabular-nums;
+  }
+  .facts dt {
+    @apply text-muted;
+  }
+  .facts dd {
+    @apply min-w-0 text-ink [overflow-wrap:anywhere];
+  }
+  .battery {
+    @apply mr-1 inline-block h-2 w-10 overflow-hidden rounded-sm bg-band-2 align-middle;
+  }
+  .battery span {
+    @apply block h-full bg-ok;
+  }
+  .battery.is-low span {
+    @apply bg-warn;
+  }
+  .detail-log {
+    @apply mt-4 border-t border-rule pt-4;
+  }
+  .note-label,
+  .add-alert-title {
+    @apply m-0 block text-sm font-medium text-ink;
+  }
+  .note-form .alert-note {
+    @apply mt-2 w-full;
+  }
+  .note-actions {
+    @apply mt-2 flex flex-wrap gap-2;
+  }
+  .note-list {
+    @apply mt-3 divide-y divide-rule text-sm text-ink-2;
+  }
+  .note-list li {
+    @apply py-1.5;
+  }
+  .note-list time {
+    @apply mr-1 text-muted tabular-nums;
+  }
+
+  @media (max-width: 860px) {
+    .herd-page {
+      @apply pb-28;
+    }
+    .herd-page:has(.detail.is-open) {
+      /* Beat MAIN's pb-24 utility so a bottom-row pin can scroll above the sheet. */
+      padding-bottom: 45dvh !important;
+    }
+    .detail {
+      @apply fixed inset-x-0 top-auto bottom-0 z-30 flex max-h-[5.25rem] flex-col overflow-hidden rounded-t-md border border-b-0 border-rule bg-surface;
+      box-shadow: 0 -4px 16px rgb(20 20 22 / 0.12);
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: max-height 280ms var(--ease-out);
+    }
+    [data-theme="dark"] .detail {
+      box-shadow: 0 -4px 16px rgb(0 0 0 / 0.5);
+    }
+    .detail.is-open {
+      @apply max-h-[45dvh];
+    }
+    .sheet-handle {
+      @apply sticky top-0 z-[1] flex min-h-[5.25rem] w-full flex-none items-center gap-3 bg-surface px-5 py-2 text-ink;
+    }
+    .sheet-handle::before {
+      content: "";
+      @apply absolute top-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-sm bg-rule-strong;
+    }
+    .sheet-handle [data-sheet] {
+      @apply flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 text-left text-ink;
+    }
+    .sheet-handle .sheet-title {
+      @apply min-w-0 flex-1;
+    }
+    .sheet-handle strong {
+      @apply block text-lg;
+    }
+    .sheet-handle small {
+      @apply block text-sm text-muted;
+    }
+    .sheet-close {
+      @apply hidden shrink-0 cursor-pointer border-0 bg-transparent px-1 py-2 text-sm font-medium text-ink-2 hover:text-ink;
+    }
+    .detail.is-open .sheet-close {
+      @apply inline;
+    }
+    .detail:not(.is-open) .sheet-handle .i-down,
+    .detail.is-open .sheet-handle .i-up {
+      @apply hidden;
+    }
+    .detail-body {
+      @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-0 pb-5;
+    }
+    .detail-body .detail-top,
+    .detail-skel {
+      @apply hidden;
+    }
+    #app:has(.herd-page) .site-footer {
+      @apply pb-[5.25rem];
+    }
+    #app:has(.herd-page .detail.is-open) .site-footer {
+      @apply pb-[45dvh];
+    }
+  }
+
+  /* The herd ledger: one row per animal */
+  .herd-ledger th[scope="row"] {
+    @apply font-medium;
+  }
+  .herd-ledger tr[aria-current] > * {
+    @apply bg-band;
+  }
+  .herd-ledger .is-warn {
+    @apply font-semibold text-warn;
+  }
+  .herd-ledger .is-alert {
+    @apply text-alert;
+  }
+
+  /* Event log: ruled rows, time in its own column */
+  .feed {
+    @apply max-h-[36rem] divide-y divide-rule overflow-y-auto border-y border-rule;
+  }
+  .feed-item {
+    @apply text-sm;
+  }
+  .feed-row {
+    @apply m-0 grid w-full grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-4 border-0 bg-transparent py-3 text-left;
+  }
+  button.feed-row {
+    @apply cursor-pointer hover:bg-band focus-visible:-outline-offset-2;
+  }
+  .feed-item time {
+    @apply text-muted tabular-nums;
+  }
+  .feed-text {
+    @apply min-w-0;
+  }
+  .feed-type {
+    @apply block font-semibold text-ink;
+  }
+  .feed-body {
+    @apply block text-ink-2;
+  }
+  .feed-item.is-alert .feed-type {
+    @apply text-alert;
+  }
+  .feed-empty {
+    @apply py-4 text-sm text-muted;
+  }
+
+  /* Alerts to answer */
+  .jobs-line {
+    @apply max-w-[68ch] text-sm text-ink-2;
+  }
+  .feed-note {
+    @apply mt-2 text-sm;
+  }
+  .alert-error {
+    @apply my-4;
+  }
+  .alert-list {
+    @apply border-b border-rule;
+  }
+  .alert-list > li {
+    @apply border-t border-rule;
+  }
+  .alert-list .feed-empty {
+    @apply py-4;
+  }
+  .alert-item {
+    @apply flex items-center gap-3 py-4;
+  }
+  .alert-body {
+    @apply min-w-0 flex-1;
+  }
+  .alert-title {
+    @apply m-0 flex flex-wrap items-center gap-2;
+  }
+  .alert-why {
+    @apply mt-1 max-w-measure text-sm text-ink-2;
+  }
+  .alert-detail {
+    @apply mt-1 text-sm text-ink-2;
+  }
+  .alert-note-text {
+    @apply italic;
+  }
+  .alert-state {
+    @apply text-xs font-semibold text-muted;
+  }
+  .alert-answer {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+  .alert-note {
+    @apply min-h-9 min-w-0 flex-[1_1_12rem] rounded-sm border border-rule-strong bg-surface px-3 text-sm text-ink focus-visible:border-focus max-sm:basis-full;
+  }
+  .add-alert {
+    @apply border-b border-rule py-4;
+  }
+  .add-alert-animal {
+    @apply flex-[0_1_11rem] pr-2;
+  }
+  .disclosure {
+    @apply mt-5;
+  }
+  .disclosure > summary {
+    @apply w-fit cursor-pointer py-2 text-sm font-medium text-ink-2 hover:text-ink;
+  }
+  .disclosure[open] > summary {
+    @apply mb-3;
+  }
+  .feed-section {
+    @apply mt-0;
+  }
+
+  /* Automated jobs: on or off, the limit, and why */
+  .settings {
+    @apply mt-3;
+  }
+  .settings-note {
+    @apply mt-0 max-w-measure;
+  }
+  .settings-list {
+    @apply mt-3 divide-y divide-rule border-y border-rule;
+  }
+  .setting-row {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-2 py-2;
+  }
+  .setting-row .toggle {
+    @apply min-w-60 text-ink;
+  }
+  .job-state {
+    @apply min-w-8 text-sm text-muted;
+  }
+  .limit {
+    @apply inline-flex items-center gap-2 text-sm text-ink-2;
+  }
+  .limit input {
+    @apply min-h-9 w-[4.5rem] rounded-sm border border-rule-strong bg-surface px-2 text-ink tabular-nums;
+  }
+  .flag {
+    @apply ml-1 text-xs font-semibold text-muted;
+  }
+
+  /* Guided tour */
+  .tour-scrim {
+    @apply pointer-events-auto fixed inset-0 z-[80];
+  }
+  .tour-spot {
+    @apply pointer-events-none fixed z-[81] rounded-md;
+    box-shadow: 0 0 0 9999px rgb(14 11 8 / 0.58), 0 0 0 3px var(--color-leather);
+    transition: top 320ms var(--ease-out), left 320ms var(--ease-out), width 320ms var(--ease-out), height 320ms var(--ease-out);
+  }
+  .tour-card {
+    @apply fixed z-[82] w-[min(24rem,calc(100vw-2rem))] rounded-md border border-rule bg-surface p-5 text-ink;
+    box-shadow: 0 8px 28px rgb(14 11 8 / 0.22);
+    transition: top 320ms var(--ease-out), left 320ms var(--ease-out);
+  }
+  .tour-card h2 {
+    @apply my-2 text-xl;
+  }
+  .tour-card p {
+    @apply text-sm text-ink-2;
+  }
+  .tour-meta {
+    @apply flex items-center justify-between gap-2;
+  }
+  .tour-step {
+    @apply text-sm font-medium text-muted tabular-nums;
+  }
+  .tour-dots {
+    @apply flex gap-1;
+  }
+  .tour-dots span {
+    @apply size-1.5 bg-rule-strong;
+  }
+  .tour-dots span.on {
+    @apply bg-leather;
+  }
+  .tour-actions {
+    @apply mt-5 flex flex-wrap items-center gap-2;
+  }
+  .tour-actions .spacer {
+    @apply flex-1;
+  }
+  .tour-close {
+    @apply size-9;
+  }
+  .tour-hint {
+    @apply mt-3 text-xs text-muted;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .tour-hint {
+      @apply hidden;
+    }
+  }
+  @media (max-width: 640px) {
+    .tour-card {
+      right: 1rem;
+      bottom: 1rem;
+      left: 1rem !important;
+      top: auto !important;
+      width: auto;
+    }
+    .tour-card.at-top {
+      top: 4.5rem !important;
+      bottom: auto;
+    }
+    .tour-sheet .detail.is-open {
+      max-height: min(45dvh, calc(100dvh - var(--tour-reserve, 0px)));
+    }
+  }
+
+  /* Rancher map (Leaflet), loaded only for a signed-in rancher */
+  .rancher-map {
+    @apply relative h-[32rem] overflow-hidden rounded-sm border border-rule bg-band max-md:h-96;
+  }
+  .rancher-map-canvas {
+    @apply absolute inset-0;
+  }
+  .map-loading {
+    @apply p-4;
+  }
+  .rancher-pin {
+    @apply border-0 bg-transparent;
+  }
+  .rancher-pin span {
+    @apply inline-block -translate-1/2 rounded-sm border-2 border-[#fffaf2] bg-[#5c4030] px-2 py-0.5 text-xs leading-snug font-semibold whitespace-nowrap text-[#fffaf2];
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
+  }
+  .rancher-pin.is-low span {
+    @apply bg-[#8a5410];
+  }
+  .rancher-pin.is-silent span {
+    @apply bg-[#655d51];
+  }
+  .rancher-pin.is-still span {
+    @apply bg-[#4f5f6c];
+  }
+  .rancher-pin.is-outside span {
+    @apply border-[#f5c19a] bg-[#a3451a];
+  }
+  .rancher-pin.is-sos span {
+    @apply border-[#fde68a] bg-[#a3341c];
+  }
+  .rancher-pin.has-alert span {
+    box-shadow: 0 0 0 3px #d99a26, 0 1px 3px rgb(0 0 0 / 0.45);
+  }
+  .rancher-pin.is-active span {
+    @apply outline-3 outline-[#d1a862];
+  }
+  .layer-panel-wrap {
+    @apply max-h-[28rem] max-w-[17rem] overflow-auto rounded-sm border border-rule bg-surface text-[0.8125rem] leading-snug text-ink;
+    box-shadow: 0 2px 8px rgb(14 11 8 / 0.18);
+  }
+  .layer-panel summary {
+    @apply cursor-pointer px-3 py-2 font-semibold;
+  }
+  .layer-panel fieldset {
+    @apply m-0 border-0 border-t border-rule px-3 py-2;
+  }
+  .layer-panel legend {
+    @apply p-0 text-xs font-semibold text-muted;
+  }
+  .layer-row {
+    @apply flex flex-nowrap items-baseline gap-x-1.5 py-0.5;
+  }
+  .layer-row label {
+    @apply min-w-0 flex-auto;
+  }
+  .layer-src,
+  .layer-remove,
+  .layer-error {
+    @apply text-xs whitespace-nowrap;
+  }
+  .layer-panel a.layer-src {
+    @apply text-leather underline;
+  }
+  .layer-remove {
+    @apply cursor-pointer border-0 bg-transparent p-0 text-alert;
+  }
+  .layer-error {
+    @apply text-alert;
+  }
+  .layer-add {
+    @apply grid gap-1 border-t border-rule px-3 py-2;
+  }
+  .layer-add input {
+    @apply rounded-sm border border-rule-strong bg-surface px-2 py-1 text-ink;
+  }
+  .layer-add button {
+    @apply justify-self-start;
+  }
+  .layer-note {
+    @apply m-0 px-3 pt-1.5 pb-2.5 text-xs text-muted;
+  }
+  .map-popup dl {
+    @apply mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5;
+  }
+  .map-popup dt,
+  .map-popup-source {
+    @apply text-[#655d51];
+  }
+  .map-popup-source {
+    @apply mt-1.5 text-xs;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-4%, 3%);
+  }
+}
+@keyframes rise {
+  from {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Motion and contrast preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cell.is-alert::after,
+  .paddock-haze,
+  .skel {
+    animation: none !important;
+  }
+  .cell.is-alert::after {
+    opacity: 0.7;
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  .btn,
+  .chip,
+  .goat,
+  .icon-btn,
+  .stat {
+    border: 1px solid CanvasText;
+  }
+  .chip[aria-pressed="true"],
+  .goat.is-active {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .tour-spot {
+    outline: 3px solid Highlight;
+  }
+}
+
+/* Print: a fleece trace prints as a plain record sheet, without the site
+   header, controls or footer. Only the chosen viewer is shown. */
+@media print {
+  :root,
+  [data-theme="dark"] {
+    --color-paper: #ffffff;
+    --color-surface: #ffffff;
+    --color-ink: #000000;
+    --color-ink-2: #1a1a1a;
+    --color-muted: #444444;
+    --color-rule: #bbbbbb;
+    --color-rule-strong: #888888;
+    --color-leather: #000000;
+  }
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .tour-scrim,
+  .tour-spot,
+  .tour-card,
+  .trace-print,
+  .segmented .chip:not([aria-pressed="true"]) {
+    display: none !important;
+  }
+  .segmented .chip {
+    border: 0;
+    padding: 0;
+    min-height: 0;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .trace-card,
+  .data-table tr {
+    break-inside: avoid;
+  }
+  a {
+    text-decoration: none;
+  }
+}

@@ -10,32 +10,31 @@ There are two ways to sign in. Use the one that matches where the demo runs.
 | --- | --- | --- |
 | Sign-in | A passphrase you set | Cloudflare Access, with any login your Access app allows |
 | Live data comes from | `.local/live.json` | A KV namespace, filled by `chirpstack:pull -- --push` |
-| Runs with | `npm run dev`, `npm run preview`, `npm run serve:local` | The Pages Functions in `functions/api/` |
+| Runs with | `fibershare serve` on 127.0.0.1:4174 | A published copy with Cloudflare Access |
 
 ## Local, on your own hardware
 
 1. Write a full file. Rancher sign-in needs real values in it:
 
    ```bash
-   FIBERSHARE_HIDE_TRACKERS=0 npm run chirpstack:pull -- --watch=120
+   FIBERSHARE_HIDE_TRACKERS=0 fibershare pull --watch=120
    ```
 
 2. Set a passphrase, 12 characters or more:
 
    ```bash
-   npm run rancher:passphrase
+   fibershare passphrase
    ```
 
-   It asks twice and stores only a scrypt hash in `.local/rancher.json`, which git ignores. Run it again to change the passphrase. That also signs out every open session. `npm run rancher:passphrase -- --remove` turns sign-in off.
+   It stores only a scrypt hash in `.local/rancher.json`, which git ignores. Run it again to change the passphrase. That also signs out every open session. Delete `.local/rancher.json` to turn sign-in off.
 
 3. Start a server and open the **Rancher** page:
 
    ```bash
-   npm run dev            # http://localhost:5173
-   npm run build && npm run serve:local   # http://127.0.0.1:4174
+   fibershare serve
    ```
 
-   `serve:local` serves the built site and the API with no dev tools. It listens on `127.0.0.1:4174` unless you set `FIBERSHARE_HOST` or `FIBERSHARE_PORT`.
+   `fibershare serve` serves the site and the API with no dev tools. It listens on `127.0.0.1:4174` unless you set `FIBERSHARE_HOST` or `FIBERSHARE_PORT`.
 
 How it works:
 
