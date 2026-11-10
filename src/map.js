@@ -347,6 +347,11 @@ function renderTrail(root, state) {
     return;
   }
   const points = positionTrail(view.events, id, view.step, { limit: TRAIL_LIMIT });
+  // Pins near each other are spread apart, so end the trail where the pin is drawn.
+  const pin = root.querySelector('[data-pins] .goat[data-id="' + CSS.escape(id) + '"]');
+  const drawn = pin && { x: parseFloat(pin.style.left), y: parseFloat(pin.style.top) };
+  const last = points.at(-1);
+  if (last && drawn && Number.isFinite(drawn.x) && Number.isFinite(drawn.y)) points[points.length - 1] = { ...last, x: drawn.x, y: drawn.y };
   if (points.length < 2) {
     layer.innerHTML = "";
     return;
@@ -1056,6 +1061,7 @@ export function bindMap(root) {
       last = paddock.clientWidth;
       const state = currentState();
       renderPins(root, state, alertsFor(state));
+      renderTrail(root, state);
     });
     resizeObserver.observe(paddock);
   }
