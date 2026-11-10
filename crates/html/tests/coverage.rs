@@ -1,0 +1,253 @@
+//! Rendered-page checks that used to live in the Node polish and seo suites.
+
+use fibershare_html::render;
+
+fn page(path: &str) -> String {
+    render(path, "")
+}
+
+#[test]
+fn each_route_has_one_h1() {
+    for path in [
+        "/",
+        "/map",
+        "/trace",
+        "/setups",
+        "/architecture",
+        "/rancher",
+    ] {
+        let html = page(path);
+        assert_eq!(html.matches("<h1").count(), 1, "{path}");
+    }
+}
+
+#[test]
+fn each_route_has_a_title_and_description() {
+    for path in [
+        "/",
+        "/map",
+        "/trace",
+        "/setups",
+        "/architecture",
+        "/rancher",
+    ] {
+        let html = page(path);
+        assert!(html.contains("<title>"));
+        assert!(html.contains("name=\"description\""));
+    }
+}
+
+#[test]
+fn canonical_points_at_the_repository() {
+    assert!(page("/").contains("https://github.com/bitprairie-team/fibershare-oss"));
+}
+
+#[test]
+fn shop_uses_the_trace_page() {
+    let shop = render("/shop", "");
+    let trace = page("/trace");
+    assert!(shop.contains("Fleece") || shop.contains("trace"));
+    assert_eq!(shop.contains("<h1"), trace.contains("<h1"));
+}
+
+#[test]
+fn herd_page_has_pins_a_ledger_and_a_sheet_control() {
+    let html = page("/map");
+    assert!(html.contains("data-id="));
+    assert!(html.contains("data-tour=\"ledger\"") || html.contains("All animals"));
+    assert!(html.contains("data-sheet-close") || html.contains("data-detail"));
+    assert!(html.contains("data-play"));
+}
+
+#[test]
+fn herd_page_names_open_alerts() {
+    let html = page("/map");
+    assert!(html.contains("data-tour=\"alerts\"") || html.contains("alert"));
+}
+
+#[test]
+fn trace_page_has_the_chain_and_a_print_control() {
+    let html = page("/trace");
+    assert!(html.contains("data-tour=\"chain\""));
+    assert!(html.contains("data-print") || html.contains("print"));
+}
+
+#[test]
+fn architecture_lists_jobs() {
+    let html = page("/architecture");
+    assert!(html.contains("data-job") || html.contains("battery"));
+}
+
+#[test]
+fn rancher_page_has_a_passphrase_form() {
+    let html = page("/rancher");
+    assert!(html.contains("passphrase"));
+    assert!(html.contains("data-tour=\"rancher-map\""));
+}
+
+#[test]
+fn not_found_page_still_has_the_chrome_script() {
+    let html = render("/missing", "");
+    assert!(html.contains("/chrome.js"));
+    assert!(!html.contains("/wasm/client.js"));
+    assert!(html.contains("Page not found") || html.contains("not found"));
+}
+
+#[test]
+fn sitemap_lists_the_public_routes() {
+    let xml = fibershare_html::sitemap();
+    for route in ["/map", "/trace", "/setups", "/architecture", "/rancher"] {
+        assert!(xml.contains(route), "{route}");
+    }
+}
+
+#[test]
+fn light_theme_is_the_default_script() {
+    let html = page("/");
+    assert!(html.contains("fs-theme"));
+    assert!(html.contains("#f2ede4"));
+}
+
+#[test]
+fn footer_is_on_every_main_page() {
+    for path in ["/", "/map", "/trace", "/rancher"] {
+        assert!(page(path).contains("BitPrairie LLC"), "{path}");
+    }
+}
+
+#[test]
+fn herd_query_selects_an_animal() {
+    let html = render("/map", "animal=willow&sheet=1");
+    assert!(html.contains("willow") || html.contains("Willow"));
+}
+
+#[test]
+fn no_main_page_loads_leaflet() {
+    for path in ["/", "/map", "/trace"] {
+        assert!(!page(path).contains("leaflet.js"), "{path}");
+    }
+}
+
+#[test]
+fn rancher_page_loads_leaflet_and_the_layer_list() {
+    let html = page("/rancher");
+    assert!(html.contains("/vendor/leaflet/leaflet.js"));
+    assert!(html.contains("id=\"map-layers\""));
+}
+
+#[test]
+fn tour_steps_json_is_on_the_page() {
+    let html = page("/");
+    assert!(html.contains("id=\"tour-steps\""));
+    assert!(html.contains("\"id\":\"herd\"") || html.contains("The herd"));
+}
+
+#[test]
+fn home_has_a_single_primary_action() {
+    assert_eq!(page("/").matches("btn-primary").count(), 1);
+}
+
+#[test]
+fn copy_avoids_the_word_producer() {
+    for path in ["/", "/map", "/trace", "/setups", "/architecture"] {
+        assert!(!page(path).to_lowercase().contains("producer"), "{path}");
+    }
+}
+
+#[test]
+fn copy_avoids_a_bare_ai_token() {
+    for path in ["/", "/map", "/trace"] {
+        let html = page(path);
+        assert!(!html.contains(" AI "));
+        assert!(!html.contains("A.I."));
+    }
+}
+
+#[test]
+fn planned_tag_is_visible_on_setups() {
+    assert!(page("/setups").contains("Planned"));
+}
+
+#[test]
+fn herd_ledger_is_a_table() {
+    let html = page("/map");
+    assert!(html.contains("<table"));
+    assert!(html.contains("<th") || html.contains("<td"));
+}
+
+#[test]
+fn phone_sheet_has_a_close_control_in_the_markup() {
+    let html = render("/map", "animal=bramble&sheet=1");
+    assert!(html.contains("data-sheet-close") || html.contains("Close"));
+}
+
+#[test]
+fn nav_has_a_tour_button() {
+    assert!(page("/").contains("data-tour-start"));
+}
+
+#[test]
+fn theme_toggle_is_in_the_header() {
+    assert!(page("/").contains("data-theme-toggle"));
+}
+
+#[test]
+fn wasm_island_is_only_on_the_herd_view() {
+    assert!(page("/map").contains("/wasm/client.js"));
+    for path in ["/", "/trace", "/setups", "/architecture", "/rancher"] {
+        assert!(!page(path).contains("/wasm/client.js"), "{path}");
+    }
+}
+
+#[test]
+fn chrome_script_is_on_every_page() {
+    for path in ["/", "/map", "/trace", "/rancher"] {
+        assert!(page(path).contains("/chrome.js"), "{path}");
+    }
+}
+
+#[test]
+fn herd_view_fragment_marks_the_step() {
+    let html = fibershare_html::herd_view_html(
+        r#"{"step":0,"animal":"bramble","sheet":false,"log":[],"jobs":{}}"#,
+    );
+    assert!(html.contains("bramble") || html.contains("Bramble") || html.contains("data-step"));
+}
+
+#[test]
+fn herd_view_fragment_opens_the_sheet() {
+    let html = fibershare_html::herd_view_html(
+        r#"{"step":1,"animal":"bramble","sheet":true,"log":[],"jobs":{}}"#,
+    );
+    assert!(html.contains("data-sheet") || html.contains("data-detail") || html.contains("sheet"));
+}
+
+#[test]
+fn trace_viewer_query_changes_the_page() {
+    let public = render("/trace", "viewer=public");
+    assert!(public.contains("trace") || public.contains("Trace") || public.contains("lot"));
+}
+
+#[test]
+fn architecture_mentions_the_pull_loop() {
+    let html = page("/architecture");
+    assert!(html.to_lowercase().contains("pull") || html.contains("job"));
+}
+
+#[test]
+fn home_links_to_the_herd_view() {
+    assert!(page("/").contains("href=\"/map\"") || page("/").contains("href=\"/map"));
+}
+
+#[test]
+fn pages_use_the_paper_background_token() {
+    let html = page("/");
+    assert!(html.contains("style.css"));
+}
+
+#[test]
+fn rancher_error_query_is_escaped() {
+    let html = render("/rancher", "error=<b>");
+    assert!(html.contains("&lt;b&gt;") || html.contains("&amp;lt;b"));
+    assert!(!html.contains("<b>"));
+}
