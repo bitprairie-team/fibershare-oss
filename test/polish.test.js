@@ -411,13 +411,18 @@ function docFiles(dir) {
   });
 }
 
+// Maker wiki paths can contain "ai". Strip URLs so those links can stay.
+function withoutUrls(text) {
+  return text.replace(/\bhttps?:\/\/[^\s)>]+/gi, "");
+}
+
 test("copy: BitPrairie's systems are called realtime intelligence systems, and nothing says AI or SI", () => {
-  // docs/hardware.md quotes maker product names and is checked in its own pull request.
-  const files = ["README.md", "ROADMAP.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "index.html", ...docFiles("docs").filter((path) => path !== "docs/hardware.md")];
+  const files = ["README.md", "ROADMAP.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "index.html", ...docFiles("docs")];
   const texts = { ...Object.fromEntries(Object.entries(src).map(([f, t]) => ["src/" + f, t])), ...Object.fromEntries(files.map((f) => [f, read(f)])) };
   for (const [file, text] of Object.entries(texts)) {
-    for (const re of SYSTEM_WORDS) assert.ok(!re.test(text), file + " uses " + re);
-    const loose = text.replace(/realtime intelligence systems/gi, "");
+    const scanned = withoutUrls(text);
+    for (const re of SYSTEM_WORDS) assert.ok(!re.test(scanned), file + " uses " + re);
+    const loose = scanned.replace(/realtime intelligence systems/gi, "");
     assert.ok(!/intelligence systems/i.test(loose), file + ' says "intelligence systems" without "realtime"');
   }
   assert.match(read("README.md"), /realtime intelligence systems/);
