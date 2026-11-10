@@ -17,7 +17,7 @@
     --color-band: #e8e0d2;
     --color-band-2: #ddd3c2;
     --color-ink: #141416;
-    --color-ink-2: #3a342d;
+    --color-ink-2: #3a3732;
     --color-muted: #5f574c;
     --color-rule: #ddd4c5;
     --color-rule-strong: #c4b7a3;
@@ -46,7 +46,7 @@
     --text-xs--line-height: 1.45;
     --text-sm: 0.875rem;
     --text-sm--line-height: 1.5;
-    --text-base: 1rem;
+    --text-base: 1.0625rem;
     --text-base--line-height: 1.6;
     --text-lg: 1.125rem;
     --text-lg--line-height: 1.55;
@@ -59,7 +59,7 @@
     --tracking-tight: -0.012em;
     --radius-sm: 3px;
     --radius-md: 4px;
-    --container-page: 82rem;
+    --container-page: 72rem;
     --container-content: 52rem;
     --container-measure: 62ch;
     --container-form: 26rem;
@@ -330,10 +330,6 @@
   .size-5 {
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
-  }
-  .size-7 {
-    width: calc(var(--spacing) * 7);
-    height: calc(var(--spacing) * 7);
   }
   .size-8 {
     width: calc(var(--spacing) * 8);
@@ -751,7 +747,7 @@
   --color-muted: #b3a999;
   --color-rule: #3a3229;
   --color-rule-strong: #52473a;
-  --color-leather: #c49a6c;
+  --color-leather: #bf9474;
   --color-leather-hover: #d4b088;
   --color-on-leather: #161310;
   --color-pasture: #3d4632;
@@ -781,6 +777,18 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: clip;
+  }
+  .logo-mark {
+    display: block;
+  }
+  [data-theme="dark"] .logo-mark-light {
+    display: none;
+  }
+  [data-theme="dark"] .logo-mark-dark {
+    display: block;
+  }
+  [data-theme="light"] .logo-mark-dark, :root:not([data-theme="dark"]) .logo-mark-dark {
+    display: none;
   }
   #app {
     display: flex;
@@ -1558,8 +1566,8 @@
   .goat.is-active, [data-theme="dark"] .goat.is-active {
     z-index: 6;
     border-color: var(--color-white);
-    background-color: #5c4030;
-    color: #fffaf2;
+    background-color: var(--color-leather);
+    color: var(--color-on-leather);
     outline-style: var(--tw-outline-style);
     outline-width: 2px;
     outline-offset: 1px;
@@ -2553,7 +2561,7 @@
     border-style: var(--tw-border-style);
     border-width: 2px;
     border-color: #fffaf2;
-    background-color: #5c4030;
+    background-color: var(--color-leather);
     padding-inline: calc(var(--spacing) * 2);
     padding-block: calc(var(--spacing) * 0.5);
     font-size: var(--text-xs);
@@ -2563,7 +2571,7 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
     white-space: nowrap;
-    color: #fffaf2;
+    color: var(--color-on-leather);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
   }
   .rancher-pin.is-low span {

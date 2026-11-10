@@ -7,7 +7,7 @@ mod herd;
 mod layout;
 mod pages;
 
-pub use document::document;
+pub use document::{document, safe_origin};
 pub use herd::{herd_dynamic, herd_page, herd_view_html};
 pub use pages::{page_body, SignIn};
 
@@ -34,6 +34,13 @@ pub fn render(path: &str, query: &str) -> String {
 
 /// Same pages as [`render`], with the sign-in help for this copy.
 pub fn render_for(path: &str, query: &str, site: Site) -> String {
+    render_at(path, query, site, "")
+}
+
+/// Same pages as [`render_for`]. `origin` is the scheme and host of this
+/// request, with no path. Canonical and `og:url` use that host plus the
+/// route. An empty or unusable origin keeps the route path on its own.
+pub fn render_at(path: &str, query: &str, site: Site, origin: &str) -> String {
     let path = if path == "/shop" { "/trace" } else { path };
     let meta = meta_for_path(path);
     let body = match path {
@@ -45,7 +52,7 @@ pub fn render_for(path: &str, query: &str, site: Site) -> String {
         "/rancher" => pages::rancher(query, site.sign_in),
         _ => pages::not_found(),
     };
-    document(meta.title, meta.description, &body, path)
+    document(meta.title, meta.description, &body, path, origin)
 }
 
 pub fn sitemap() -> String {

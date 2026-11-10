@@ -15,7 +15,7 @@ use axum::routing::{any, get};
 use axum::Router;
 use fibershare_core::api::{local_api, local_health, LocalPaths, LocalState};
 use fibershare_core::auth::now_ms;
-use fibershare_html::render;
+use fibershare_html::{render, render_at, Site};
 use serde_json::Value;
 use tower_http::services::{ServeDir, ServeFile};
 
@@ -45,10 +45,24 @@ fn header_map(headers: &HeaderMap) -> HashMap<String, String> {
     out
 }
 
+fn request_origin(headers: &HeaderMap) -> String {
+    let host = headers
+        .get(header::HOST)
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or("");
+    let scheme = headers
+        .get("x-forwarded-proto")
+        .and_then(|value| value.to_str().ok())
+        .filter(|value| *value == "https" || *value == "http")
+        .unwrap_or("http");
+    format!("{scheme}://{host}")
+}
+
 async fn page(State(_app): State<Arc<App>>, request: Request) -> Response {
     let path = request.uri().path();
     let query = request.uri().query().unwrap_or("");
-    let html = render(path, query);
+    let origin = request_origin(request.headers());
+    let html = render_at(path, query, Site::default(), &origin);
     Html(html).into_response()
 }
 
@@ -182,7 +196,8 @@ async fn fallback(State(app): State<Arc<App>>, request: Request) -> Response {
     if looks_like_file {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let html = render(&path, &query);
+    let origin = request_origin(request.headers());
+    let html = render_at(&path, &query, Site::default(), &origin);
     (StatusCode::NOT_FOUND, Html(html)).into_response()
 }
 

@@ -18,7 +18,10 @@ fn home_is_one_title_one_paragraph_and_one_button() {
     assert!(html.contains("localStorage.getItem(\"fs-theme\") === \"dark\" ? \"dark\" : \"light\""));
     assert!(html.contains("<meta name=\"theme-color\" content=\"#f2ede4\""));
     assert!(!html.contains("prefers-color-scheme"));
-    assert!(!html.contains("rel=\"canonical\""));
+    assert!(html.contains("rel=\"canonical\" href=\"/\""));
+    assert!(html.contains("property=\"og:url\" content=\"/\""));
+    assert!(!html.contains("rel=\"canonical\" href=\"https://github.com"));
+    assert!(!html.contains("property=\"og:url\" content=\"https://github.com"));
 }
 
 #[test]
