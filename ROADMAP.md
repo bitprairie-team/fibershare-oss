@@ -31,6 +31,18 @@ Each loop does one job and suggests; the rancher decides. Answers are stored so 
 - Link fiber quality to breeding and grazing: match fleece results to animals and grazing seasons
 - In this demo: show each loop with fake data, including the rancher's confirm, change and dismiss step
 
+## Planned: paddock cameras and hardware
+
+The camera work is in [docs/paddock-cameras.md](docs/paddock-cameras.md), and the devices are in [docs/hardware.md](docs/hardware.md).
+
+- Being tested: a camera board that sends live pictures over Media over QUIC through a relay on the ranch
+- A live camera view for a signed-in rancher, never shown to the public
+- Detections from a camera sent to Predator Watch as reports the rancher confirms or dismisses
+- Scheduled stills from a camera with a view of the horizon, for Wildfire Watch smoke checks
+- A tracker alert, such as SOS or not moving, that asks the nearest camera for a picture
+- A satellite link at a gateway or camera site with no cell signal, for alerts and small stills
+- Field tests of an outdoor gateway with cell backhaul, an open-firmware tracker and on-device detection cameras
+
 ## Planned: checks and docs
 
 - A guide for publishing your own copy of this demo

@@ -16,7 +16,7 @@ This project is maintained by BitPrairie LLC.
 
 ## How to report
 
-If you can say it in public, open a GitHub issue on [fibershare-oss](https://github.com/steelhead99x/fibershare-oss/issues).
+If you can say it in public, open a GitHub issue on [fibershare-oss](https://github.com/bitprairie-team/fibershare-oss/issues).
 
 If it should stay private, email [legal@bitprairie.com](mailto:legal@bitprairie.com).
 
