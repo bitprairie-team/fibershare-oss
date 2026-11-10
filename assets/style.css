@@ -83,8 +83,6 @@
   --text-2xl--line-height: 1.2;
   --text-3xl: clamp(2rem, 1.5rem + 2vw, 2.75rem);
   --text-3xl--line-height: 1.12;
-  --text-display: clamp(2.25rem, 1.4rem + 3.2vw, 3.5rem);
-  --text-display--line-height: 1.08;
   --tracking-*: initial;
   --tracking-tight: -0.012em;
   --tracking-normal: 0;
@@ -93,7 +91,6 @@
   --radius-*: initial;
   --radius-sm: 3px;
   --radius-md: 4px;
-  --radius-full: 9999px;
   --shadow-*: initial;
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;
@@ -146,7 +143,7 @@
 }
 
 @theme {
-  /* The menu folds away below 1100px, where six links no longer fit. */
+  /* The menu folds away below 1100px. */
   --breakpoint-nav: 68.75rem;
 }
 
@@ -352,19 +349,8 @@
       @apply mb-1 w-auto font-semibold;
     }
     .compare-table td {
-      @apply py-0.5 before:font-medium before:text-ink before:content-[attr(data-setup)_":_"];
+      @apply py-0.5 before:block before:font-medium before:text-ink before:content-[attr(data-setup)];
     }
-  }
-
-  /* View-as tabs: underlined text, not pills. */
-  .segmented {
-    @apply inline-flex gap-5;
-  }
-  .segmented .chip {
-    @apply min-h-9 cursor-pointer border-0 border-b-2 border-transparent bg-transparent p-0 text-sm font-medium text-muted hover:text-ink;
-  }
-  .segmented .chip[aria-pressed="true"] {
-    @apply border-leather text-ink;
   }
 
   /* Form fields */
@@ -391,9 +377,6 @@
   }
   .row-meta {
     @apply mt-1 text-sm text-muted;
-  }
-  .count {
-    @apply font-normal text-muted tabular-nums;
   }
 
   /* Status notes and empty or error states */
@@ -457,23 +440,6 @@
   }
   .stale-note {
     @apply text-warn;
-  }
-
-  /* Three numbers under the title, read across like a ledger header */
-  .stat-row {
-    @apply mb-6 flex flex-wrap gap-x-12 gap-y-3 border-y border-rule py-4 max-sm:gap-x-6;
-  }
-  .stat {
-    @apply flex min-w-0 flex-col-reverse;
-  }
-  .stat dt {
-    @apply text-sm text-muted;
-  }
-  .stat dd {
-    @apply text-2xl leading-tight font-semibold tabular-nums max-sm:text-xl;
-  }
-  .stat-warn dd {
-    @apply text-alert;
   }
 
   .herd-layout {
@@ -540,7 +506,7 @@
 
   /* Goat pins: round markers that float over the pasture */
   .goat {
-    @apply absolute z-[2] inline-grid h-[2.125rem] min-w-[2.125rem] -translate-1/2 cursor-pointer place-items-center rounded-full border-2 border-white/90 bg-surface px-1 text-xs leading-none font-semibold text-ink touch-manipulation max-sm:h-[1.875rem] max-sm:min-w-[1.875rem] max-sm:text-[0.6875rem];
+    @apply absolute z-[2] inline-grid h-[2.125rem] min-w-[2.125rem] -translate-1/2 cursor-pointer place-items-center rounded-sm border-2 border-white/90 bg-surface px-1 text-xs leading-none font-semibold text-ink touch-manipulation max-sm:h-[1.875rem] max-sm:min-w-[1.875rem] max-sm:text-[0.6875rem];
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
     transition: left 600ms var(--ease-out), top 600ms var(--ease-out), scale 180ms var(--ease-out), background-color 180ms var(--ease-out);
   }
@@ -577,7 +543,7 @@
   .goat.is-outside::after,
   .goat.is-sos::after {
     content: "";
-    @apply absolute -top-[3px] -right-[3px] size-[0.7rem] rounded-full border-2 border-white bg-[#d99a26];
+    @apply absolute -top-[3px] -right-[3px] size-[0.7rem] rounded-sm border-2 border-white bg-[#d99a26];
   }
   .goat.has-alert {
     box-shadow: 0 0 0 3px rgb(217 154 38 / 0.8), 0 1px 3px rgb(0 0 0 / 0.3);
@@ -681,7 +647,7 @@
     @apply mt-5;
   }
   .avatar {
-    @apply grid size-11 flex-none place-items-center rounded-full border border-rule bg-band font-semibold text-leather;
+    @apply grid size-11 flex-none place-items-center rounded-sm border border-rule bg-band font-semibold text-leather;
   }
   .facts {
     @apply grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm tabular-nums;
@@ -918,6 +884,66 @@
   .job-state {
     @apply min-w-8 text-sm text-muted;
   }
+  .job-list {
+    @apply m-0 list-none divide-y divide-rule border-y border-rule p-0;
+  }
+  .job-row {
+    @apply grid gap-1 py-3;
+  }
+  .job-name {
+    @apply font-medium text-ink;
+  }
+  .job-what {
+    @apply m-0 max-w-measure text-sm text-ink-2;
+  }
+  .sample-note {
+    @apply mt-2 mb-1 text-sm;
+  }
+  .trace-why {
+    @apply mb-5 max-w-measure text-sm text-ink-2;
+  }
+  .trace-viewer {
+    @apply mb-5 flex flex-wrap items-baseline gap-x-4 gap-y-2 text-sm;
+  }
+  .trace-viewer a[aria-current="page"] {
+    @apply font-semibold text-ink no-underline;
+  }
+  .trace-chain {
+    @apply m-0 list-none divide-y divide-rule border-y border-ink p-0;
+  }
+  .trace-step {
+    @apply py-5;
+  }
+  .trace-step h2 {
+    @apply text-xl;
+  }
+  .trace-step p {
+    @apply mt-1 text-sm text-ink-2;
+  }
+  .trace-id {
+    @apply text-muted;
+  }
+  .mock-map {
+    @apply relative mt-4 overflow-hidden rounded-sm border border-rule bg-band;
+  }
+  .mock-map svg {
+    @apply block aspect-[16/10] w-full;
+  }
+  .mock-legend {
+    @apply absolute top-3 left-3 m-0 rounded-sm border border-rule bg-surface px-3 py-2 text-sm;
+  }
+  .mock-legend p {
+    @apply m-0 font-semibold;
+  }
+  .mock-legend ul {
+    @apply m-0 mt-1 list-none p-0;
+  }
+  .mock-legend li {
+    @apply block py-0.5;
+  }
+  .rancher-callout {
+    @apply mt-8 border-t border-ink pt-5;
+  }
   .limit {
     @apply inline-flex items-center gap-2 text-sm text-ink-2;
   }
@@ -983,25 +1009,12 @@
   .tour-close {
     @apply size-9;
   }
-  .tour-hint {
-    @apply mt-3 text-xs text-muted;
-  }
-  @media (hover: none) and (pointer: coarse) {
-    .tour-hint {
-      @apply hidden;
-    }
+  .tour-actions button {
+    @apply min-h-10 min-w-16;
   }
   @media (max-width: 640px) {
     .tour-card {
-      right: 1rem;
-      bottom: 1rem;
-      left: 1rem !important;
-      top: auto !important;
-      width: auto;
-    }
-    .tour-card.at-top {
-      top: 4.5rem !important;
-      bottom: auto;
+      width: min(24rem, calc(100vw - 2rem));
     }
     .tour-sheet .detail.is-open {
       max-height: min(45dvh, calc(100dvh - var(--tour-reserve, 0px)));
@@ -1154,13 +1167,10 @@
 }
 @media (forced-colors: active) {
   .btn,
-  .chip,
   .goat,
-  .icon-btn,
-  .stat {
+  .icon-btn {
     border: 1px solid CanvasText;
   }
-  .chip[aria-pressed="true"],
   .goat.is-active {
     forced-color-adjust: none;
     background: Highlight;
@@ -1191,14 +1201,8 @@
   .tour-scrim,
   .tour-spot,
   .tour-card,
-  .trace-print,
-  .segmented .chip:not([aria-pressed="true"]) {
+  .trace-viewer {
     display: none !important;
-  }
-  .segmented .chip {
-    border: 0;
-    padding: 0;
-    min-height: 0;
   }
   main {
     max-width: none !important;

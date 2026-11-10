@@ -1,6 +1,6 @@
 # FiberShare (open source)
 
-**FiberShare OSS** is a browser demo of ranch herd tracking and fiber traceability: a sample goat herd on a paddock grid, day Play with alerts, paddock moves, and a short tracker trail, plus a fleece lot you can trace back to the animal. It runs on sample data, works offline, and is meant for ranchers, hardware makers, and developers who want to see the idea before wiring real collars.
+This repository is a browser demo of herd tracking and fiber trace. It has eight sample goats on a paddock drawing, one made-up day of tracker data, and a fleece lot you can trace back to the goat. It runs on sample data, works offline, and is meant for ranchers, hardware makers, and developers who want to see the idea before wiring real collars.
 
 This repository is **not** the FiberShare app at [fibershare.app](https://fibershare.app). Ranch support pays for animals and pasture. Support is not ownership or an investment return. BitPrairie LLC builds FiberShare.
 
@@ -8,14 +8,14 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 
 ## Features (what is shipped)
 
-- **Herd view.** Eight sample goats on a virtual paddock grid (a drawing, not GPS). Stats for trackers reporting, open alerts, and last check-in. Day **Play** scrubs one made-up day.
-- **Alerts.** Low battery, quiet tracker, not-moving, out-of-paddock, SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or reopen; answers stay in the browser on sample data.
-- **Paddock moves.** A short log of sample paddock moves and grazing notes that advances with Play.
-- **Tracker trail.** Select a goat during Play to see a short trail of its last few positioned check-ins.
-- **Fleece trace.** Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. Viewer modes for rancher, buyer, and public. Nothing is for sale.
+- **Herd view.** Eight sample goats on a paddock drawing, not a map. Run the sample day to move through one made-up day. Open alerts, the animal ledger, and a collapsed event log sit on the same page.
+- **Alerts.** Low battery, missed check-in, animal not moving, animal outside the paddock, tracker SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or add one by hand. Each job can be turned off.
+- **Paddock moves.** A short log of sample paddock moves and grazing notes for this sample day.
+- **Tracker trail.** Select a goat while you run the sample day to see a short trail of its last few positioned check-ins.
+- **Fleece trace.** Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. A rancher, a buyer, or the public can be the viewer. Nothing is for sale.
 - **Setups.** Your own hardware, hosted by BitPrairie, or a mix.
 - **Rancher sign-in and map.** Public view hides tracker details; a signed-in rancher can see real names and positions. See [docs/rancher-access.md](docs/rancher-access.md).
-- **Tour.** Five short steps on the sample data (keyboard: arrows, Esc).
+- **Tour.** Five short steps, started from the herd view. Esc closes it.
 
 | Herd view | Fleece trace |
 | --- | --- |
@@ -39,15 +39,15 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 
 | Job | Rule |
 | --- | --- |
-| Flags tracker batteries below 20% | Trackers on outside power are skipped |
-| Flags trackers that stop reporting | No check-in for over 2 hours |
-| Flags trackers not moving near the same spot | Still checking in for over 2 hours with little movement |
-| Flags a position outside the paddock | Active paddock bounds are 0-100 on the grid |
-| Raises an alert when a tracker sends an SOS | The alert names the animal |
-| Lists Predator Watch reports near the herd | The sample day has one simulated report |
-| Lists Wildfire Watch smoke reports upwind | The rancher map adds public fire, smoke and air quality layers |
-| Traces a fiber lot back to the goat | Through the fleece and shearing records |
-| Checks for a new live file every 2 minutes | Live data only. The pull script runs only when you start it |
+| Low battery (below 20%) | Trackers on outside power are skipped |
+| Missed check-in (after 2 hours) | No check-in for over 2 hours |
+| Animal not moving (after 2 hours) | Still checking in for over 2 hours with little movement |
+| Animal outside the paddock | Active paddock bounds are 0-100 on the grid |
+| Tracker SOS | The alert names the animal |
+| Predator Watch reports | The sample day has one simulated report |
+| Wildfire Watch reports | The rancher map adds public fire, smoke and air quality layers |
+| Fleece trace, lot back to the goat | Through the fleece and shearing records |
+| Refresh live data (every 2 minutes) | Live data only. The pull script runs only when you start it |
 
 Every job is on until you turn it off, on How it works or in the herd view's Alert settings. The setting is saved in the browser. Each automated alert says which rule and reading raised it and when the rules ran, for example "Battery 14%, below the 20% limit, not on outside power." With every job off, a rancher can still answer and add alerts, save notes, mark animals checked and change the battery, quiet, and not-moving limits.
 
@@ -57,7 +57,7 @@ The default thresholds and the rules live in `crates/core`. The pages and the se
 
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
 
-The planned work covers fuller grazing records for each paddock, learning each tracker's normal check-in pattern, tuning the alert rules from rancher answers, and sharing a confirmed predator report with nearby ranchers. [ROADMAP.md](ROADMAP.md) has the detail.
+Planned: paddock grazing records. Planned: a usual check-in pattern for each tracker, so unusual quiet stands out. Planned: tighter alert rules from the answers ranchers already give. Planned: share a confirmed Predator Watch report with nearby ranchers. [ROADMAP.md](ROADMAP.md) has the detail.
 
 ## Hardware
 
@@ -80,16 +80,14 @@ Planned:
 | Hosted by BitPrairie | BitPrairie runs the server and can supply the trackers. |
 | A mix | Your gateway and server on the ranch, with hosted alerts from BitPrairie. |
 
-The community network is the main part of the project. Ranchers share through a self-hosted or co-op server. The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. BitPrairie's hosted service and hardware kits are priced to cover hardware and hosting. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's realtime intelligence systems.
+The community network is the main part of the project. Ranchers can share a server they host themselves, or a co-op server. The code is MIT licensed, so anyone may use it. The hosted alerts come from Predator Watch and Wildfire Watch, which run on BitPrairie's realtime intelligence systems.
 
-| Open source (free) | BitPrairie (commercial) |
+| Open source | BitPrairie |
 | --- | --- |
 | This demo | The hosted FiberShare app |
-| Record schemas (draft) | BitPrairie's trained models and datasets |
+| Record schemas (draft) | Predator Watch and Wildfire Watch |
 | Self-hosting docs | Hosted alerts and relay |
 | | Hardware kits and support |
-
-Open models that BitPrairie builds on keep their own licenses.
 
 ## Your data
 
@@ -122,7 +120,16 @@ Then open http://127.0.0.1:4174.
 | `fibershare pull` | Reads your trackers from your network server into `.local/live.json`. See [docs/chirpstack.md](docs/chirpstack.md) |
 | `fibershare passphrase` | Sets the rancher passphrase for local sign-in. See [docs/rancher-access.md](docs/rancher-access.md) |
 
-The previous Vite site and Pages Functions are retired. Pages are rendered in Rust. A small WebAssembly island runs Play, the phone sheet, the theme, and the tour. Without it, the pages still show the end of the sample day.
+The previous Vite site and Pages Functions are retired. Pages are rendered in Rust. A small WebAssembly island runs the sample day and the phone sheet. The theme and the tour live in `chrome.js`. Without the island, the pages still show the end of the sample day.
+
+## Parts
+
+The pages are ordinary HTML. You can run them on your own machine, or publish a copy.
+
+- The goats, the sample day, and the fiber lots are in `public/data`.
+- `/api/live` sends tracker data. `/api/session` handles sign-in. `/api/alerts` and `/api/log` keep a signed-in rancher's answers and notes.
+- `fibershare pull` reads trackers from your LoRaWAN network server into `.local/live.json`. Git ignores that file.
+- Sign-in is a passphrase on your own hardware, or Cloudflare Access on a published copy. The server checks it on every request.
 
 The sample goats, events and fiber lots are in `public/data/herd.json`, `public/data/events.json` and `public/data/shop.json`.
 

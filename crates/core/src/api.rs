@@ -180,10 +180,7 @@ where
     Fut: std::future::Future<Output = Result<String, ()>>,
 {
     let Some(author_gate) = log_gate(headers, env, now_ms, fetch).await else {
-        return json_reply(
-            401,
-            json!({"error": "Sign in as the rancher to see and save notes."}),
-        );
+        return json_reply(401, json!({"error": "Sign in to see and save notes."}));
     };
     if author_gate == "no-store" {
         return json_reply(503, json!({"error": "No store is set up on this copy."}));
@@ -211,10 +208,7 @@ where
         return json_reply(403, json!({"error": "Save notes from this site."}));
     }
     let Some(author) = log_gate(headers, env, now_ms, fetch).await else {
-        return json_reply(
-            401,
-            json!({"error": "Sign in as the rancher to see and save notes."}),
-        );
+        return json_reply(401, json!({"error": "Sign in to see and save notes."}));
     };
     if author == "no-store" {
         return json_reply(503, json!({"error": "No store is set up on this copy."}));
@@ -339,7 +333,7 @@ where
     if !access_configured(env) {
         return Some(json_reply(
             401,
-            json!({"error": format!("Sign in as the rancher to {what}.")}),
+            json!({"error": format!("Sign in to {what}.")}),
         ));
     }
     let ok = verify_access_jwt(
@@ -354,7 +348,7 @@ where
     if !ok {
         return Some(json_reply(
             401,
-            json!({"error": format!("Sign in as the rancher to {what}.")}),
+            json!({"error": format!("Sign in to {what}.")}),
         ));
     }
     if env.store.is_none() {
@@ -802,9 +796,9 @@ fn list_route(
     }
     if !signed_in(headers, &paths.rancher, now_ms) {
         let error = if alerts {
-            "Sign in as the rancher to see and answer alerts."
+            "Sign in to see and answer alerts."
         } else {
-            "Sign in as the rancher to see and save notes."
+            "Sign in to see and save notes."
         };
         return json_reply(401, json!({"error": error}));
     }

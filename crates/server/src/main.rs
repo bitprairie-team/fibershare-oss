@@ -136,6 +136,56 @@ async fn api(State(app): State<Arc<App>>, request: Request) -> Response {
         .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
 }
 
+fn content_type(path: &Path) -> &'static str {
+    match path.extension().and_then(|ext| ext.to_str()) {
+        Some("css") => "text/css; charset=utf-8",
+        Some("js") => "text/javascript; charset=utf-8",
+        Some("svg") => "image/svg+xml",
+        Some("json") => "application/json",
+        Some("woff2") => "font/woff2",
+        Some("txt") => "text/plain; charset=utf-8",
+        Some("xml") => "application/xml",
+        Some("wasm") => "application/wasm",
+        Some("png") => "image/png",
+        Some("ico") => "image/x-icon",
+        _ => "application/octet-stream",
+    }
+}
+
+fn public_file(root: &Path, url_path: &str) -> Option<PathBuf> {
+    let mut file = root.to_path_buf();
+    let rel = url_path.trim_start_matches('/');
+    if rel.is_empty() {
+        return None;
+    }
+    for part in Path::new(rel).components() {
+        match part {
+            std::path::Component::Normal(name) => file.push(name),
+            _ => return None,
+        }
+    }
+    file.is_file().then_some(file)
+}
+
+async fn fallback(State(app): State<Arc<App>>, request: Request) -> Response {
+    let path = request.uri().path().to_string();
+    let query = request.uri().query().unwrap_or("").to_string();
+    let looks_like_file = path.rsplit('/').next().unwrap_or("").contains('.');
+    if let Some(file) = public_file(&app.root.join("public"), &path) {
+        let bytes = std::fs::read(&file).unwrap_or_default();
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, content_type(&file))
+            .body(Body::from(bytes))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response());
+    }
+    if looks_like_file {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    let html = render(&path, &query);
+    (StatusCode::NOT_FOUND, Html(html)).into_response()
+}
+
 fn iso_now() -> String {
     chrono::Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string()
 }
@@ -174,7 +224,7 @@ fn build_site(root: &Path) -> std::io::Result<()> {
         std::fs::write(file, render(path, ""))?;
     }
     std::fs::write(dist.join("sitemap.xml"), fibershare_html::sitemap())?;
-    std::fs::write(dist.join("robots.txt"), "User-agent: *\nAllow: /\nSitemap: https://github.com/bitprairie-team/fibershare-oss/sitemap.xml\n")?;
+    std::fs::write(dist.join("robots.txt"), "User-agent: *\nAllow: /\n")?;
     copy_dir(&root.join("public"), &dist)?;
     if root.join("dist/style.css").exists() {
         // Tailwind output is already in dist when the CLI ran first.
@@ -283,7 +333,7 @@ async fn serve(root: PathBuf) {
         .nest_service("/fonts", ServeDir::new(public.join("fonts")))
         .nest_service("/data", ServeDir::new(public.join("data")))
         .nest_service("/licenses", ServeDir::new(public.join("licenses")))
-        .fallback_service(ServeDir::new(public))
+        .fallback(fallback)
         .with_state(app);
     let addr: SocketAddr = format!("{host}:{port}")
         .parse()

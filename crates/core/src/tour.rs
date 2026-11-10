@@ -17,7 +17,7 @@ pub const TOUR_STEPS: &[TourStep] = &[
         route: "/map?animal=bramble&moment=end",
         target: "grid",
         title: "The herd",
-        body: "8 sample goats, each with a collar tracker. Select a pin to see that goat's battery and last check-in. Play steps through the sample day.",
+        body: "Eight sample goats, each with a collar tracker. Select a pin to see that goat's battery and last check-in. Run the sample day to move through the hours.",
         simulated: false,
     },
     TourStep {
@@ -41,7 +41,7 @@ pub const TOUR_STEPS: &[TourStep] = &[
         route: "/trace",
         target: "chain",
         title: "Fleece trace",
-        body: "The mohair-bramble lot links back to its fleece, the shearing and Bramble. Switch the viewer to see what a buyer or the public can see.",
+        body: "The mohair lot links back to its fleece, the shearing, and Bramble. Who can see this changes what a buyer or the public can see.",
         simulated: false,
     },
     TourStep {
@@ -49,7 +49,7 @@ pub const TOUR_STEPS: &[TourStep] = &[
         route: "/rancher",
         target: "rancher-map",
         title: "Rancher map",
-        body: "A signed-in rancher sees real tracker positions with public map layers. The public sees only the grid. This drawing keeps the tour offline.",
+        body: "A signed-in rancher sees real tracker positions with public map layers. The public sees only the paddock drawing. This drawing keeps the tour offline.",
         simulated: false,
     },
 ];

@@ -235,13 +235,14 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         };
         return reply_of(reply).await;
     }
+    let site = page_site(team.as_deref(), aud.as_deref());
     if matches!(method, Method::Get | Method::Head)
         && matches!(
             path.as_str(),
             "/" | "/map" | "/trace" | "/shop" | "/setups" | "/architecture" | "/rancher"
         )
     {
-        let html = fibershare_html::render(&path, &query);
+        let html = fibershare_html::render_for(&path, &query, site);
         return Response::from_html(html);
     }
     if path == "/sitemap.xml" && matches!(method, Method::Get | Method::Head) {
@@ -251,8 +252,37 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             .set("content-type", "application/xml")?;
         return Ok(response);
     }
-    if let Ok(assets) = env.assets("ASSETS") {
-        return assets.fetch_request(req).await;
+    if matches!(method, Method::Get | Method::Head) && !looks_like_file(&path) {
+        return html_not_found(&path, &query, site).await;
     }
-    Response::error("Not found.", 404)
+    if let Ok(assets) = env.assets("ASSETS") {
+        let response = assets.fetch_request(req).await?;
+        if response.status_code() == 404 && !looks_like_file(&path) {
+            return html_not_found(&path, &query, site).await;
+        }
+        return Ok(response);
+    }
+    html_not_found(&path, &query, site).await
+}
+
+fn page_site(team: Option<&str>, aud: Option<&str>) -> fibershare_html::Site {
+    let configured =
+        team.is_some_and(|value| !value.is_empty()) && aud.is_some_and(|value| !value.is_empty());
+    fibershare_html::Site {
+        sign_in: if configured {
+            fibershare_html::SignIn::Access
+        } else {
+            fibershare_html::SignIn::None
+        },
+    }
+}
+
+fn looks_like_file(path: &str) -> bool {
+    path.rsplit('/').next().unwrap_or("").contains('.')
+}
+
+async fn html_not_found(path: &str, query: &str, site: fibershare_html::Site) -> Result<Response> {
+    let html = fibershare_html::render_for(path, query, site);
+    let response = Response::from_html(html)?;
+    Ok(response.with_status(404))
 }

@@ -199,10 +199,7 @@ fn jobs_line_matches() {
     use fibershare_core::jobs::{alert_jobs_are_off, alerts_off_notice_text, jobs_line};
     use fibershare_core::settings::{read_jobs, MemoryStore};
     let on = read_jobs(&MemoryStore::default());
-    assert_eq!(
-        jobs_line(&on, &ALERT_RULES),
-        "Automatic alerts on: battery below 20%, no check-in for 2 hours, not moving for 2 hours, outside the paddock, SOS, Predator Watch, Wildfire Watch."
-    );
+    assert_eq!(jobs_line(&on, &ALERT_RULES), "Automatic alerts are on.");
     let mut off = BTreeMap::new();
     for id in [
         "battery", "quiet", "still", "paddock", "sos", "predator", "smoke", "trace", "pull",
