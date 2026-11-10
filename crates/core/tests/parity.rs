@@ -1193,14 +1193,42 @@ fn strip_tags(text: &str) -> String {
     text.to_string()
 }
 
+fn strip_urls(text: &str) -> String {
+    let mut out = String::new();
+    let mut rest = text;
+    loop {
+        let http = rest.find("http://");
+        let https = rest.find("https://");
+        let start = match (http, https) {
+            (Some(a), Some(b)) => Some(a.min(b)),
+            (Some(a), None) => Some(a),
+            (None, Some(b)) => Some(b),
+            (None, None) => None,
+        };
+        let Some(start) = start else {
+            out.push_str(rest);
+            break;
+        };
+        out.push_str(&rest[..start]);
+        let after = &rest[start..];
+        let end = after
+            .find(|c: char| c.is_whitespace())
+            .unwrap_or(after.len());
+        rest = &after[end..];
+    }
+    out
+}
+
 fn regex_ai(text: &str) -> bool {
     // URLs may contain the letters. Screen sentences may not say AI, A.I., or SI.
-    let without_urls = text.split("http").next().unwrap_or(text);
-    without_urls.contains(" artificial intelligence")
-        || without_urls.contains(" A.I.")
-        || without_urls
-            .split_whitespace()
-            .any(|w| w == "AI" || w == "SI")
+    let without_urls = strip_urls(text);
+    let lower = without_urls.to_lowercase();
+    lower.contains("artificial intelligence")
+        || lower.contains("a.i.")
+        || without_urls.split_whitespace().any(|word| {
+            let word = word.trim_matches(|c: char| !c.is_ascii_alphanumeric() && c != '.');
+            word == "AI" || word == "A.I." || word == "SI"
+        })
 }
 
 fn readme_has_phrase() -> bool {

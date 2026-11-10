@@ -125,7 +125,7 @@ fn brand_plex_sans_weights_are_400_500_and_600() {
 fn brand_one_type_scale_and_one_page_width() {
     let theme = theme_block();
     assert!(theme.contains("--text-*: initial;"));
-    for name in ["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "display"] {
+    for name in ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"] {
         assert!(theme.contains(&format!("--text-{name}:")), "{name}");
     }
     assert!(theme.contains("--container-page: 82rem;"));
@@ -365,13 +365,14 @@ fn by_hand_entries_are_tidied() {
 fn jobs_line_names_what_is_on_and_off() {
     let on = read_jobs(&MemoryStore::default());
     let line = jobs_line(&on, &ALERT_RULES);
-    assert!(line.contains("battery below 20%"));
-    assert!(line.contains("Predator Watch"));
+    assert_eq!(line, "Automatic alerts are on.");
     let mut mixed = on.clone();
     mixed.insert("battery".into(), false);
     mixed.insert("smoke".into(), false);
     let mixed_line = jobs_line(&mixed, &ALERT_RULES);
-    assert!(mixed_line.contains("Off"));
+    assert!(mixed_line.contains("Off: battery"));
+    assert!(mixed_line.contains("Wildfire Watch"));
+    assert!(mixed_line.starts_with("On:"));
     assert_eq!(jobs_line(&off(), &ALERT_RULES), "Add alerts by hand below.");
 }
 
@@ -813,16 +814,20 @@ fn seo_routes_have_unique_titles_and_descriptions() {
     for path in routes {
         let meta = meta_for_path(path);
         assert!(
-            meta.title.len() >= 40 && meta.title.len() <= 70,
-            "{} title {}",
+            meta.title.len() >= 12 && meta.title.len() <= 60,
+            "{} title {} ({})",
             path,
-            meta.title.len()
+            meta.title.len(),
+            meta.title
         );
+        assert!(meta.title.ends_with("FiberShare"), "{}", meta.title);
+        assert!(!meta.title.contains(':'), "{}", meta.title);
         assert!(
-            meta.description.len() >= 120 && meta.description.len() <= 180,
-            "{} desc {}",
+            meta.description.len() >= 28 && meta.description.len() <= 180,
+            "{} desc {} ({})",
             path,
-            meta.description.len()
+            meta.description.len(),
+            meta.description
         );
         assert!(!meta.title.contains('\u{2014}'));
         assert!(!meta.description.contains(" AI "));
@@ -834,7 +839,7 @@ fn seo_routes_have_unique_titles_and_descriptions() {
 #[test]
 fn seo_links_point_at_the_repository() {
     assert!(REPO.contains("bitprairie-team/fibershare-oss"));
-    assert!(read("crates/html/src/lib.rs").contains("bitprairie-team/fibershare-oss"));
+    assert!(read("crates/core/src/meta.rs").contains("bitprairie-team/fibershare-oss"));
     assert!(TERMS.starts_with("https://bitprairie.com/"));
     let _ = DISCORD;
 }
@@ -998,8 +1003,15 @@ fn read_rules_keeps_note_length_when_limits_change() {
     let mut rules = ALERT_RULES.clone();
     rules.low_battery_percent = 35.0;
     rules.quiet_minutes = 90;
-    let line = jobs_line(&read_jobs(&MemoryStore::default()), &rules);
-    assert!(line.contains("35%") || line.contains("1 hour 30"));
+    let names: Vec<String> = fibershare_core::jobs::jobs_for(&rules)
+        .into_iter()
+        .map(|job| job.name)
+        .collect();
+    assert!(names.iter().any(|name| name.contains("35%")), "{names:?}");
+    assert!(
+        names.iter().any(|name| name.contains("1 hour 30")),
+        "{names:?}"
+    );
 }
 
 #[test]

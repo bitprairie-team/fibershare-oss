@@ -8,32 +8,32 @@ pub struct PageMeta {
 pub fn meta_for_path(path: &str) -> PageMeta {
     match path {
         "/" => PageMeta {
-            title: "FiberShare open-source demo: sample herd and fleece",
-            description: "Open-source FiberShare demo by BitPrairie LLC: sample goat herd, day Play alerts, paddock moves, and fleece trace. Sample data only; not the FiberShare app.",
+            title: "Sample herd and fleece, FiberShare",
+            description: "Eight sample goats through one made-up day, with alerts you can turn off and a fleece lot traced back to the goat.",
         },
         "/map" => PageMeta {
-            title: "Herd view: sample goats, alerts, and day Play demo",
-            description: "Sample goat herd on the map with battery and still alerts, paddock moves, grazing notes, and a short tracker trail on day Play. Demo data only.",
+            title: "Herd view, FiberShare",
+            description: "Eight sample goats on a paddock drawing, with batteries, last check-ins, and open alerts.",
         },
         "/trace" | "/shop" => PageMeta {
-            title: "Fleece trace demo: follow one sample lot end to end",
-            description: "Follow one sample fleece lot from the goat through mill steps to a buyer-facing page. Link by hand or with the trace job. Demo records only.",
+            title: "Fleece trace, FiberShare",
+            description: "The mohair-bramble lot traced back to Bramble, the goat it came from.",
         },
         "/setups" => PageMeta {
-            title: "Setups: device uplinks and rancher access for the demo",
-            description: "How this FiberShare open-source demo wires device uplinks, sample herd data, and optional rancher sign-in. For developers trying the demo locally.",
+            title: "Setups, FiberShare",
+            description: "Choose where the trackers, the server, and the records run.",
         },
         "/architecture" => PageMeta {
-            title: "How this FiberShare OSS demo works: pages and jobs",
-            description: "Map of the FiberShare open-source demo: Rust pages, optional alert and trace jobs, sample herd events, and draft fiber schemas. Not a product tour.",
+            title: "How it works, FiberShare",
+            description: "Each automated job is optional. Turn one off and its alerts stop.",
         },
         "/rancher" => PageMeta {
-            title: "Rancher sign-in demo: a passphrase gate for the map",
-            description: "Optional passphrase gate that opens rancher tools on the sample herd map. Local demo only; it does not connect to a live ranch or real animals.",
+            title: "Rancher sign-in, FiberShare",
+            description: "Sign in to see real tracker positions. The public herd view stays open.",
         },
         _ => PageMeta {
-            title: "Page not found in this FiberShare open-source demo",
-            description: "That address is not a page in the FiberShare open-source demo. Open Home for the sample herd overview, or Herd view for the map and day Play.",
+            title: "Page not found, FiberShare",
+            description: "That address is not in this demo.",
         },
     }
 }

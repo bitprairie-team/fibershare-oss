@@ -99,52 +99,84 @@
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
+  function overlaps(a, b) {
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
   function place() {
     if (!els || index < 0) return;
     var step = steps[index];
     var el = step ? qs('[data-tour="' + step.target + '"]') : null;
     var card = els.card;
-    if (!el) {
-      els.spot.style.cssText = "top:50%;left:50%;width:0;height:0";
-      card.style.top = Math.max(16, (innerHeight - card.offsetHeight) / 2) + "px";
-      card.style.left = Math.max(16, (innerWidth - card.offsetWidth) / 2) + "px";
-      return;
-    }
-    var r = el.getBoundingClientRect();
-    var pad = 8;
-    var top = Math.max(4, r.top - pad);
-    var left = Math.max(4, r.left - pad);
-    var bottom = Math.min(innerHeight - 4, r.bottom + pad);
-    var right = Math.min(innerWidth - 4, r.right + pad);
-    els.spot.style.top = top + "px";
-    els.spot.style.left = left + "px";
-    els.spot.style.width = Math.max(0, right - left) + "px";
-    els.spot.style.height = Math.max(0, bottom - top) + "px";
-    card.classList.toggle("at-top", (r.top + r.bottom) / 2 > innerHeight / 2);
+    var margin = 16;
+    var gap = 16;
     var cw = card.offsetWidth;
     var ch = card.offsetHeight;
-    var gap = 16;
-    var ct;
-    var cl;
-    if (innerWidth - right >= cw + gap * 2) { cl = right + gap; ct = Math.min(Math.max(16, top), innerHeight - ch - 16); }
-    else if (left >= cw + gap * 2) { cl = left - cw - gap; ct = Math.min(Math.max(16, top), innerHeight - ch - 16); }
-    else if (innerHeight - bottom >= ch + gap) { ct = bottom + gap; cl = Math.min(Math.max(16, left), innerWidth - cw - 16); }
-    else if (top >= ch + gap) { ct = top - ch - gap; cl = Math.min(Math.max(16, left), innerWidth - cw - 16); }
-    else { ct = innerHeight - ch - 16; cl = Math.min(Math.max(16, left), innerWidth - cw - 16); }
-    card.style.top = Math.max(16, ct) + "px";
-    card.style.left = Math.max(16, cl) + "px";
+    var spot = null;
+    if (!el) {
+      els.spot.style.cssText = "top:50%;left:50%;width:0;height:0";
+    } else {
+      var r = el.getBoundingClientRect();
+      var pad = 8;
+      var top = Math.max(4, r.top - pad);
+      var left = Math.max(4, r.left - pad);
+      var bottom = Math.min(innerHeight - 4, r.bottom + pad);
+      var right = Math.min(innerWidth - 4, r.right + pad);
+      els.spot.style.top = top + "px";
+      els.spot.style.left = left + "px";
+      els.spot.style.width = Math.max(0, right - left) + "px";
+      els.spot.style.height = Math.max(0, bottom - top) + "px";
+      spot = { top: top, left: left, right: right, bottom: bottom };
+    }
+    var sheet = qs("[data-detail].is-open");
+    var sheetBox = null;
+    if (sheet) {
+      var sr = sheet.getBoundingClientRect();
+      if (sr.height > 48 && sr.bottom > 0 && sr.top < innerHeight) sheetBox = sr;
+    }
+    var candidates = [];
+    if (spot) {
+      candidates.push({ top: spot.bottom + gap, left: Math.min(Math.max(margin, spot.left), innerWidth - cw - margin) });
+      candidates.push({ top: spot.top - ch - gap, left: Math.min(Math.max(margin, spot.left), innerWidth - cw - margin) });
+      candidates.push({ top: Math.min(Math.max(margin, spot.top), innerHeight - ch - margin), left: spot.right + gap });
+      candidates.push({ top: Math.min(Math.max(margin, spot.top), innerHeight - ch - margin), left: spot.left - cw - gap });
+    }
+    candidates.push({ top: margin, left: margin });
+    candidates.push({ top: innerHeight - ch - margin, left: margin });
+    var chosen = null;
+    for (var i = 0; i < candidates.length; i++) {
+      var c = candidates[i];
+      if (c.top < margin || c.left < margin || c.top + ch > innerHeight - margin || c.left + cw > innerWidth - margin) continue;
+      var box = { top: c.top, left: c.left, right: c.left + cw, bottom: c.top + ch };
+      if (spot && overlaps(box, spot)) continue;
+      if (sheetBox && overlaps(box, sheetBox)) continue;
+      chosen = c;
+      break;
+    }
+    if (!chosen && el && spot) {
+      var dockTop = Math.max(margin, innerHeight - ch - margin);
+      var overlap = spot.bottom - (dockTop - gap);
+      if (overlap > 0) window.scrollBy(0, overlap + margin);
+      chosen = { top: dockTop, left: margin };
+    }
+    if (!chosen) chosen = { top: margin, left: margin };
+    card.style.top = chosen.top + "px";
+    card.style.left = chosen.left + "px";
+    card.style.bottom = "auto";
+    card.style.right = "auto";
+    document.documentElement.style.setProperty("--tour-reserve", (ch + margin) + "px");
   }
   function draw() {
     var step = steps[index];
     if (!step || !els) return;
     var last = index === steps.length - 1;
-    var note = step.simulated ? "<p>Simulated report.</p>" : "";
     els.card.innerHTML =
       '<h2 id="tour-title">' + esc(step.title) + "</h2>" +
-      '<p id="tour-body">' + esc(step.body) + "</p>" + note +
-      '<p><button type="button" data-tour-back>Back</button> <button type="button" data-tour-next>' +
-      (last ? "Finish" : "Next") + '</button> <button type="button" data-tour-close>Close</button></p>' +
-      '<p class="tour-hint">Arrow keys change steps. Esc closes the tour.</p>';
+      '<p id="tour-body">' + esc(step.body) + "</p>" +
+      '<div class="tour-actions">' +
+      '<button type="button" class="btn btn-ghost btn-small" data-tour-back>Back</button>' +
+      '<button type="button" class="btn btn-primary btn-small" data-tour-next>' + (last ? "Finish" : "Next") + "</button>" +
+      '<button type="button" class="btn btn-ghost btn-small" data-tour-close title="Esc closes">Close</button>' +
+      "</div>";
     qs("[data-tour-close]", els.card).addEventListener("click", endTour);
     qs("[data-tour-back]", els.card).addEventListener("click", back);
     qs("[data-tour-next]", els.card).addEventListener("click", next);
@@ -162,7 +194,7 @@
     if (!els) build();
     draw();
     var el = qs('[data-tour="' + step.target + '"]');
-    if (el) el.scrollIntoView({ block: "center" });
+    if (el) el.scrollIntoView({ block: "nearest" });
     place();
   }
   function go(i) {

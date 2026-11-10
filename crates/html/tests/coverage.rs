@@ -38,8 +38,10 @@ fn each_route_has_a_title_and_description() {
 }
 
 #[test]
-fn canonical_points_at_the_repository() {
-    assert!(page("/").contains("https://github.com/bitprairie-team/fibershare-oss"));
+fn pages_omit_a_github_canonical() {
+    let html = page("/");
+    assert!(!html.contains("rel=\"canonical\""));
+    assert!(!html.contains("og:url"));
 }
 
 #[test]
@@ -66,10 +68,11 @@ fn herd_page_names_open_alerts() {
 }
 
 #[test]
-fn trace_page_has_the_chain_and_a_print_control() {
+fn trace_page_has_the_chain_and_a_viewer_control() {
     let html = page("/trace");
     assert!(html.contains("data-tour=\"chain\""));
-    assert!(html.contains("data-print") || html.contains("print"));
+    assert!(html.contains("Who can see this"));
+    assert!(html.contains("view=public"));
 }
 
 #[test]
@@ -182,8 +185,14 @@ fn phone_sheet_has_a_close_control_in_the_markup() {
 }
 
 #[test]
-fn nav_has_a_tour_button() {
-    assert!(page("/").contains("data-tour-start"));
+fn tour_starts_on_the_herd_view_only() {
+    assert!(page("/map").contains("data-tour-start"));
+    assert!(!page("/").contains("data-tour-start"));
+    assert!(page("/").contains(">Herd<"));
+    assert!(page("/").contains(">Trace<"));
+    assert!(page("/").contains(">Sign in<"));
+    assert!(page("/").contains("href=\"/setups\""));
+    assert!(page("/").contains("href=\"/architecture\""));
 }
 
 #[test]
@@ -224,8 +233,12 @@ fn herd_view_fragment_opens_the_sheet() {
 
 #[test]
 fn trace_viewer_query_changes_the_page() {
-    let public = render("/trace", "viewer=public");
-    assert!(public.contains("trace") || public.contains("Trace") || public.contains("lot"));
+    let public = render("/trace", "view=public");
+    assert!(public.contains("Not shared"));
+    assert!(public.contains("Bramble mohair"));
+    let rancher = render("/trace", "view=rancher");
+    assert!(rancher.contains("mohair-bramble"));
+    assert!(!rancher.contains(">Not shared<"));
 }
 
 #[test]
