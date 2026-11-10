@@ -27,7 +27,7 @@ rand = "0.8"
 regex = "1"
 async-trait = "0.1"
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "sync", "time", "fs", "net", "io-util"] }
-jsonwebtoken = "9"
+jsonwebtoken = "10"
 rsa = { version = "0.9", features = ["sha2", "pem"] }
 axum = { version = "0.7", features = ["json"] }
 tower-http = { version = "0.6", features = ["fs", "set-header"] }
