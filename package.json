@@ -1,62 +1,13 @@
 {
-  "name": "fibershare-oss",
+  "name": "fibershare-e2e",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
-  "description": "FiberShare open-source demo: a sample goat herd, fleece-to-fiber-lot records, and a rancher map from your own ChirpStack LoRaWAN trackers. Not the FiberShare app.",
-  "homepage": "https://github.com/bitprairie-team/fibershare-oss",
-  "bugs": {
-    "url": "https://github.com/bitprairie-team/fibershare-oss/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bitprairie-team/fibershare-oss.git"
-  },
-  "license": "MIT",
-  "author": "BitPrairie LLC <legal@bitprairie.com>",
-  "keywords": [
-    "fibershare",
-    "open-source",
-    "fiber",
-    "goats",
-    "cloudflare-pages",
-    "ranch",
-    "lorawan",
-    "chirpstack",
-    "livestock",
-    "mohair",
-    "traceability",
-    "self-hosted",
-    "leaflet"
-  ],
+  "description": "Playwright checks for the Rust demo. The site itself is not built with Node.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "pages:dev": "wrangler pages dev dist",
-    "lint": "node scripts/lint.js",
-    "test": "node --test test/*.test.js",
-    "chirpstack:pull": "node scripts/chirpstack/pull.js",
-    "serve:local": "node scripts/serve-local.js",
-    "rancher:passphrase": "node scripts/rancher-passphrase.js",
-    "layers:check": "node scripts/check-layers.js"
+    "e2e": "playwright test",
+    "worker:smoke": "node scripts/worker-smoke.mjs"
   },
   "devDependencies": {
-    "@fontsource/ibm-plex-sans": "^5.3.0",
-    "@tailwindcss/vite": "^4.3.3",
-    "tailwindcss": "^4.3.3",
-    "vite": "^6.4.5",
-    "wrangler": "^4.156.0"
-  },
-  "overrides": {
-    "sharp": "0.35.5",
-    "ws": "8.22.0"
-  },
-  "engines": {
-    "node": ">=20.9"
-  },
-  "dependencies": {
-    "esri-leaflet": "^3.0.19",
-    "leaflet": "^1.9.4"
+    "@playwright/test": "1.58.2"
   }
 }
