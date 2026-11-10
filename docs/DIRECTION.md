@@ -68,8 +68,11 @@ These are described here only so the pieces make sense together. Details live on
 - [Predator Watch](https://bitprairie.com/predator-watch/) gives earlier warning about predators near livestock, so the rancher hears sooner and decides what to do. Phase 3, training models on BitPrairie's own regional data, is in progress. The feed of livestock movement and distress events from LoRa collars to Predator Watch is built and tested. [Subscribe for updates](https://bitprairie.com/predator-watch/#subscribe).
 - [Wildfire Watch](https://bitprairie.com/wildfire-watch/) looks for early signs of wildfire. The feed of ranch sensor readings from FiberShare to Wildfire Watch is still being built. Planned: a relay to local and government alerting systems, with the rancher's consent.
 - moqFeeder is a related project for paddock video over Media over QUIC.
+- moqXAIO is BitPrairie's paddock camera project. A small camera board sends live pictures over Media over QUIC through a relay on the ranch. It is being tested, and its FiberShare uses are Planned. See [paddock-cameras.md](paddock-cameras.md).
 
 Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch. The detection side uses intelligence systems trained by BitPrairie.
+
+The devices behind all of this, and the ones worth testing next, are listed in [hardware.md](hardware.md).
 
 Planned: a photo upload page for people on the mailing list.
 
