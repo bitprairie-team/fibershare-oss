@@ -2116,9 +2116,15 @@ button.feed-row:focus-visible {
 .trail-dot {
   fill: var(--accent);
 }
+/* The pin layer covers the whole grid, so top and left percentages land in the right cell. */
 .paddock [data-pins] {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
+  pointer-events: none;
+}
+.paddock [data-pins] .goat {
+  pointer-events: auto;
 }
 
 .grazing-log {

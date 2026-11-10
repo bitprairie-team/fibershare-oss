@@ -385,3 +385,11 @@ test("herd view keyboard and screen reader flow", () => {
   assert.match(map, /aria-valuetext/, "the time slider reads as a time");
   assert.match(map, /data-answer="confirmed" aria-describedby=/, "Confirm names its alert");
 });
+
+test("map: the pin layer covers the paddock so pins sit in their grid cell", () => {
+  const block = css.match(/\.paddock \[data-pins\] \{([^}]*)\}/);
+  assert.ok(block, "a rule for the pin layer");
+  assert.match(block[1], /position: absolute;/);
+  assert.match(block[1], /inset: 0;/);
+  assert.match(css, /\.paddock \[data-pins\] \.goat \{[^}]*pointer-events: auto;/);
+});
