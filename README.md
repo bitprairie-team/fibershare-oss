@@ -91,7 +91,7 @@ This repository holds no secrets, API keys, mail settings or real collar data. A
 You need Node 20.9 or newer. `npm run pages:dev` needs Node 22 or newer.
 
 ```bash
-git clone https://github.com/steelhead99x/fibershare-oss.git
+git clone https://github.com/bitprairie-team/fibershare-oss.git
 cd fibershare-oss
 npm install
 npm run dev
