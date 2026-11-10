@@ -147,9 +147,9 @@ test("copy: one demo line site-wide, at most one Planned tag per page, and the s
     if (/ranch support|support pays/i.test(text)) assert.match(text, /Support is not ownership or an investment return/, file);
   }
   assert.match(read("README.md"), /Support is not ownership or an investment return/);
-  // "intelligence and realtime systems" at most once in the demo copy.
-  assert.ok(all.split(/intelligence and realtime systems/).length - 1 <= 1);
-  assert.ok(!/intelligence systems/.test(all.replace(/intelligence and realtime systems/g, "")));
+  // "realtime intelligence systems" at most once in the demo copy, and no other wording for it.
+  assert.ok(all.split(/realtime intelligence systems/).length - 1 <= 1);
+  assert.ok(!/intelligence systems/.test(all.replace(/realtime intelligence systems/g, "")));
 });
 
 test("copy: pages render plain headings, one primary button on home, and a BitPrairie LLC legal footer", async () => {
@@ -397,4 +397,30 @@ test("map: the pin layer covers the paddock so pins sit in their grid cell", () 
 test("a11y: the paddock moves log is an h2 under the page title and its scroll box takes focus", () => {
   assert.match(src["map.js"], /<h2 class="grazing-title" id="grazing-title">/);
   assert.match(src["map.js"], /<ol class="grazing-list" data-grazing-list tabindex="0" aria-labelledby="grazing-title">/);
+});
+
+// The only name for BitPrairie's systems is "realtime intelligence systems".
+// No AI, A.I., artificial intelligence or SI anywhere in the copy or the docs.
+const SYSTEM_WORDS = [/\bAI\b/, /\bA\.I\./i, /artificial intelligence/i, /\bSI\b/, /intelligence and realtime/i, /real[- ]time intelligence/i];
+
+function docFiles(dir) {
+  return readdirSync(new URL("../" + dir, import.meta.url), { withFileTypes: true }).flatMap((entry) => {
+    const path = dir + "/" + entry.name;
+    if (entry.isDirectory()) return docFiles(path);
+    return entry.name.endsWith(".md") ? [path] : [];
+  });
+}
+
+test("copy: BitPrairie's systems are called realtime intelligence systems, and nothing says AI or SI", () => {
+  // docs/hardware.md quotes maker product names and is checked in its own pull request.
+  const files = ["README.md", "ROADMAP.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "index.html", ...docFiles("docs").filter((path) => path !== "docs/hardware.md")];
+  const texts = { ...Object.fromEntries(Object.entries(src).map(([f, t]) => ["src/" + f, t])), ...Object.fromEntries(files.map((f) => [f, read(f)])) };
+  for (const [file, text] of Object.entries(texts)) {
+    for (const re of SYSTEM_WORDS) assert.ok(!re.test(text), file + " uses " + re);
+    const loose = text.replace(/realtime intelligence systems/gi, "");
+    assert.ok(!/intelligence systems/i.test(loose), file + ' says "intelligence systems" without "realtime"');
+  }
+  assert.match(read("README.md"), /realtime intelligence systems/);
+  assert.match(src["setups.js"], /realtime intelligence systems/);
+  assert.match(read("docs/DIRECTION.md"), /Realtime intelligence systems read tracker, sensor and camera data/);
 });
