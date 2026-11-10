@@ -95,29 +95,156 @@ fn bind_nav() {
 }
 
 fn bind_tour() {
+    let steps = tour_steps();
+    if let Some(index) = tour_index() {
+        show_tour(index, &steps);
+    }
     let Some(button) = doc().query_selector("[data-tour-start]").ok().flatten() else {
         return;
     };
     let button: HtmlElement = button.dyn_into().unwrap();
     let closure = Closure::<dyn FnMut()>::new(|| {
-        let card = doc().create_element("aside").unwrap();
-        card.set_class_name("tour-card");
-        card.set_attribute("role", "dialog").ok();
-        card.set_inner_html("<p><strong>The herd</strong></p><p>8 sample goats, each with a collar tracker. Select a pin to see that goat's battery and last check-in. Play steps through the sample day.</p><button type=\"button\" data-tour-close>Close</button>");
-        doc().body().unwrap().append_child(&card).ok();
-        if let Some(close) = doc().query_selector("[data-tour-close]").ok().flatten() {
-            let close: HtmlElement = close.dyn_into().unwrap();
-            let done = Closure::<dyn FnMut()>::new(|| {
-                if let Some(node) = doc().query_selector(".tour-card").ok().flatten() {
-                    node.remove();
-                }
-            });
-            close.set_onclick(Some(done.as_ref().unchecked_ref()));
-            done.forget();
+        let steps = tour_steps();
+        if steps.is_empty() {
+            return;
         }
+        if let Ok(Some(store)) = window().unwrap().session_storage() {
+            store.set_item("fs-tour-step", "0").ok();
+        }
+        let _ = window().unwrap().location().set_href(&steps[0].route);
     });
     button.set_onclick(Some(closure.as_ref().unchecked_ref()));
     closure.forget();
+}
+
+struct Step {
+    route: String,
+    target: String,
+    title: String,
+    body: String,
+    simulated: bool,
+}
+
+fn tour_steps() -> Vec<Step> {
+    let Some(node) = doc().get_element_by_id("tour-steps") else {
+        return Vec::new();
+    };
+    let Ok(value) =
+        serde_json::from_str::<Vec<serde_json::Value>>(&node.text_content().unwrap_or_default())
+    else {
+        return Vec::new();
+    };
+    value
+        .into_iter()
+        .map(|step| Step {
+            route: step
+                .get("route")
+                .and_then(|v| v.as_str())
+                .unwrap_or("/")
+                .into(),
+            target: step
+                .get("target")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .into(),
+            title: step
+                .get("title")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .into(),
+            body: step
+                .get("body")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .into(),
+            simulated: step
+                .get("simulated")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false),
+        })
+        .collect()
+}
+
+fn tour_index() -> Option<usize> {
+    let store = window().unwrap().session_storage().ok().flatten()?;
+    let text = store.get_item("fs-tour-step").ok().flatten()?;
+    text.parse().ok()
+}
+
+fn show_tour(index: usize, steps: &[Step]) {
+    let Some(step) = steps.get(index) else {
+        return;
+    };
+    let note = if step.simulated {
+        "<p>Simulated report.</p>"
+    } else {
+        ""
+    };
+    let card = doc().create_element("aside").unwrap();
+    card.set_class_name("tour-card");
+    card.set_attribute("role", "dialog").ok();
+    card.set_attribute("aria-modal", "true").ok();
+    card.set_attribute("aria-labelledby", "tour-title").ok();
+    card.set_inner_html(&format!(
+        "<h2 id=\"tour-title\">{}</h2><p id=\"tour-body\">{}</p>{note}<p><button type=\"button\" data-tour-back>Back</button> <button type=\"button\" data-tour-next>Next</button> <button type=\"button\" data-tour-close>Close</button></p>",
+        esc(&step.title),
+        esc(&step.body)
+    ));
+    doc().body().unwrap().append_child(&card).ok();
+    let total = steps.len();
+    wire("[data-tour-close]", || end_tour());
+    wire("[data-tour-back]", move || {
+        if index > 0 {
+            go_tour(index - 1);
+        }
+    });
+    wire("[data-tour-next]", move || {
+        if index + 1 < total {
+            go_tour(index + 1);
+        } else {
+            end_tour();
+        }
+    });
+    if let Some(next) = doc().query_selector("[data-tour-next]").ok().flatten() {
+        let next: HtmlElement = next.dyn_into().unwrap();
+        next.focus().ok();
+    }
+    let _ = step.target;
+}
+
+fn go_tour(index: usize) {
+    if let Ok(Some(store)) = window().unwrap().session_storage() {
+        store.set_item("fs-tour-step", &index.to_string()).ok();
+    }
+    if let Some(step) = tour_steps().get(index) {
+        let _ = window().unwrap().location().set_href(&step.route);
+    }
+}
+
+fn end_tour() {
+    if let Ok(Some(store)) = window().unwrap().session_storage() {
+        store.remove_item("fs-tour-step").ok();
+    }
+    if let Some(node) = doc().query_selector(".tour-card").ok().flatten() {
+        node.remove();
+    }
+}
+
+fn wire(selector: &str, action: impl Fn() + 'static) {
+    let Some(button) = doc().query_selector(selector).ok().flatten() else {
+        return;
+    };
+    let button: HtmlElement = button.dyn_into().unwrap();
+    let closure = Closure::<dyn FnMut()>::new(action);
+    button.set_onclick(Some(closure.as_ref().unchecked_ref()));
+    closure.forget();
+}
+
+fn esc(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
 }
 
 fn redraw(step: usize, selected: &str, sheet: bool) {

@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -24,6 +25,7 @@ jobs:
       - run: cargo test --workspace --exclude fibershare-client --exclude fibershare-worker
       - run: cargo build -p fibershare --release
       - run: cargo build -p fibershare-client --target wasm32-unknown-unknown --release
+      - run: cargo build -p fibershare-worker --target wasm32-unknown-unknown --release
       - name: Styles
         run: |
           curl -fsSL -o "$HOME/tailwindcss" https://github.com/tailwindlabs/tailwindcss/releases/download/v4.1.17/tailwindcss-linux-x64

@@ -82,7 +82,7 @@ pub struct ConfigRead {
 pub fn read_config(
     env: &BTreeMap<String, String>,
     read_file: &dyn Fn(&str) -> Result<String, ()>,
-    file_mode: Option<u32>,
+    file_mode: &dyn Fn(&str) -> Option<u32>,
 ) -> ConfigRead {
     let mut warnings = Vec::new();
     let mut errors = Vec::new();
@@ -128,7 +128,7 @@ pub fn read_config(
             Ok(text) => {
                 token = text.trim().to_string();
                 token_source = Some("file".into());
-                if let Some(mode) = file_mode {
+                if let Some(mode) = file_mode(&file) {
                     if mode & 0o077 != 0 {
                         warnings.push(
                             "The token file can be read by other users. Run: chmod 600 on it."
@@ -701,4 +701,160 @@ pub fn summarize(data: &Value) -> BTreeMap<String, i64> {
     );
     out.insert("events".into(), events.len() as i64);
     out
+}
+
+#[derive(Clone, Debug)]
+pub struct MqttSettings {
+    pub secure: bool,
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+}
+
+pub fn parse_mqtt_url(value: &str, env: &BTreeMap<String, String>) -> Result<MqttSettings, String> {
+    let url = url::Url::parse(value)
+        .map_err(|_| "CHIRPSTACK_MQTT_URL must start with mqtt:// or mqtts://".to_string())?;
+    if url.scheme() != "mqtt" && url.scheme() != "mqtts" {
+        return Err("CHIRPSTACK_MQTT_URL must start with mqtt:// or mqtts://".into());
+    }
+    let secure = url.scheme() == "mqtts";
+    let username = urlencoding_decode(url.username());
+    let password = url.password().map(urlencoding_decode).unwrap_or_default();
+    Ok(MqttSettings {
+        secure,
+        host: url.host_str().unwrap_or("").to_string(),
+        port: url.port().unwrap_or(if secure { 8883 } else { 1883 }),
+        username: if username.is_empty() {
+            env.get("CHIRPSTACK_MQTT_USERNAME")
+                .cloned()
+                .unwrap_or_default()
+        } else {
+            username
+        },
+        password: if password.is_empty() {
+            env.get("CHIRPSTACK_MQTT_PASSWORD")
+                .cloned()
+                .unwrap_or_default()
+        } else {
+            password
+        },
+    })
+}
+
+fn urlencoding_decode(value: &str) -> String {
+    let bytes = value.as_bytes();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' && i + 2 < bytes.len() {
+            if let Ok(n) = u8::from_str_radix(
+                std::str::from_utf8(&bytes[i + 1..i + 3]).unwrap_or("00"),
+                16,
+            ) {
+                out.push(n);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(if bytes[i] == b'+' { b' ' } else { bytes[i] });
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn collect_uplinks(
+    settings: &MqttSettings,
+    topics: &[String],
+    seconds: f64,
+) -> Result<Vec<Value>, String> {
+    use std::net::TcpStream;
+    use std::time::Duration;
+
+    let stream = TcpStream::connect((settings.host.as_str(), settings.port))
+        .map_err(|err| format!("MQTT connection failed: {err}"))?;
+    stream
+        .set_read_timeout(Some(Duration::from_millis(100)))
+        .ok();
+    if settings.secure {
+        collect_tls(stream, settings, topics, seconds)
+    } else {
+        collect_on(stream, settings, topics, seconds)
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn collect_on<S: std::io::Read + std::io::Write>(
+    mut socket: S,
+    settings: &MqttSettings,
+    topics: &[String],
+    seconds: f64,
+) -> Result<Vec<Value>, String> {
+    use std::time::Instant;
+    let client = format!("fibershare-pull-{:08x}", rand::random::<u32>());
+    socket
+        .write_all(&connect_packet(
+            &client,
+            &settings.username,
+            &settings.password,
+            30,
+        ))
+        .map_err(|err| err.to_string())?;
+    let deadline = Instant::now() + std::time::Duration::from_secs_f64(seconds.max(0.05));
+    let mut buffer = Vec::new();
+    let mut events = Vec::new();
+    let mut subscribed = false;
+    let mut chunk = [0u8; 4096];
+    while Instant::now() < deadline {
+        match socket.read(&mut chunk) {
+            Ok(0) => break,
+            Ok(n) => buffer.extend_from_slice(&chunk[..n]),
+            Err(err)
+                if err.kind() == std::io::ErrorKind::WouldBlock
+                    || err.kind() == std::io::ErrorKind::TimedOut =>
+            {
+                if !subscribed && !buffer.is_empty() {
+                    // keep waiting
+                }
+                continue;
+            }
+            Err(err) => return Err(err.to_string()),
+        }
+        let (packets, rest) = read_packets(&buffer);
+        buffer = rest;
+        for packet in packets {
+            if packet.kind == 2 {
+                if packet.body.get(1).copied().unwrap_or(1) != 0 {
+                    return Err("The broker refused the MQTT login.".into());
+                }
+                socket
+                    .write_all(&subscribe_packet(1, topics))
+                    .map_err(|err| err.to_string())?;
+                subscribed = true;
+            } else if packet.kind == 3 {
+                if let Some((topic, payload)) = parse_publish(packet.flags, &packet.body) {
+                    if let Some(event) = parse_uplink_event(&topic, &payload) {
+                        events.push(event);
+                    }
+                }
+            }
+        }
+    }
+    let _ = socket.write_all(&packet(14, 0, &[]));
+    Ok(events)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn collect_tls(
+    socket: std::net::TcpStream,
+    settings: &MqttSettings,
+    topics: &[String],
+    seconds: f64,
+) -> Result<Vec<Value>, String> {
+    let connector = native_tls::TlsConnector::new().map_err(|err| err.to_string())?;
+    let stream = connector
+        .connect(&settings.host, socket)
+        .map_err(|err| err.to_string())?;
+    collect_on(stream, settings, topics, seconds)
 }

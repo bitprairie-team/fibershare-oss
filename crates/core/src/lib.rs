@@ -14,9 +14,11 @@ pub mod live;
 pub mod log;
 pub mod meta;
 pub mod private_data;
+pub mod pull;
 pub mod records;
 pub mod settings;
 pub mod time;
+pub mod tour;
 
 pub use alerts::{compute_alerts, event_alerts, tracker_alerts, AlertRules, ALERT_RULES};
 pub use time::{ago, date_time, day_time, time_of};

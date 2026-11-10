@@ -1,6 +1,8 @@
 //! Local FiberShare server: pages, the rancher API, and `fibershare pull`.
 
 use std::collections::HashMap;
+mod pull_cmd;
+
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -217,27 +219,8 @@ async fn main() {
             }
         }
         "pull" => {
-            eprintln!("fibershare pull reads your network server into .local/live.json. Set CHIRPSTACK_URL and a token file. See docs/chirpstack.md.");
-            let mut env = std::collections::BTreeMap::new();
-            for (k, v) in std::env::vars() {
-                env.insert(k, v);
-            }
-            let read = fibershare_core::chirpstack::read_config(
-                &env,
-                &|path| std::fs::read_to_string(path).map_err(|_| ()),
-                None,
-            );
-            for warning in &read.warnings {
-                eprintln!("{warning}");
-            }
-            for error in &read.errors {
-                eprintln!("{error}");
-            }
-            if !read.errors.is_empty() {
-                std::process::exit(1);
-            }
-            eprintln!("The pull client is not finished in this build. The checks, packet format, and live-file rules are in fibershare-core.");
-            std::process::exit(1);
+            let code = pull_cmd::pull(&root, args.collect());
+            std::process::exit(code);
         }
         _ => serve(root).await,
     }

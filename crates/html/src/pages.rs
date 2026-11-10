@@ -366,8 +366,12 @@ pub fn rancher(query: &str) -> String {
 <p class="absolute top-2 left-2 m-0 rounded-sm border border-rule bg-surface px-3 py-2 text-xs"><strong>Layers</strong><span>Wildfire perimeters</span><span>Smoke from satellite</span><span>Federal land ownership</span></p>
 </div>
 <p>After sign-in, trackers appear at their real positions, with map layers from public agencies. Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set.</p>
-<p class="text-sm text-muted">Drawing only. The live map needs your own trackers. No live file yet. Run <code>fibershare pull</code> on your own hardware.</p>
-</div>"#;
+<p class="text-sm text-muted">Drawing only, until you are signed in. The live map needs your own trackers. Run <code>fibershare pull</code> on your own hardware.</p>
+<div id="live-map" class="live-map" data-live-map hidden></div>
+</div>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script src="/live-map.js"></script>"#;
     format!(
         r#"{nav}<main class="{main}" id="main">
 <section class="{head}"><h1>Rancher sign-in</h1>

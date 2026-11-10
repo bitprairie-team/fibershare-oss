@@ -1,16 +1,28 @@
-# Pages project name for a copy of this demo. This is not the FiberShare app.
-# Wrangler 4 is a dev dependency. It needs Node 22 or newer.
-# CLI: npx wrangler pages deploy dist --project-name=fibershare-dev
+# Cloudflare Worker for this demo copy. Not the FiberShare app.
+# Build: worker-build --release
+# Deploy: npx wrangler deploy
+# Set ACCESS_TEAM_DOMAIN, ACCESS_AUD, PUSH_TOKEN, and ARCGIS_API_KEY with
+# `npx wrangler secret put`. Do not put them in this file.
 name = "fibershare-dev"
+main = "build/worker/shim.mjs"
 compatibility_date = "2026-10-01"
-pages_build_output_dir = "dist"
+workers_dev = true
 
-# Rancher sign-in on Pages (optional, see docs/rancher-access.md).
-# Make a KV namespace, then uncomment and paste its id. The id is not a secret,
-# but each copy of the demo has its own.
-# [[kv_namespaces]]
-# binding = "FIBERSHARE_LIVE"
-# id = "<your KV namespace id>"
-#
-# Set these in the Pages dashboard or with `npx wrangler pages secret put`,
-# never in this file: ACCESS_TEAM_DOMAIN, ACCESS_AUD, PUSH_TOKEN, ARCGIS_API_KEY.
+[build]
+command = "worker-build --release"
+
+[assets]
+directory = "dist"
+binding = "ASSETS"
+run_worker_first = true
+
+# Make a KV namespace and paste its id. The id is not a secret.
+# npx wrangler kv namespace create FIBERSHARE_LIVE
+[[kv_namespaces]]
+binding = "FIBERSHARE_LIVE"
+id = "00000000000000000000000000000000"
+
+[vars]
+# Empty on purpose. A copy with no Access application refuses /api/alerts and
+# /api/log. Set the real team domain and audience tag as secrets or vars
+# for the copy you deploy. Never commit a real hostname.

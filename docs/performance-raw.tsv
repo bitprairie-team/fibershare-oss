@@ -1,0 +1,291 @@
+build	rust cargo build -p fibershare --release ms	39886
+build	node npm run build ms	1479
+weight	rust public/style.css bytes	82096
+weight	rust public/style.css gzip-9	12151
+weight	rust public/style.css brotli-11	10397
+weight	rust ibm-plex-sans-400.woff2 bytes	22588
+weight	rust ibm-plex-sans-400.woff2 gzip-9	22608
+weight	rust ibm-plex-sans-400.woff2 brotli-11	22561
+weight	rust ibm-plex-sans-500.woff2 bytes	24184
+weight	rust ibm-plex-sans-500.woff2 gzip-9	24187
+weight	rust ibm-plex-sans-500.woff2 brotli-11	24133
+weight	rust ibm-plex-sans-600.woff2 bytes	24252
+weight	rust ibm-plex-sans-600.woff2 gzip-9	24256
+weight	rust ibm-plex-sans-600.woff2 brotli-11	24203
+weight	rust public/wasm/client.js bytes	26179
+weight	rust public/wasm/client.js gzip-9	5545
+weight	rust public/wasm/client.js brotli-11	4748
+weight	rust public/wasm/client_bg.wasm bytes	663515
+weight	rust public/wasm/client_bg.wasm gzip-9	199718
+weight	rust public/wasm/client_bg.wasm brotli-11	154757
+weight	rust public/vendor/leaflet/leaflet.css bytes	14806
+weight	rust public/vendor/leaflet/leaflet.css gzip-9	3534
+weight	rust public/vendor/leaflet/leaflet.css brotli-11	2967
+weight	rust public/vendor/leaflet/leaflet.js bytes	147552
+weight	rust public/vendor/leaflet/leaflet.js gzip-9	42356
+weight	rust public/vendor/leaflet/leaflet.js brotli-11	36938
+weight	rust public/live-map.js bytes	1846
+weight	rust public/live-map.js gzip-9	806
+weight	rust public/live-map.js brotli-11	665
+weight	node dist/index.html bytes	4330
+weight	node dist/index.html gzip-9	1301
+weight	node dist/index.html brotli-11	978
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2 bytes	22588
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2 gzip-9	22630
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2 brotli-11	22561
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff bytes	22104
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff gzip-9	21957
+weight	node dist/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff brotli-11	21856
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2 bytes	24184
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2 gzip-9	24209
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2 brotli-11	24133
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff bytes	23916
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff gzip-9	23694
+weight	node dist/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff brotli-11	23601
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff bytes	23876
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff gzip-9	23687
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff brotli-11	23592
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2 bytes	24252
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2 gzip-9	24278
+weight	node dist/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2 brotli-11	24203
+weight	node dist/assets/index-110lzaWF.css bytes	67002
+weight	node dist/assets/index-110lzaWF.css gzip-9	11902
+weight	node dist/assets/index-110lzaWF.css brotli-11	10550
+weight	node dist/assets/index-smrv9TXG.js bytes	114176
+weight	node dist/assets/index-smrv9TXG.js gzip-9	38526
+weight	node dist/assets/index-smrv9TXG.js brotli-11	33411
+weight	node dist/assets/rancher-map-CIGW-MKW.css bytes	15607
+weight	node dist/assets/rancher-map-CIGW-MKW.css gzip-9	6478
+weight	node dist/assets/rancher-map-CIGW-MKW.css brotli-11	5723
+weight	node dist/assets/rancher-map-CKzLhw3K.js bytes	231099
+weight	node dist/assets/rancher-map-CKzLhw3K.js gzip-9	66318
+weight	node dist/assets/rancher-map-CKzLhw3K.js brotli-11	56858
+cold	node ms until /api/health	81
+rss	node idle VmRSS kB	58900
+html	node-shell.html bytes	4330
+html	node-shell.html gzip-9	1306
+html	node-shell.html brotli-11	978
+build	rust no-change rebuild ms	145
+html	rust-release-home.html bytes	9518
+html	rust-release-home.html gzip-9	3628
+html	rust-release-home.html brotli-11	2990
+html	rust-release-map.html bytes	43923
+html	rust-release-map.html gzip-9	8960
+html	rust-release-map.html brotli-11	7473
+html	rust-release-trace.html bytes	9823
+html	rust-release-trace.html gzip-9	3663
+html	rust-release-trace.html brotli-11	3040
+html	rust-release-architecture.html bytes	13681
+html	rust-release-architecture.html gzip-9	4779
+html	rust-release-architecture.html brotli-11	3973
+html	rust-release-rancher.html bytes	9708
+html	rust-release-rancher.html gzip-9	3791
+html	rust-release-rancher.html brotli-11	3104
+cold	rust release ms until /api/health	9
+rss	rust release idle VmRSS kB	7348
+oha	paired rust GET / p50-seconds	0.000277042
+oha	paired rust GET / p99-seconds	0.001239972
+oha	paired rust GET / rps	88075.87031620779
+oha	paired rust GET / status	{'200': 2000}
+oha	paired node GET / p50-seconds	0.002735859
+oha	paired node GET / p99-seconds	0.020753269
+oha	paired node GET / rps	9332.198992102913
+oha	paired node GET / status	{'200': 2000}
+oha	paired rust GET /api/log unsigned p50-seconds	0.000251532
+oha	paired rust GET /api/log unsigned p99-seconds	0.000945483
+oha	paired rust GET /api/log unsigned rps	107525.9625468793
+oha	paired rust GET /api/log unsigned status	{'401': 2000}
+oha	paired node GET /api/log unsigned p50-seconds	0.000864194
+oha	paired node GET /api/log unsigned p99-seconds	0.005392082
+oha	paired node GET /api/log unsigned rps	28341.777175389052
+oha	paired node GET /api/log unsigned status	{'401': 2000}
+oha	paired rust GET /api/log signed p50-seconds	0.00028573
+oha	paired rust GET /api/log signed p99-seconds	0.001013318
+oha	paired rust GET /api/log signed rps	93658.24126494072
+oha	paired rust GET /api/log signed status	{'200': 2000}
+oha	paired node GET /api/log signed p50-seconds	0.001930137
+oha	paired node GET /api/log signed p99-seconds	0.006850218
+oha	paired node GET /api/log signed rps	14264.04353568667
+oha	paired node GET /api/log signed status	{'200': 2000}
+lh	rust-home-mobile-1 score	0.99
+lh	rust-home-mobile-1 fcp-ms	1653.5693999999999
+lh	rust-home-mobile-1 lcp-ms	1728.5693999999999
+lh	rust-home-mobile-1 tbt-ms	0
+lh	rust-home-mobile-1 cls	0.0001376500563241792
+lh	rust-home-mobile-2 score	0.99
+lh	rust-home-mobile-2 fcp-ms	1501.09995
+lh	rust-home-mobile-2 lcp-ms	1576.09995
+lh	rust-home-mobile-2 tbt-ms	0
+lh	rust-home-mobile-2 cls	0.0001376500563241792
+lh	rust-home-mobile-3 score	0.99
+lh	rust-home-mobile-3 fcp-ms	1652.03955
+lh	rust-home-mobile-3 lcp-ms	1727.03955
+lh	rust-home-mobile-3 tbt-ms	0
+lh	rust-home-mobile-3 cls	0.0001376500563241792
+lh	rust-home-desktop-1 score	1
+lh	rust-home-desktop-1 fcp-ms	361.29945000000004
+lh	rust-home-desktop-1 lcp-ms	381.29945000000004
+lh	rust-home-desktop-1 tbt-ms	0
+lh	rust-home-desktop-1 cls	0.007863963375925922
+lh	rust-home-desktop-2 score	1
+lh	rust-home-desktop-2 fcp-ms	361.36170000000004
+lh	rust-home-desktop-2 lcp-ms	381.36170000000004
+lh	rust-home-desktop-2 tbt-ms	0
+lh	rust-home-desktop-2 cls	0.007863963375925922
+lh	rust-home-desktop-3 score	1
+lh	rust-home-desktop-3 fcp-ms	361.56105
+lh	rust-home-desktop-3 lcp-ms	401.56105
+lh	rust-home-desktop-3 tbt-ms	0
+lh	rust-home-desktop-3 cls	4.40520351234397e-05
+lh	rust-herd-mobile-1 score	0.96
+lh	rust-herd-mobile-1 fcp-ms	2251.4388
+lh	rust-herd-mobile-1 lcp-ms	2326.4388
+lh	rust-herd-mobile-1 tbt-ms	0
+lh	rust-herd-mobile-1 cls	0.0008086383972248102
+lh	rust-herd-mobile-2 score	0.98
+lh	rust-herd-mobile-2 fcp-ms	1802.11245
+lh	rust-herd-mobile-2 lcp-ms	1877.11245
+lh	rust-herd-mobile-2 tbt-ms	0
+lh	rust-herd-mobile-2 cls	0.0008086383972248102
+lh	rust-herd-mobile-3 score	0.98
+lh	rust-herd-mobile-3 fcp-ms	1802.36175
+lh	rust-herd-mobile-3 lcp-ms	1877.36175
+lh	rust-herd-mobile-3 tbt-ms	0
+lh	rust-herd-mobile-3 cls	0.0008086383972248102
+lh	rust-herd-desktop-1 score	1
+lh	rust-herd-desktop-1 fcp-ms	444.1193
+lh	rust-herd-desktop-1 lcp-ms	444.1193
+lh	rust-herd-desktop-1 tbt-ms	0
+lh	rust-herd-desktop-1 cls	0.0008092318747215037
+lh	rust-herd-desktop-2 score	1
+lh	rust-herd-desktop-2 fcp-ms	442.1189
+lh	rust-herd-desktop-2 lcp-ms	482.11889999999994
+lh	rust-herd-desktop-2 tbt-ms	0
+lh	rust-herd-desktop-2 cls	0.0006651694458844923
+lh	rust-herd-desktop-3 score	1
+lh	rust-herd-desktop-3 fcp-ms	444.0278
+lh	rust-herd-desktop-3 lcp-ms	484.02780000000007
+lh	rust-herd-desktop-3 tbt-ms	0
+lh	rust-herd-desktop-3 cls	0.0006509017796305896
+lh	rust-trace-mobile-1 score	0.99
+lh	rust-trace-mobile-1 fcp-ms	1653.1759499999998
+lh	rust-trace-mobile-1 lcp-ms	1728.1759499999998
+lh	rust-trace-mobile-1 tbt-ms	0
+lh	rust-trace-mobile-1 cls	0.0001376500563241792
+lh	rust-trace-mobile-2 score	0.99
+lh	rust-trace-mobile-2 fcp-ms	1501.0641
+lh	rust-trace-mobile-2 lcp-ms	1576.0641
+lh	rust-trace-mobile-2 tbt-ms	0
+lh	rust-trace-mobile-2 cls	0.0001376500563241792
+lh	rust-trace-mobile-3 score	0.99
+lh	rust-trace-mobile-3 fcp-ms	1501.3966500000001
+lh	rust-trace-mobile-3 lcp-ms	1576.3966500000001
+lh	rust-trace-mobile-3 tbt-ms	0
+lh	rust-trace-mobile-3 cls	0.0001376500563241792
+lh	rust-trace-desktop-1 score	1
+lh	rust-trace-desktop-1 fcp-ms	361.49775
+lh	rust-trace-desktop-1 lcp-ms	381.49775
+lh	rust-trace-desktop-1 tbt-ms	0
+lh	rust-trace-desktop-1 cls	0.0003607897771074467
+lh	rust-trace-desktop-2 score	1
+lh	rust-trace-desktop-2 fcp-ms	361.56315
+lh	rust-trace-desktop-2 lcp-ms	381.56315
+lh	rust-trace-desktop-2 tbt-ms	0
+lh	rust-trace-desktop-2 cls	0.0003383124947956818
+lh	rust-trace-desktop-3 score	1
+lh	rust-trace-desktop-3 fcp-ms	362.5005
+lh	rust-trace-desktop-3 lcp-ms	402.5005
+lh	rust-trace-desktop-3 tbt-ms	0
+lh	rust-trace-desktop-3 cls	0.000363728677964402
+lh	node-home-mobile-1 score	0.95
+lh	node-home-mobile-1 fcp-ms	2403.2981999999997
+lh	node-home-mobile-1 lcp-ms	2403.2981999999997
+lh	node-home-mobile-1 tbt-ms	0
+lh	node-home-mobile-1 cls	0.0001376500563241792
+lh	node-home-mobile-2 score	0.95
+lh	node-home-mobile-2 fcp-ms	2401.2739
+lh	node-home-mobile-2 lcp-ms	2401.2739
+lh	node-home-mobile-2 tbt-ms	0
+lh	node-home-mobile-2 cls	0
+lh	node-home-mobile-3 score	0.95
+lh	node-home-mobile-3 fcp-ms	2402.3792999999996
+lh	node-home-mobile-3 lcp-ms	2402.3792999999996
+lh	node-home-mobile-3 tbt-ms	0
+lh	node-home-mobile-3 cls	0.0001376500563241792
+lh	node-home-desktop-1 score	1
+lh	node-home-desktop-1 fcp-ms	481.89840000000004
+lh	node-home-desktop-1 lcp-ms	481.89840000000004
+lh	node-home-desktop-1 tbt-ms	0
+lh	node-home-desktop-1 cls	0.007794420254624345
+lh	node-home-desktop-2 score	1
+lh	node-home-desktop-2 fcp-ms	481.33934999999997
+lh	node-home-desktop-2 lcp-ms	481.33934999999997
+lh	node-home-desktop-2 tbt-ms	0
+lh	node-home-desktop-2 cls	0.007794420254624345
+lh	node-home-desktop-3 score	1
+lh	node-home-desktop-3 fcp-ms	484.92030000000005
+lh	node-home-desktop-3 lcp-ms	484.92030000000005
+lh	node-home-desktop-3 tbt-ms	0
+lh	node-home-desktop-3 cls	0.007794420254624345
+lh	node-herd-mobile-1 score	0.93
+lh	node-herd-mobile-1 fcp-ms	2402.7668000000003
+lh	node-herd-mobile-1 lcp-ms	2704.1502000000005
+lh	node-herd-mobile-1 tbt-ms	57
+lh	node-herd-mobile-1 cls	0.0001376500563241792
+lh	node-herd-mobile-2 score	0.93
+lh	node-herd-mobile-2 fcp-ms	2454.979
+lh	node-herd-mobile-2 lcp-ms	2702.9685
+lh	node-herd-mobile-2 tbt-ms	0
+lh	node-herd-mobile-2 cls	0.0001376500563241792
+lh	node-herd-mobile-3 score	0.93
+lh	node-herd-mobile-3 fcp-ms	2453.8148
+lh	node-herd-mobile-3 lcp-ms	2702.7222
+lh	node-herd-mobile-3 tbt-ms	0
+lh	node-herd-mobile-3 cls	0
+lh	node-herd-desktop-1 score	1
+lh	node-herd-desktop-1 fcp-ms	496.15229999999997
+lh	node-herd-desktop-1 lcp-ms	563.2284500000001
+lh	node-herd-desktop-1 tbt-ms	0
+lh	node-herd-desktop-1 cls	0
+lh	node-herd-desktop-2 score	1
+lh	node-herd-desktop-2 fcp-ms	498.06640000000004
+lh	node-herd-desktop-2 lcp-ms	567.5996
+lh	node-herd-desktop-2 tbt-ms	0
+lh	node-herd-desktop-2 cls	0
+lh	node-herd-desktop-3 score	1
+lh	node-herd-desktop-3 fcp-ms	494.46539999999993
+lh	node-herd-desktop-3 lcp-ms	563.6981
+lh	node-herd-desktop-3 tbt-ms	0
+lh	node-herd-desktop-3 cls	0.0002944923596132374
+lh	node-trace-mobile-1 score	0.94
+lh	node-trace-mobile-1 fcp-ms	2402.3711
+lh	node-trace-mobile-1 lcp-ms	2628.55665
+lh	node-trace-mobile-1 tbt-ms	0
+lh	node-trace-mobile-1 cls	0.0001376500563241792
+lh	node-trace-mobile-2 score	0.94
+lh	node-trace-mobile-2 fcp-ms	2402.3359
+lh	node-trace-mobile-2 lcp-ms	2628.50385
+lh	node-trace-mobile-2 tbt-ms	0
+lh	node-trace-mobile-2 cls	0.0001376500563241792
+lh	node-trace-mobile-3 score	0.94
+lh	node-trace-mobile-3 fcp-ms	2401.0659000000005
+lh	node-trace-mobile-3 lcp-ms	2626.5988500000003
+lh	node-trace-mobile-3 tbt-ms	0
+lh	node-trace-mobile-3 cls	0.0001376500563241792
+lh	node-trace-desktop-1 score	1
+lh	node-trace-desktop-1 fcp-ms	483.0099
+lh	node-trace-desktop-1 lcp-ms	523.0099
+lh	node-trace-desktop-1 tbt-ms	0
+lh	node-trace-desktop-1 cls	0.002112932827660141
+lh	node-trace-desktop-2 score	1
+lh	node-trace-desktop-2 fcp-ms	482.45565000000005
+lh	node-trace-desktop-2 lcp-ms	522.45565
+lh	node-trace-desktop-2 tbt-ms	0
+lh	node-trace-desktop-2 cls	0.002112932827660141
+lh	node-trace-desktop-3 score	1
+lh	node-trace-desktop-3 fcp-ms	483.8451
+lh	node-trace-desktop-3 lcp-ms	523.8451
+lh	node-trace-desktop-3 tbt-ms	0
+lh	node-trace-desktop-3 cls	0.002112932827660141
+image	rust podman Size bytes	87061944
+image	node container file	absent

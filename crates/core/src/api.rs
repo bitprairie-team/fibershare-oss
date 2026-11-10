@@ -47,7 +47,7 @@ fn json_reply(status: u16, body: Value) -> Reply {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 pub trait KvStore: Send + Sync {
     async fn get(&self, key: &str) -> Option<String>;
     async fn put(&self, key: &str, value: String);
@@ -79,7 +79,7 @@ impl Default for MemoryKv {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl KvStore for MemoryKv {
     async fn get(&self, key: &str) -> Option<String> {
         self.data.lock().ok().and_then(|g| g.get(key).cloned())
@@ -476,6 +476,114 @@ impl Default for LocalState {
     }
 }
 
+pub async fn get_live<F, Fut>(
+    headers: &HashMap<String, String>,
+    env: &PagesEnv<'_>,
+    now_ms: u64,
+    fetch: F,
+) -> Reply
+where
+    F: Fn(String) -> Fut,
+    Fut: std::future::Future<Output = Result<String, ()>>,
+{
+    let rancher = if access_configured(env) {
+        verify_access_jwt(
+            access_token(headers).as_deref(),
+            env.team.unwrap_or(""),
+            env.aud.unwrap_or(""),
+            now_ms,
+            fetch,
+        )
+        .await
+        .is_ok()
+    } else {
+        false
+    };
+    let mut live = None;
+    if let Some(store) = env.store {
+        if rancher {
+            if let Some(text) = store.get(KV_FULL).await {
+                live = serde_json::from_str(&text).ok();
+            }
+        }
+        if live.as_ref().is_none_or(|value| !is_live_data(value)) {
+            if let Some(text) = store.get(KV_HIDDEN).await {
+                live = serde_json::from_str(&text).ok();
+            }
+        }
+    }
+    json_reply(
+        200,
+        live_body(
+            live.as_ref(),
+            rancher,
+            if rancher { env.arcgis } else { None },
+            false,
+        ),
+    )
+}
+
+pub async fn get_session<F, Fut>(
+    headers: &HashMap<String, String>,
+    env: &PagesEnv<'_>,
+    now_ms: u64,
+    fetch: F,
+) -> Reply
+where
+    F: Fn(String) -> Fut,
+    Fut: std::future::Future<Output = Result<String, ()>>,
+{
+    if !access_configured(env) {
+        return json_reply(200, json!({"mode": "none", "signedIn": false}));
+    }
+    let signed_in = verify_access_jwt(
+        access_token(headers).as_deref(),
+        env.team.unwrap_or(""),
+        env.aud.unwrap_or(""),
+        now_ms,
+        fetch,
+    )
+    .await
+    .is_ok();
+    json_reply(
+        200,
+        json!({"mode": "access", "signedIn": signed_in, "loginUrl": "/api/rancher/login"}),
+    )
+}
+
+pub async fn get_login<F, Fut>(
+    headers: &HashMap<String, String>,
+    url: &str,
+    env: &PagesEnv<'_>,
+    now_ms: u64,
+    fetch: F,
+) -> Reply
+where
+    F: Fn(String) -> Fut,
+    Fut: std::future::Future<Output = Result<String, ()>>,
+{
+    let ok = access_configured(env)
+        && verify_access_jwt(
+            access_token(headers).as_deref(),
+            env.team.unwrap_or(""),
+            env.aud.unwrap_or(""),
+            now_ms,
+            fetch,
+        )
+        .await
+        .is_ok();
+    let to = if ok { "/map" } else { "/rancher?error=access" };
+    let origin = url::Url::parse(url).ok();
+    let location = origin
+        .as_ref()
+        .and_then(|base| base.join(to).ok())
+        .map(|u| u.to_string())
+        .unwrap_or_else(|| to.to_string());
+    let mut reply = json_reply(302, Value::Null);
+    reply.headers.push(("location".into(), location));
+    reply
+}
+
 pub fn local_health() -> Reply {
     json_reply(
         200,
@@ -737,11 +845,14 @@ fn list_route(
                 let _ = std::fs::create_dir_all(parent);
             }
             use std::io::Write;
-            if let Ok(mut file) = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(&journal)
+            let mut open = std::fs::OpenOptions::new();
+            open.create(true).append(true);
+            #[cfg(unix)]
             {
+                use std::os::unix::fs::OpenOptionsExt;
+                open.mode(0o600);
+            }
+            if let Ok(mut file) = open.open(&journal) {
                 let _ = writeln!(file, "{entry}");
                 #[cfg(unix)]
                 {

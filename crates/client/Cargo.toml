@@ -26,6 +26,7 @@ web-sys = { version = "0.3", features = [
   "KeyboardEvent",
   "Storage",
   "History",
+  "Location",
   "Node",
   "DomTokenList",
 ] }

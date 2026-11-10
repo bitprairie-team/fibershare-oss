@@ -4,7 +4,16 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Cloudflare Worker for FiberShare /api routes."
+description = "Cloudflare Worker: FiberShare pages and the signed-in /api routes."
+
+[lib]
+crate-type = ["cdylib"]
 
 [dependencies]
+worker = "0.8"
 fibershare-core = { workspace = true }
+fibershare-html = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+console_error_panic_hook = "0.1"
+futures = { workspace = true }

@@ -128,7 +128,7 @@ The sample goats, events and fiber lots are in `public/data/herd.json`, `public/
 
 ## Live data from your own network server
 
-The pull command supports ChirpStack v4. If your LoRaWAN collar trackers report to it, `fibershare pull` reads your devices and writes `.local/live.json`. Git ignores that file and the build leaves it out. `fibershare serve` then shows your trackers, how long ago they were pulled, and a **Hide tracker details** setting. Add `--watch=120` to keep pulling. The checks and packet format are in `crates/core`. The HTTP walk that writes the file is not finished in this branch; `fibershare pull` stops after checking the configuration.
+The pull command supports ChirpStack v4. If your LoRaWAN collar trackers report to it, `fibershare pull` reads devices over HTTP and, when `CHIRPSTACK_MQTT_URL` is set, listens for uplinks, then writes `.local/live.json`. Git ignores that file and the build leaves it out. `fibershare serve` then shows your trackers. Add `--watch=120` to keep pulling. See [docs/chirpstack.md](docs/chirpstack.md).
 
 The page reads the data from `/api/live`, never from the file. The public gets the hidden view: aliases such as Tracker 3, no device IDs, tags or positions, and grid cells from a hash. A signed-in rancher gets real values if the pull ran with `FIBERSHARE_HIDE_TRACKERS=0`. Sign-in is a passphrase on your own hardware, or Cloudflare Access on Pages, where `--push` sends the data to a KV namespace.
 
@@ -150,7 +150,9 @@ Browser
               └── /api/push    (your pull sends data here with a token)
 ```
 
-On your own hardware, `fibershare serve` answers `/api/live`, `/api/session`, `/api/alerts` and `/api/log` from `.local/`. The access rules are in `crates/core`. The rancher page draws an offline map so the tour works without a network. A signed-in live map of real positions is still the Leaflet view described in [docs/rancher-access.md](docs/rancher-access.md).
+On your own hardware, `fibershare serve` answers `/api/live`, `/api/session`, `/api/alerts` and `/api/log` from `.local/`. The ranch log appends to `.local/ranch-log.jsonl`, owner-only, through a write queue. On Cloudflare, the Worker in `crates/worker` serves the pages and the same API. `/api/alerts` and `/api/log` check the Cloudflare Access JWT (signature, audience, issuer, expiry) and return 401 when it does not pass. New log entries are KV keys `log:ranch:<ISO>:<id>`. The old `ranch-log` key is still read. The author is the verified email, or the subject when the token has no email. See [docs/rancher-access.md](docs/rancher-access.md).
+
+The rancher page keeps an offline drawing for the tour. After sign-in, the same page loads the vendored Leaflet script and plots tracker positions from `/api/live`. The tour has five steps: the herd, Predator Watch, open alerts, fleece trace, and the rancher map.
 
 Self-host with podman from the `Containerfile`. The container listens on port 4174 and expects the repository mounted at `/app` so `.local` stays on the machine:
 

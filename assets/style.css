@@ -929,6 +929,17 @@
   }
 
   /* Guided tour */
+  .live-map {
+    height: 24rem;
+    margin-top: 1rem;
+    border: 1px solid var(--color-rule, #d9d0c3);
+  }
+  .live-map .leaflet-container {
+    height: 100%;
+    width: 100%;
+    background: #f2ede4;
+    font-family: "IBM Plex Sans", sans-serif;
+  }
   .tour-scrim {
     @apply pointer-events-auto fixed inset-0 z-[80];
   }

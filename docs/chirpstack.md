@@ -9,7 +9,7 @@ Run all of this on your own hardware, next to your LoRaWAN network server. Nothi
 - ChirpStack v4, which is the server the pull script supports. The official `chirpstack-docker` stack works.
 - Its REST API gateway, which the stack runs on port 8090.
 - An API token. Make one in the server's web UI under API keys.
-- Node 20 or newer. The pull script has no dependencies.
+- The `fibershare` binary from this repo. `fibershare pull` has no Node dependency.
 - For decoded uplinks: The server's MQTT integration with the JSON marshaler, which is the default.
 
 ## Two sources
@@ -27,8 +27,8 @@ mkdir -p ~/.config/fibershare
 # paste the token into this file, then:
 chmod 600 ~/.config/fibershare/chirpstack-token
 
-npm run chirpstack:pull
-npm run dev
+fibershare pull
+fibershare serve
 ```
 
 Open the herd view. It shows **Live from your network server** when `.local/live.json` exists, and how long ago it was pulled. **Show sample data** switches back for this browser tab.
@@ -40,7 +40,7 @@ One pull is a snapshot. The herd view counts "checked in, last hour" from the ti
 Run the pull with `--watch` to pull again on a timer:
 
 ```bash
-npm run chirpstack:pull -- --watch=120
+fibershare pull --watch=120
 ```
 
 That pulls every 120 seconds until you stop it with Ctrl-C. With MQTT on, each pull listens for `--mqtt-seconds` first, so keep the watch time longer than that.
@@ -82,7 +82,7 @@ Set these in your shell, or in a `.env` file in the repo folder (copy `.env.exam
 | `FIBERSHARE_PUSH_URL` | | For `--push`: your Pages copy, such as `https://example.pages.dev` |
 | `FIBERSHARE_PUSH_TOKEN` | | For `--push`. Or leave blank and use `FIBERSHARE_PUSH_TOKEN_FILE` (default `~/.config/fibershare/push-token`) |
 
-Flags: `--hide` and `--no-hide` (override `FIBERSHARE_HIDE_TRACKERS`), `--hours=24`, `--mqtt-seconds=60`, `--out=.local/live.json`, `--watch=60` (pull again every 60 seconds), `--push` (send to your Cloudflare Pages copy, see [rancher-access.md](rancher-access.md)), `--dry-run`, `--help`. Pass flags after `--`, for example `npm run chirpstack:pull -- --no-hide`.
+Flags: `--hide` and `--no-hide` (override `FIBERSHARE_HIDE_TRACKERS`), `--hours=24`, `--mqtt-seconds=60`, `--out=.local/live.json`, `--watch=60` (pull again every 60 seconds), `--push` (send to your Cloudflare Worker, see [rancher-access.md](rancher-access.md)), `--dry-run`, `--help`. For example `fibershare pull --no-hide`.
 
 The token is sent as `Grpc-Metadata-Authorization: Bearer <token>`. Use `https` if the gateway is on another machine. The script warns about plain `http` unless the host is localhost, a name with no dot (a container on the same compose network), or `CHIRPSTACK_ALLOW_HTTP=1` is set.
 

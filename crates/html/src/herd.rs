@@ -5,7 +5,9 @@ use std::collections::BTreeMap;
 
 use fibershare_core::alerts::{compute_alerts, split_alerts, ALERT_RULES};
 use fibershare_core::grid::{cell_labels, cell_of, spread_pins};
-use fibershare_core::herd::{grazing_log, herd_stats, position_trail, sort_events, state_at};
+use fibershare_core::herd::{
+    grazing_log, herd_stats, key_moments, position_trail, sort_events, state_at,
+};
 use fibershare_core::jobs::{alerts_off_notice_html, jobs_line};
 use fibershare_core::log::{describe_log_entry, entries_for, last_checked};
 use fibershare_core::settings::read_jobs;
@@ -54,10 +56,20 @@ fn view_from(query: &str) -> View {
     let herd = herd_json();
     let events = events_of();
     let animals = animals_of(&herd);
-    let step = q(query, "step")
+    let mut step = q(query, "step")
         .and_then(|s| s.parse().ok())
         .unwrap_or(events.len())
         .min(events.len());
+    if q(query, "moment").as_deref() == Some("end") {
+        step = events.len();
+    } else if let Some(moment) = q(query, "moment") {
+        if let Some(found) = key_moments(&events)
+            .into_iter()
+            .find(|item| item.id == moment)
+        {
+            step = found.step.min(events.len());
+        }
+    }
     let selected = q(query, "animal")
         .filter(|id| {
             animals

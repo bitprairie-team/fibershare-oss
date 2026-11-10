@@ -42,6 +42,7 @@ pub fn document(title: &str, description: &str, body: &str, _home: bool) -> Stri
   <body>
     <div id="app">{body}</div>
     <div id="route-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <script type="application/json" id="tour-steps">{tour}</script>
     <script type="module" src="/wasm/client.js"></script>
   </body>
 </html>
@@ -50,6 +51,7 @@ pub fn document(title: &str, description: &str, body: &str, _home: bool) -> Stri
         description = esc_attr(description),
         canonical = canonical,
         theme = THEME,
+        tour = fibershare_core::tour::steps_json(),
         body = body,
     )
 }
