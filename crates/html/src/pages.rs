@@ -1,7 +1,8 @@
 //! The pages other than the herd view.
+//! Each page's sentences live in `copy` so they can be read in one place.
 
 use fibershare_core::jobs::{alert_job_list, alerts_off_notice_html, PLANNED};
-use fibershare_core::meta::{APP, DISCORD, REPO};
+use fibershare_core::meta::{DISCORD, REPO};
 use fibershare_core::records::{trace_lot, visible_record};
 use fibershare_core::settings::{read_jobs, read_rules, MemoryStore};
 use fibershare_core::time::time_of;
@@ -9,43 +10,78 @@ use serde_json::{json, Value};
 
 use crate::document::esc;
 use crate::layout::{
-    footer, nav, q, ACTIONS, BODY, HEAD, LEDE, LIST, MAIN, PROSE, ROWS, SECTION, SECTION_TITLE,
+    footer, nav, q, ACTIONS, BODY, HEAD, LEDE, LIST, MAIN, PROSE, SECTION, SECTION_TITLE,
 };
 
-const LICENSE: &str = "The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use.";
+/// How this copy checks a rancher. The Worker sets Access only when it is configured.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum SignIn {
+    Passphrase,
+    Access,
+    None,
+}
+
+mod copy {
+    pub const HOME_TITLE: &str = "Sample herd, one day's trackers";
+    pub const HOME_LEDE: &str = "This demo follows eight sample goats through one made-up day. It flags low batteries and missed check-ins, lists Predator Watch and Wildfire Watch reports, and traces a fleece lot back to the goat. Every automated job can be turned off. You can still add alerts, notes, and checks by hand.";
+    pub const HOME_ACTION: &str = "Open the herd view";
+
+    pub const SETUPS_TITLE: &str = "Setups";
+    pub const SETUPS_LEDE: &str =
+        "Choose where the trackers, the server, and the records run. You can change this later.";
+    pub const SETUPS_WHERE: &str = "What runs where";
+    pub const NETWORK_TITLE: &str = "Community network";
+    pub const NETWORK_LEAD: &str = "Ranchers can share a server they host themselves, or a co-op server. Talk with other ranchers on";
+    pub const SUPPORT: &str = "Ranch support pays for animals and pasture. Support is not ownership or an investment return.";
+    pub const RESEARCH: &str =
+        "Data shared with agencies or researchers is combined or delayed, with no exact locations.";
+
+    pub const WORK_TITLE: &str = "How it works";
+    pub const WORK_LEDE: &str = "Each automated job is optional. Turn one off and its alerts stop. You can still add alerts, notes, and checks by hand.";
+    pub const WORK_SAVED: &str =
+        "The choice is saved in this browser, or on the server once you sign in.";
+    pub const WORK_JOBS: &str = "Automated jobs";
+    pub const WORK_README: &str = "To run a copy, see the README.";
+
+    pub const TRACE_TITLE: &str = "Fleece trace";
+    pub const TRACE_LEDE: &str = "This lot goes back to Bramble.";
+    pub const TRACE_WHO: &str = "Who can see this";
+    pub const TRACE_OFF: &str = "Tracing is off, so these records are not linked.";
+    pub const TRACE_LINK: &str = "Link them once";
+
+    pub const SIGN_TITLE: &str = "Rancher sign-in";
+    pub const SIGN_LEDE: &str =
+        "Sign in to see real tracker positions. The public herd view stays open without it.";
+    pub const SIGN_LABEL: &str = "Passphrase";
+    pub const SIGN_BUTTON: &str = "Sign in";
+    pub const SIGN_LOCAL: &str = "Set a passphrase with";
+    pub const SIGN_ACCESS: &str = "Sign-in on this copy is Cloudflare Access.";
+    pub const MAP_TITLE: &str = "Rancher map";
+    pub const MAP_CAPTION: &str = "After sign-in, trackers show at their real positions. Layers come from public agencies and OpenStreetMap. Esri basemaps appear only if an ArcGIS key is set.";
+    pub const MAP_DRAWING: &str =
+        "This drawing is not the live map. The live map needs your own trackers. Run";
+
+    pub const MISSING_TITLE: &str = "Page not found";
+    pub const MISSING_LEDE: &str = "That address is not in this demo.";
+    pub const MISSING_ACTION: &str = "Back home";
+}
 
 pub fn home() -> String {
-    let setups = [
-        ("Your own hardware", "Trackers, radio gateway and server on the ranch. The data stays on your land."),
-        ("Hosted by BitPrairie", "BitPrairie runs the server and can supply the trackers. The ranch needs an internet connection."),
-        ("A mix of both", "Your gateway and server on the ranch, with hosted alerts from BitPrairie."),
-    ]
-    .iter()
-    .map(|(name, short)| format!("<li class=\"grid gap-x-6 gap-y-1 py-4 sm:grid-cols-[13rem_minmax(0,1fr)]\"><h3 class=\"text-base\">{name}</h3><p class=\"text-sm text-ink-2\">{short}</p></li>"))
-    .collect::<String>();
     format!(
         r#"{nav}<main class="{main}" id="main">
-<section class="max-w-[46rem] pt-20 pb-6 max-sm:pt-10" data-tour="hero">
-<h1 class="text-display">Herd tracking for local ranchers</h1>
-<p class="mt-6 max-w-measure text-lg text-ink-2">FiberShare checks each tracker's battery and check-ins, lists Predator Watch and Wildfire Watch reports, and traces fiber back to the goat. Each of those jobs can be turned off. When a job is off, its alerts stop, and you can still add alerts, notes and checks by hand.</p>
-<p class="mt-4 max-w-measure text-ink-2">FiberShare is a ranch program from BitPrairie LLC, growing into a network of local ranchers in the western US. This demo runs on 8 sample goats and one made-up day of tracker data.</p>
-<p class="mt-4 max-w-measure text-ink-2">{license}</p>
-<div class="{actions} mt-8"><a class="btn btn-primary" href="/map">Open the herd view</a></div>
-</section>
-<section class="{section} mt-20" aria-labelledby="setups-title">
-<h2 id="setups-title" class="{title}">Three setups</h2>
-<div class="{body}"><ul class="{rows}">{setups}</ul>
-<p class="mt-4 text-sm"><a href="/setups">Compare the setups side by side</a></p></div>
+<section class="{head}" data-tour="hero">
+<h1>{title}</h1>
+<p class="{lede}">{lede_text}</p>
+<p class="{actions}"><a class="btn btn-primary" href="/map">{action}</a></p>
 </section></main>{footer}"#,
         nav = nav("/"),
         main = MAIN,
-        license = LICENSE,
+        head = HEAD,
+        title = copy::HOME_TITLE,
+        lede = LEDE,
+        lede_text = copy::HOME_LEDE,
         actions = ACTIONS,
-        section = SECTION,
-        title = SECTION_TITLE,
-        body = BODY,
-        rows = ROWS,
-        setups = setups,
+        action = copy::HOME_ACTION,
         footer = footer(),
     )
 }
@@ -82,9 +118,9 @@ pub fn setups() -> String {
         ),
         (
             "Event history",
-            "Kept by you.",
-            "Kept by BitPrairie for you. Shared only if you opt in.",
-            "You choose what goes to the hosted side.",
+            "Kept by you. Public pages never show where an animal is. Only a signed-in rancher sees tracker positions.",
+            "Kept by BitPrairie for you. Each rancher owns their event history. It is shared only if they opt in.",
+            "You choose what goes to the hosted side. Public pages never show where an animal is.",
         ),
         (
             "Support",
@@ -92,53 +128,48 @@ pub fn setups() -> String {
             "BitPrairie.",
             "Both.",
         ),
-        (
-            "Cost",
-            "Free and open source.",
-            "A fee for hardware and hosting.",
-            "A fee for the hosted parts.",
-        ),
     ];
     let body = rows
         .iter()
         .map(|(part, a, b, c)| {
-            format!("<tr><th scope=\"row\">{part}</th><td>{a}</td><td>{b}</td><td>{c}</td></tr>")
+            format!(
+                "<tr><th scope=\"row\">{part}</th><td data-setup=\"Your own hardware\">{a}</td><td data-setup=\"Hosted by BitPrairie\">{b}</td><td data-setup=\"A mix of both\">{c}</td></tr>"
+            )
         })
         .collect::<String>();
     format!(
         r#"{nav}<main class="{main}" id="main">
-<section class="{head}"><h1>Setups</h1>
-<p class="{lede}">Pick where the trackers, server and records run: your own hardware, hosted by BitPrairie, or a mix. You can switch later.</p></section>
+<section class="{head}"><h1>{title}</h1>
+<p class="{lede}">{lede_text}</p></section>
 <section class="{section} mt-0 max-sm:mt-0" aria-labelledby="where-title">
-<h2 id="where-title" class="{title}">What runs where</h2>
+<h2 id="where-title" class="{stitle}">{where_title}</h2>
 <div class="overflow-x-auto" data-tour="setups"><table class="data-table compare-table"><thead><tr><td></td>{heads}</tr></thead><tbody>{body}</tbody></table></div>
 </section>
-<section class="{section}" aria-labelledby="every-title">
-<h2 id="every-title" class="{title}">In every setup</h2>
-<ul class="{list} {bodyclass}">
-<li>Public pages never show where an animal is. Only a signed-in rancher sees tracker positions.</li>
-<li>Each rancher owns their event history. It is shared only if they opt in.</li>
-<li><span class="tag">Planned</span> Data shared with agencies or researchers is combined or delayed, with no exact locations.</li>
-</ul></section>
 <section class="{section}" aria-labelledby="network-title">
-<h2 id="network-title" class="{title}">Community network</h2>
+<h2 id="network-title" class="{stitle}">{network_title}</h2>
 <div class="{prose}">
-<p>The community network is self-hosted or run as a co-op. It is free for non-commercial and research use. Talk with other ranchers on <a href="{discord}">Discord</a>, or read the code on <a href="{repo}">GitHub</a>.</p>
-<p>Ranch support pays for animals and pasture. Support is not ownership or an investment return.</p>
+<p>{network_lead} <a href="{discord}">Discord</a>, or read the code on <a href="{repo}">GitHub</a>.</p>
+<p><span class="tag">Planned</span> {research}</p>
+<p>{support}</p>
 </div></section></main>{footer}"#,
         nav = nav("/setups"),
         main = MAIN,
         head = HEAD,
+        title = copy::SETUPS_TITLE,
         lede = LEDE,
+        lede_text = copy::SETUPS_LEDE,
         section = SECTION,
-        title = SECTION_TITLE,
+        stitle = SECTION_TITLE,
+        where_title = copy::SETUPS_WHERE,
         heads = heads,
         body = body,
-        list = LIST,
-        bodyclass = BODY,
+        network_title = copy::NETWORK_TITLE,
         prose = PROSE,
+        network_lead = copy::NETWORK_LEAD,
         discord = DISCORD,
         repo = REPO,
+        research = copy::RESEARCH,
+        support = copy::SUPPORT,
         footer = footer(),
     )
 }
@@ -152,71 +183,51 @@ pub fn architecture() -> String {
         .iter()
         .map(|job| {
             let on = jobs_state.get(job.id).copied().unwrap_or(true);
-            let what = if on { format!("On. {}", job.detail) } else { format!("Off. {}", job.off) };
+            let what = if on {
+                job.detail.clone()
+            } else {
+                job.off.to_string()
+            };
             format!(
-                "<li class=\"job-row\"><label class=\"toggle\"><input type=\"checkbox\" data-job=\"{}\"{} aria-describedby=\"job-{}\" /> <strong>{}</strong></label><span id=\"job-{}\" data-job-what=\"{}\">{}</span></li>",
-                job.id,
-                if on { " checked" } else { "" },
-                job.id,
-                esc(&job.name),
-                job.id,
-                job.id,
-                esc(&what),
+                "<li class=\"job-row\"><label class=\"toggle\"><input type=\"checkbox\" data-job=\"{id}\"{checked} aria-describedby=\"job-{id}\" /><span class=\"job-name\">{name}</span></label><p class=\"job-what\" id=\"job-{id}\" data-job-what=\"{id}\">{what}</p></li>",
+                id = job.id,
+                checked = if on { " checked" } else { "" },
+                name = esc(&job.name),
+                what = esc(&what),
             )
         })
         .collect::<String>();
-    let planned = {
-        let mut text = PLANNED.join(", ");
-        if let Some(i) = text.rfind(", ") {
-            text.replace_range(i..i + 2, " and ");
-        }
-        let mut chars = text.chars();
-        match chars.next() {
-            Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
-            None => String::new(),
-        }
-    };
+    let planned = PLANNED
+        .iter()
+        .map(|item| format!("<li><span class=\"tag\">Planned</span> {item}.</li>"))
+        .collect::<String>();
     let any = jobs_state.values().any(|on| *on);
+    let readme_url = format!("{}/blob/main/README.md", REPO);
     format!(
         r#"{nav}<main class="{main}" id="main">
-<section class="{head}"><h1>How it works</h1>
-<p class="{lede}">What the demo does with tracker data, and the parts it runs on. Each automated job can be turned off below. All of it runs on your own hardware, with no account.</p></section>
+<section class="{head}"><h1>{title}</h1>
+<p class="{lede}">{lede_text}</p></section>
 <section class="{section} mt-0 max-sm:mt-0" aria-labelledby="jobs-title">
-<h2 id="jobs-title" class="{title}">Automated jobs</h2>
+<h2 id="jobs-title" class="{stitle}">{jobs_title}</h2>
 <div class="{body}">
-<p class="max-w-measure text-sm text-ink-2">Every job is on until you turn it off. With all of them off, the herd view still works by hand: answer and add alerts, save notes, and mark animals checked. Saved in this browser, or on the server once you sign in.</p>
+<p class="max-w-measure text-sm text-ink-2">{saved}</p>
 {notice}
-<ul class="job-list mt-3 divide-y divide-rule border-y border-rule">{list}</ul>
+<ul class="job-list">{list}</ul>
 <p class="mt-3 text-sm"><button type="button" class="btn-link" data-all-jobs>{all}</button><span class="sr-only" role="status" data-job-status></span></p>
-<p class="mt-6 max-w-measure text-sm text-ink-2"><span class="tag">Planned</span> {planned}.</p>
-</div></section>
-<section class="{section}" aria-labelledby="parts-title">
-<h2 id="parts-title" class="{title}">Parts</h2>
-<dl class="{body} grid text-sm">
-<dt class="font-medium text-ink">Pages</dt><dd class="text-ink-2">Plain web pages rendered in Rust. Run them yourself or publish a copy on Cloudflare.</dd>
-<dt class="font-medium text-ink">Sample data</dt><dd class="text-ink-2">The goats, the sample day and the fiber lots are in <code>public/data</code>.</dd>
-<dt class="font-medium text-ink">Server routes</dt><dd class="text-ink-2"><code>/api/live</code> sends tracker data, <code>/api/session</code> handles sign-in and <code>/api/alerts</code> and <code>/api/log</code> keep a signed-in rancher's answers and notes.</dd>
-<dt class="font-medium text-ink">Your own trackers</dt><dd class="text-ink-2">A pull command reads trackers from your LoRaWAN network server into <code>.local/live.json</code>. Git ignores that file.</dd>
-<dt class="font-medium text-ink">Sign-in</dt><dd class="text-ink-2">A passphrase on your own hardware, or Cloudflare Access on a published copy. The server checks it on every request.</dd>
-</dl></section>
-<section class="{section}" aria-labelledby="run-title">
-<h2 id="run-title" class="{title}">Run your own copy</h2>
-<div class="{prose}">
-<p>You need Rust 1.85 or newer.</p>
-<pre><code>git clone {repo}.git
-cd fibershare-oss
-cargo run -p fibershare -- serve</code></pre>
-<p>Then open http://127.0.0.1:4174.</p>
-<p>{license} Keep private ranch files and real tracker data out of the repository. See the <a href="{repo}/blob/main/CONTRIBUTING.md">contribution guide</a>, or ask on <a href="{discord}">Discord</a>.</p>
-<p>The FiberShare app is a separate product at <a href="{app}">fibershare.app</a>.</p>
+<ul class="{listclass} mt-6">{planned}</ul>
+<p class="mt-6 text-sm"><a href="{repo}">{readme}</a></p>
 </div></section></main>{footer}"#,
         nav = nav("/architecture"),
         main = MAIN,
         head = HEAD,
+        title = copy::WORK_TITLE,
         lede = LEDE,
+        lede_text = copy::WORK_LEDE,
         section = SECTION,
-        title = SECTION_TITLE,
+        stitle = SECTION_TITLE,
+        jobs_title = copy::WORK_JOBS,
         body = BODY,
+        saved = copy::WORK_SAVED,
         notice = alerts_off_notice_html(&jobs_state, &rules),
         list = list,
         all = if any {
@@ -224,12 +235,10 @@ cargo run -p fibershare -- serve</code></pre>
         } else {
             "Turn every job on"
         },
-        planned = esc(&planned),
-        prose = PROSE,
-        repo = REPO,
-        license = LICENSE,
-        discord = DISCORD,
-        app = APP,
+        listclass = LIST,
+        planned = planned,
+        readme = copy::WORK_README,
+        repo = readme_url,
         footer = footer(),
     )
 }
@@ -251,81 +260,110 @@ pub fn trace(query: &str) -> String {
     };
     let jobs = read_jobs(&MemoryStore::default());
     let tracing = jobs.get("trace").copied().unwrap_or(true);
-    let linked_at = if tracing {
-        Some("2026-09-06T18:05:00")
-    } else {
-        None
-    };
-    let chain = if let Some(at) = linked_at {
+    let chain = if tracing {
         let traced = trace_lot("mohair-bramble", &records());
         let why = format!(
-            "Linked by the trace job at {}. Why: the lot lists fleece {}, the fleece names shearing {}, and the shearing names animal {}.",
-            time_of(at),
-            traced.as_ref().and_then(|c| c.pointer("/steps/0/fleece/id")).and_then(Value::as_str).unwrap_or(""),
-            traced.as_ref().and_then(|c| c.pointer("/steps/0/shearing/id")).and_then(Value::as_str).unwrap_or(""),
-            traced.as_ref().and_then(|c| c.pointer("/steps/0/animal/id")).and_then(Value::as_str).unwrap_or(""),
+            "Linked at {} by the trace job, from this lot to Bramble.",
+            time_of("2026-09-06T18:05:00")
         );
-        let why = if viewer == "rancher" {
-            why
-        } else {
-            format!("Linked by the trace job at {}. Only the records shared with this viewer are shown.", time_of(at))
-        };
-        format!("<p class=\"trace-why mb-5 max-w-[72ch] text-sm text-ink-2\" data-trace-why>{}</p><ol class=\"trace-chain divide-y divide-rule border-y border-ink\" data-tour=\"chain\">{}</ol>", esc(&why), trace_cards(&traced, viewer))
+        format!(
+            "<p class=\"trace-why\" data-trace-why>{}</p><ol class=\"trace-chain\" data-tour=\"chain\">{}</ol>",
+            esc(&why),
+            trace_steps(&traced, viewer)
+        )
     } else {
-        "<p class=\"trace-why mb-5 max-w-[72ch] text-sm text-ink-2\" data-trace-why>Tracing is off, so the records are not linked. Each one lists the ID of the record before it. <button type=\"button\" class=\"btn-link\" data-link-once>Link them once</button></p><p class=\"sr-only\">Linked by hand at a time you choose. Linked by the trace job at the sample clock when tracing is on. For a rancher, the lot lists fleece ids; a buyer does not see them.</p>".into()
+        let traced = trace_lot("mohair-bramble", &records());
+        format!(
+            "<p class=\"trace-why\" data-trace-why>{} <button type=\"button\" class=\"btn-link\" data-link-once>{}</button></p><ol class=\"trace-chain\" data-tour=\"chain\">{}</ol>",
+            copy::TRACE_OFF,
+            copy::TRACE_LINK,
+            trace_steps(&traced, viewer)
+        )
     };
-    let shop: Value =
-        serde_json::from_str(include_str!("../../../public/data/shop.json")).unwrap_or(json!({}));
-    let lots = shop
-        .get("products")
-        .and_then(Value::as_array)
-        .map(|list| {
-            list.iter()
-                .map(|p| {
-                    format!(
-                        "<tr><th scope=\"row\">{}</th><td>{}</td><td class=\"num\">{} g</td></tr>",
-                        esc(p.get("name").and_then(Value::as_str).unwrap_or("")),
-                        esc(p.get("fiber").and_then(Value::as_str).unwrap_or("")),
-                        esc(&p.get("grams").map(|v| v.to_string()).unwrap_or_default()),
-                    )
-                })
-                .collect::<String>()
-        })
-        .unwrap_or_default();
-    let pressed = |key: &str| if key == viewer { "true" } else { "false" };
     format!(
         r#"{nav}<main class="{main}" id="main">
-<section class="{head}"><h1>Fleece trace</h1>
-<p class="{lede}">The mohair-bramble lot traced back to Bramble, the goat it came from. The rancher sets who can see each record.</p></section>
-<div class="trace-controls mb-5 flex flex-wrap items-center gap-x-6 gap-y-2"><span class="text-sm text-muted" id="viewer-label">View as</span>
-<div class="segmented" role="group" aria-labelledby="viewer-label">
-<button type="button" class="chip" data-viewer="rancher" aria-pressed="{r}">Rancher</button>
-<button type="button" class="chip" data-viewer="buyers" aria-pressed="{b}">Buyer</button>
-<button type="button" class="chip" data-viewer="public" aria-pressed="{p}">Public</button>
-</div><button type="button" class="btn-link trace-print ml-auto text-sm" data-print>Print</button></div>
+<section class="{head}"><h1>{title}</h1>
+<p class="{lede}">{lede_text}</p></section>
+<p class="trace-viewer" id="viewer-label">{who} <a href="/trace?view=rancher"{r}>Rancher</a> <a href="/trace?view=buyers"{b}>Buyer</a> <a href="/trace?view=public"{p}>Public</a></p>
 <div data-chain aria-live="polite">{chain}</div>
-<section class="{section}" aria-labelledby="lots-title">
-<h2 id="lots-title" class="{title}">Sample fiber lots</h2>
-<div class="{body}"><p class="mb-4 text-sm text-muted">Nothing here is for sale.</p>
-<table class="data-table"><thead><tr><th scope="col">Lot</th><th scope="col">Fiber from</th><th scope="col" class="num">Weight</th></tr></thead><tbody>{lots}</tbody></table>
-</div></section></main>{footer}"#,
+</main>{footer}"#,
         nav = nav("/trace"),
         main = MAIN,
         head = HEAD,
+        title = copy::TRACE_TITLE,
         lede = LEDE,
-        r = pressed("rancher"),
-        b = pressed("buyers"),
-        p = pressed("public"),
+        lede_text = copy::TRACE_LEDE,
+        who = copy::TRACE_WHO,
+        r = if viewer == "rancher" {
+            " aria-current=\"page\""
+        } else {
+            ""
+        },
+        b = if viewer == "buyers" {
+            " aria-current=\"page\""
+        } else {
+            ""
+        },
+        p = if viewer == "public" {
+            " aria-current=\"page\""
+        } else {
+            ""
+        },
         chain = chain,
-        section = SECTION,
-        title = SECTION_TITLE,
-        body = BODY,
-        lots = lots,
         footer = footer(),
     )
 }
 
-fn trace_cards(traced: &Option<Value>, viewer: &str) -> String {
+fn long_date(iso: &str) -> String {
+    let months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
+    let mut parts = iso.split('-');
+    let year = parts.next().unwrap_or("");
+    let month: usize = parts.next().unwrap_or("0").parse().unwrap_or(0);
+    let day = parts.next().unwrap_or("").trim_start_matches('0');
+    if !(1..=12).contains(&month) || day.is_empty() {
+        return iso.to_string();
+    }
+    format!("{day} {} {year}", months[month - 1])
+}
+
+fn step_name(kind: &str, record: &Value) -> String {
+    match record.get("id").and_then(Value::as_str) {
+        Some("mohair-bramble") => "Bramble mohair".into(),
+        Some("bramble-2026-03-14-fleece") => "Shorn 14 March 2026".into(),
+        Some("bramble-2026-03-14") => long_date(
+            record
+                .get("date")
+                .and_then(Value::as_str)
+                .unwrap_or("2026-03-14"),
+        ),
+        _ if kind == "Animal" => record
+            .get("name")
+            .and_then(Value::as_str)
+            .unwrap_or("Bramble")
+            .to_string(),
+        _ => record
+            .get("name")
+            .or_else(|| record.get("id"))
+            .and_then(Value::as_str)
+            .unwrap_or(kind)
+            .to_string(),
+    }
+}
+
+fn trace_steps(traced: &Option<Value>, viewer: &str) -> String {
     let Some(traced) = traced else {
         return String::new();
     };
@@ -337,83 +375,103 @@ fn trace_cards(traced: &Option<Value>, viewer: &str) -> String {
     ];
     steps
         .iter()
-        .enumerate()
-        .map(|(i, (kind, record))| {
-            let shown = visible_record(*record, viewer);
-            let title = if viewer == "rancher" {
-                record.and_then(|r| r.get("id").and_then(Value::as_str)).unwrap_or("Record")
-            } else if shown.is_none() {
-                "Not shared"
-            } else {
-                record.and_then(|r| r.get("name").or_else(|| r.get("id"))).and_then(Value::as_str).unwrap_or(kind)
+        .map(|(kind, record)| {
+            let Some(record) = *record else {
+                return format!("<li class=\"trace-step\"><h2>{kind}</h2><p>Not shared</p></li>");
             };
-            format!("<li class=\"trace-card py-5\"><p class=\"text-sm text-muted\">{}. {kind}</p><h2 class=\"mt-1 text-base\">{}</h2></li>", i + 1, esc(title))
+            if visible_record(Some(record), viewer).is_none() {
+                return format!("<li class=\"trace-step\"><h2>{kind}</h2><p>Not shared</p></li>");
+            }
+            let name = step_name(kind, record);
+            let id = record.get("id").and_then(Value::as_str).unwrap_or("");
+            let id_html = if viewer == "rancher" && !id.is_empty() {
+                format!("<p class=\"trace-id\">{}</p>", esc(id))
+            } else {
+                String::new()
+            };
+            format!(
+                "<li class=\"trace-step\"><h2>{}</h2><p>{}</p>{id}</li>",
+                esc(&name),
+                esc(kind),
+                id = id_html,
+            )
         })
         .collect()
 }
 
-pub fn rancher(query: &str) -> String {
+pub fn rancher(query: &str, sign_in: SignIn) -> String {
     let error = q(query, "error").unwrap_or_default();
     let error_html = if error.is_empty() {
         String::new()
     } else {
         format!("<p class=\"form-error\" role=\"alert\">{}</p>", esc(&error))
     };
+    let help = match sign_in {
+        SignIn::Passphrase => format!(
+            "<p class=\"text-sm text-muted\">{} <code>fibershare passphrase</code>.</p>",
+            copy::SIGN_LOCAL
+        ),
+        SignIn::Access => format!("<p class=\"text-sm text-muted\">{}</p>", copy::SIGN_ACCESS),
+        SignIn::None => String::new(),
+    };
     let layers = serde_json::to_string(&fibershare_core::layers::layers())
         .unwrap_or_else(|_| "[]".into())
         .replace('<', "\\u003c");
-    let map = format!(
-        r#"<div class="rancher-callout border-t border-ink pt-5" data-tour="rancher-map">
-<h2 class="text-xl">Rancher map</h2>
-<div class="mock-map relative overflow-hidden rounded-sm border border-rule bg-band" role="img" aria-label="Drawing of the rancher map: tracker dots on a basemap, a dashed fire perimeter, and a layer list">
-<svg viewBox="0 0 160 100" class="block aspect-[16/10] w-full" aria-hidden="true"><path d="M0 72 C30 64 52 78 80 70 S130 52 160 58 V100 H0Z" class="fill-band-2"/><circle cx="60" cy="42" r="1.9" class="fill-leather"/></svg>
-<p class="absolute top-2 left-2 m-0 rounded-sm border border-rule bg-surface px-3 py-2 text-xs"><strong>Layers</strong><span>Wildfire perimeters</span><span>Smoke from satellite</span><span>Federal land ownership</span></p>
+    format!(
+        r##"{nav}<main class="{main}" id="main">
+<section class="{head}"><h1>{title}</h1>
+<p class="{lede}">{lede_text}</p></section>
+{error}
+<form class="grid max-w-form gap-2" data-sign-in method="post" action="/api/rancher/login">
+<label class="text-sm font-semibold" for="passphrase">{label}</label>
+<input class="input" id="passphrase" name="passphrase" type="password" autocomplete="current-password" required minlength="12" />
+<button type="submit" class="btn btn-primary mt-2 justify-self-start">{button}</button>
+</form>
+{help}
+<div class="rancher-callout" data-tour="rancher-map">
+<h2>{map_title}</h2>
+<div class="mock-map" role="img" aria-label="Drawing of the rancher map. Tracker dots sit on pasture, a dashed line marks a fire perimeter, and the layer names are listed.">
+<svg viewBox="0 0 640 400" aria-hidden="true"><rect width="640" height="400" fill="#e7dfd2"/><path d="M0 230 C90 200 150 270 240 236 C330 202 390 280 480 240 C540 216 590 250 640 228 V400 H0Z" fill="#d7cbb8"/><path d="M0 300 C110 274 210 334 320 302 C430 270 520 332 640 292 V400 H0Z" fill="#c9baa4"/><path d="M70 120 C150 78 210 150 290 112 C370 74 430 156 520 118" fill="none" stroke="#6B4A2E" stroke-width="3" stroke-dasharray="8 6"/><circle cx="150" cy="196" r="8" fill="#6B4A2E"/><circle cx="268" cy="214" r="8" fill="#6B4A2E"/><circle cx="392" cy="188" r="8" fill="#6B4A2E"/><circle cx="498" cy="230" r="8" fill="#6B4A2E"/></svg>
+<div class="mock-legend"><p>Layers</p><ul><li>Wildfire perimeters</li><li>Smoke from satellite</li><li>Federal land ownership</li></ul></div>
 </div>
-<p>After sign-in, trackers appear at their real positions, with map layers from public agencies. Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set.</p>
-<p class="text-sm text-muted">Drawing only, until you are signed in. The live map needs your own trackers. Run <code>fibershare pull</code> on your own hardware.</p>
+<p>{caption}</p>
+<p class="text-sm text-muted">{drawing} <code>fibershare pull</code> on your own hardware.</p>
 <div id="live-map" class="live-map" data-live-map hidden></div>
 <script type="application/json" id="map-layers">{layers}</script>
 </div>
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
 <script src="/vendor/leaflet/leaflet.js"></script>
-<script src="/live-map.js"></script>"#,
-        layers = layers
-    );
-    format!(
-        r#"{nav}<main class="{main}" id="main">
-<section class="{head}"><h1>Rancher sign-in</h1>
-<p class="{lede}">A passphrase on your own hardware, or Cloudflare Access on a published copy. The public herd view stays open either way.</p></section>
-{error}
-<div class="rancher-callout border-t border-ink pt-5" data-rancher-panel>
-<h2 class="text-xl">Sign in</h2>
-<form class="grid max-w-form gap-2" data-sign-in method="post" action="/api/rancher/login">
-<label class="text-sm font-semibold" for="passphrase">Rancher passphrase</label>
-<input class="input" id="passphrase" name="passphrase" type="password" autocomplete="current-password" required minlength="12" />
-<button type="submit" class="btn btn-primary mt-2 justify-self-start">Sign in</button>
-<p class="text-sm text-muted">The server checks the passphrase and sets a session cookie for 12 hours.</p>
-</form>
-<p class="text-sm text-muted">On this machine, set one with <code>fibershare passphrase</code>. On Cloudflare, sign-in is Cloudflare Access.</p>
-</div>
-{map}
-</main>{footer}"#,
+<script src="/live-map.js"></script>
+</main>{footer}"##,
         nav = nav("/rancher"),
         main = MAIN,
         head = HEAD,
+        title = copy::SIGN_TITLE,
         lede = LEDE,
+        lede_text = copy::SIGN_LEDE,
         error = error_html,
-        map = map,
+        label = copy::SIGN_LABEL,
+        button = copy::SIGN_BUTTON,
+        help = help,
+        map_title = copy::MAP_TITLE,
+        caption = copy::MAP_CAPTION,
+        drawing = copy::MAP_DRAWING,
+        layers = layers,
         footer = footer(),
     )
 }
 
 pub fn not_found() -> String {
     format!(
-        r#"{nav}<main class="{main}" id="main"><section class="{head}"><h1>Page not found</h1><p class="{lede}">That address is not a page in this demo.</p><p class="{actions}"><a class="btn btn-primary" href="/">Back home</a></p></section></main>{footer}"#,
+        r#"{nav}<main class="{main}" id="main"><section class="{head}"><h1>{title}</h1><p class="{lede}">{lede_text}</p><p class="{actions}"><a class="btn btn-primary" href="/">{action}</a></p></section></main>{footer}"#,
         nav = nav(""),
         main = MAIN,
         head = HEAD,
+        title = copy::MISSING_TITLE,
         lede = LEDE,
+        lede_text = copy::MISSING_LEDE,
         actions = ACTIONS,
+        action = copy::MISSING_ACTION,
         footer = footer(),
     )
 }

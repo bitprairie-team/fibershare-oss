@@ -24,10 +24,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
     vec![
         Job {
             id: "battery",
-            name: format!(
-                "Flags tracker batteries below {}%",
-                rules.low_battery_percent as i64
-            ),
+            name: format!("Low battery (below {}%)", rules.low_battery_percent as i64),
             detail: "Trackers on outside power are skipped.".into(),
             off: "No battery alerts. Each animal still shows its battery.",
             kind: "safety",
@@ -37,7 +34,10 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "quiet",
-            name: "Flags trackers that stop reporting".into(),
+            name: format!(
+                "Missed check-in (after {})",
+                minutes_text(rules.quiet_minutes)
+            ),
             detail: format!(
                 "An alert after {} with no check-in.",
                 minutes_text(rules.quiet_minutes)
@@ -50,7 +50,10 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "still",
-            name: "Flags animals that stop moving".into(),
+            name: format!(
+                "Animal not moving (after {})",
+                minutes_text(rules.still_minutes)
+            ),
             detail: format!(
                 "An alert after {} checking in near the same spot.",
                 minutes_text(rules.still_minutes)
@@ -63,7 +66,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "paddock",
-            name: "Flags animals outside the paddock".into(),
+            name: "Animal outside the paddock".into(),
             detail: "An alert when a position falls outside the active paddock bounds.".into(),
             off: "No out-of-paddock alerts. Positions still show on the grid.",
             kind: "safety",
@@ -73,7 +76,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "sos",
-            name: "Raises an alert when a tracker sends an SOS".into(),
+            name: "Tracker SOS".into(),
             detail: "The alert names the animal.".into(),
             off: "No SOS alerts. An SOS still shows in the event list.",
             kind: "safety",
@@ -83,7 +86,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "predator",
-            name: "Lists Predator Watch reports near the herd".into(),
+            name: "Predator Watch reports".into(),
             detail: "The sample day has one made-up report.".into(),
             off: "Reports stay in the event list, with no alert or grid marker.",
             kind: "safety",
@@ -93,7 +96,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "smoke",
-            name: "Lists Wildfire Watch smoke reports upwind".into(),
+            name: "Wildfire Watch reports".into(),
             detail: "The rancher map also shows public fire, smoke and air quality layers.".into(),
             off: "Reports stay in the event list, with no alert or haze.",
             kind: "safety",
@@ -103,7 +106,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
         },
         Job {
             id: "trace",
-            name: "Traces a fiber lot back to the goat".into(),
+            name: "Fleece trace, lot back to the goat".into(),
             detail: "Through the fleece and shearing records.".into(),
             off: "The trace page lists each record as entered, to follow by hand.",
             kind: "other",
@@ -117,10 +120,7 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
 pub fn pull_job() -> Job {
     Job {
         id: "pull",
-        name: format!(
-            "Checks for a new live file every {} minutes",
-            PULL_SECONDS / 60
-        ),
+        name: format!("Refresh live data (every {} minutes)", PULL_SECONDS / 60),
         detail: "Live data only. The pull script on your hardware runs only when you start it."
             .into(),
         off: "The herd view keeps the data it opened with. Use Check now to load a newer file.",
@@ -132,10 +132,10 @@ pub fn pull_job() -> Job {
 }
 
 pub const PLANNED: [&str; 4] = [
-    "grazing records for each paddock",
-    "learning each tracker's normal check-in pattern",
-    "tuning the alert rules from rancher answers",
-    "sharing a confirmed predator report with nearby ranchers",
+    "paddock grazing records",
+    "a usual check-in pattern for each tracker, so unusual quiet stands out",
+    "tighter alert rules from the answers ranchers already give",
+    "share a confirmed Predator Watch report with nearby ranchers",
 ];
 
 pub fn alert_job_list(rules: &AlertRules) -> Vec<Job> {
@@ -305,11 +305,10 @@ pub fn jobs_line(jobs: &BTreeMap<String, bool>, rules: &AlertRules) -> String {
         .filter(|id| !jobs.get(**id).copied().unwrap_or(true))
         .map(|id| off_label(id))
         .collect();
-    let mut line = format!("Automatic alerts on: {}.", on.join(", "));
-    if !off.is_empty() {
-        line.push_str(&format!(" Off: {}.", off.join(", ")));
+    if off.is_empty() {
+        return "Automatic alerts are on.".into();
     }
-    line
+    format!("On: {}. Off: {}.", on.join(", "), off.join(", "))
 }
 
 pub fn all_off() -> BTreeMap<String, bool> {

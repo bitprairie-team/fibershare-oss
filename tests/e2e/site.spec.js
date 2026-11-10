@@ -34,13 +34,28 @@ test("escape closes the phone sheet and returns focus", async ({ page }) => {
 });
 
 test("the tour opens a spotlight and traps focus", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/map");
   await page.locator("[data-tour-start]").click();
   await expect(page.locator(".tour-spot")).toBeVisible();
   await expect(page.locator(".tour-card")).toBeVisible();
   await page.keyboard.press("Tab");
   const focused = await page.evaluate(() => document.activeElement && document.activeElement.closest(".tour-card") !== null);
   expect(focused).toBe(true);
+});
+
+test("a missing page is the designed 404", async ({ page }) => {
+  const response = await page.goto("/no-such-page");
+  expect(response.status()).toBe(404);
+  const body = await response.text();
+  expect(body).toContain("Page not found");
+  expect(body).toContain("That address is not in this demo.");
+  await expect(page.getByRole("link", { name: "Back home" })).toBeVisible();
+});
+
+test("a rancher error is decoded", async ({ page }) => {
+  await page.goto("/rancher?error=That%20passphrase%20did%20not%20match.");
+  await expect(page.getByRole("alert")).toHaveText("That passphrase did not match.");
+  await expect(page.locator("body")).not.toContainText("%20");
 });
 
 test("trace does not load the wasm island", async ({ page }) => {

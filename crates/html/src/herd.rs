@@ -1,13 +1,13 @@
-//! Herd view: paddock, pins, trail, Play, alerts, ledger, and the phone sheet.
+//! Herd view: paddock, the sample day, alerts, ledger, and the phone sheet.
 //! The first paint works with no JavaScript. The WASM island redraws it.
+//!
+//! Page copy lives in the constants below.
 
 use std::collections::BTreeMap;
 
 use fibershare_core::alerts::{compute_alerts, split_alerts, ALERT_RULES};
 use fibershare_core::grid::{cell_labels, cell_of, spread_pins};
-use fibershare_core::herd::{
-    grazing_log, herd_stats, key_moments, position_trail, sort_events, state_at,
-};
+use fibershare_core::herd::{grazing_log, key_moments, position_trail, sort_events, state_at};
 use fibershare_core::jobs::{alerts_off_notice_html, jobs_line};
 use fibershare_core::log::{describe_log_entry, entries_for, last_checked};
 use fibershare_core::settings::{read_jobs, MemoryStore, Store, SETTINGS_JOBS};
@@ -19,6 +19,11 @@ use crate::layout::{footer, nav, q, BODY, HEAD, LEDE, MAIN, SECTION, SECTION_TIT
 
 const SAMPLE_NOW: &str = "2026-09-06T18:05:00";
 const TRAIL_LIMIT: usize = 5;
+const HERD_LEDE: &str = "Eight sample goats on a paddock drawing, not a map. Check batteries, last check-ins, and open alerts.";
+const RUN_DAY: &str = "Run the sample day";
+const SAMPLE_NOTE: &str =
+    "Sample day. Predator Watch and Wildfire Watch reports here are simulated.";
+const TOUR_LABEL: &str = "Tour this page";
 
 fn herd_json() -> Value {
     serde_json::from_str(include_str!("../../../public/data/herd.json")).unwrap_or(json!({}))
@@ -135,7 +140,8 @@ pub fn herd_page(query: &str) -> String {
         r#"{nav}<main class="herd-page {main}" id="main">
 <section class="{head} flex flex-wrap items-end justify-between gap-x-10 gap-y-4"><div class="min-w-0 flex-[1_1_32rem]">
 <h1>{ranch}</h1>
-<p class="{lede}">Check each goat's battery and last check-in, and answer open alerts. The 8 sample goats sit on a paddock grid, which is a drawing, not a map.</p>
+<p class="{lede}">{lede_text}</p>
+<p class="mt-4"><button type="button" class="btn-link" data-tour-start>{tour}</button></p>
 </div></section>
 <div id="herd-dynamic" data-step="{step}" data-selected="{selected}" data-sheet="{sheet}">{dynamic}</div>
 </main>{footer}
@@ -148,6 +154,8 @@ pub fn herd_page(query: &str) -> String {
             .and_then(Value::as_str)
             .unwrap_or("Sample herd")),
         lede = LEDE,
+        lede_text = HERD_LEDE,
+        tour = TOUR_LABEL,
         step = view.step,
         selected = esc_attr(&view.selected),
         sheet = if view.sheet { "1" } else { "0" },
@@ -301,26 +309,6 @@ fn herd_dynamic_view(view: &View) -> String {
     } else {
         " hidden"
     };
-    let stats = herd_stats(&state.animals, open.len(), now_ms);
-    let stats_html = stats
-        .iter()
-        .map(|st| {
-            let value = if st.id == "last" {
-                if st.value.is_empty() {
-                    "not yet".into()
-                } else {
-                    day_time(&st.value, now_ms)
-                }
-            } else {
-                st.value.clone()
-            };
-            format!(
-                "<div class=\"stat\"><dt>{}</dt><dd>{}</dd></div>",
-                esc(&st.label),
-                esc(&value)
-            )
-        })
-        .collect::<String>();
     let clock = time_of(&now);
     let grazing = grazing_html(view);
     let detail = detail_html(view, &state.animals, &open, &now, now_ms);
@@ -328,8 +316,7 @@ fn herd_dynamic_view(view: &View) -> String {
     let ledger = ledger_html(view, &state.animals, &open, now_ms);
     let feed = feed_html(&state.shown, &view.animals);
     format!(
-        r#"<dl class="stat-row" data-stats>{stats}</dl>
-<div class="herd-layout">
+        r#"<div class="herd-layout">
 <div class="herd-main" data-tour="grid">
 <div class="paddock-wrap"><div class="paddock-banner" data-banner hidden></div>
 <div class="paddock" id="paddock" role="group" aria-label="Paddock grid, 6 by 4 cells. Arrow keys move between animals, Enter shows one.">
@@ -339,11 +326,12 @@ fn herd_dynamic_view(view: &View) -> String {
 <div data-pins>{pins}</div>
 </div></div>
 <div class="playback">
-<button type="button" class="btn btn-ghost btn-small" data-play><span>Play</span></button>
+<button type="button" class="btn btn-ghost btn-small" data-play>{run}</button>
 <label class="sr-only" for="scrub">Time of day</label>
 <input id="scrub" type="range" min="0" max="{max}" value="{step}" data-scrub aria-valuetext="{clock}, event {step} of {max}" />
 <output class="clock" for="scrub" data-clock>{clock}</output>
 </div>
+<p class="muted sample-note">{sample}</p>
 {grazing}
 </div>
 {detail}
@@ -353,9 +341,8 @@ fn herd_dynamic_view(view: &View) -> String {
 <section class="{section}" aria-labelledby="feed-title">
 <h2 class="{title}" id="feed-title">Event log</h2>
 <div class="{body}">
-<details class="disclosure feed-section" data-tour="feed"><summary>Show all events <span class="count">{count}</span></summary>
+<details class="disclosure feed-section" data-tour="feed"><summary>Show all events ({count})</summary>
 <ol class="feed" data-feed>{feed}</ol></details></div></section>"#,
-        stats = stats_html,
         cells = cells,
         haze = haze_hidden,
         trail = trail,
@@ -363,6 +350,8 @@ fn herd_dynamic_view(view: &View) -> String {
         max = view.events.len(),
         step = view.step,
         clock = esc(&clock),
+        run = RUN_DAY,
+        sample = SAMPLE_NOTE,
         grazing = grazing,
         detail = detail,
         alerts = alerts,
@@ -441,7 +430,7 @@ fn grazing_html(view: &View) -> String {
     format!(
         r#"<section class="grazing-log" data-grazing-log aria-labelledby="grazing-title">
 <h2 class="grazing-title" id="grazing-title">Paddock moves</h2>
-<p class="muted grazing-note">Sample paddock moves and grazing notes for this made-up day. They advance with Play.</p>
+<p class="muted grazing-note">Paddock moves for this sample day.</p>
 <ol class="grazing-list" data-grazing-list tabindex="0" aria-labelledby="grazing-title">{items}</ol>
 </section>"#
     )
@@ -597,7 +586,7 @@ fn alerts_html(view: &View, open: &[Value], history: &[Value]) -> String {
             let why = if alert.get("manual").and_then(Value::as_bool).unwrap_or(false) {
                 String::new()
             } else {
-                format!("<p class=\"alert-why\"><span class=\"sr-only\">Why: </span>{}</p>", esc(alert.get("why").and_then(Value::as_str).unwrap_or("")))
+                format!("<p class=\"alert-why\">{}</p>", esc(alert.get("why").and_then(Value::as_str).unwrap_or("")))
             };
             let when = if alert.get("manual").and_then(Value::as_bool).unwrap_or(false) {
                 esc(&date_time(alert.get("time").and_then(Value::as_str).unwrap_or("")))
@@ -626,17 +615,16 @@ fn alerts_html(view: &View, open: &[Value], history: &[Value]) -> String {
         })
         .collect::<String>();
     format!(
-        r#"<section class="{section}" data-tour="alerts" aria-labelledby="alerts-title">
-<h2 class="{title}" id="alerts-title">Open alerts <span class="count" data-open-count>{count}</span></h2>
+        r##"<section class="{section}" data-tour="alerts" aria-labelledby="alerts-title">
+<h2 class="{title}" id="alerts-title">Open alerts ({count})</h2>
 <div class="{body}">
-<p class="jobs-line"><span data-jobs-line>{line}</span> <button type="button" class="btn-link" data-open-settings>Change</button></p>
+<p class="jobs-line"><span data-jobs-line>{line}</span> <a href="#alert-settings">Change settings</a></p>
 {notice}
-<p class="muted feed-note">Predator Watch, Wildfire Watch, not-moving, and out-of-paddock reports on the sample day are simulated.</p>
 <p class="sr-only" data-alert-status role="status"></p>
 <div data-alerts>
-<details class="disclosure settings" data-settings id="alert-settings"><summary>Alert settings</summary>
-<ul class="settings-list">{settings}</ul></details>
 <ol class="alert-list" data-alert-open>{items}</ol>
+<details class="disclosure settings" data-settings id="alert-settings"><summary>Alert settings</summary>
+<ul class="settings-list">{settings}</ul>
 <form class="add-alert" data-add-alert>
 <p class="add-alert-title" id="add-alert-title">Add an alert by hand</p>
 <div class="alert-answer">
@@ -646,9 +634,10 @@ fn alerts_html(view: &View, open: &[Value], history: &[Value]) -> String {
 <input id="add-alert-text" class="alert-note" type="text" maxlength="280" data-add-text />
 <button type="submit" class="btn btn-ghost btn-small" aria-describedby="add-alert-title">Add alert</button>
 </div></form>
-<details class="disclosure" data-history-box><summary>Answered alerts <span class="count" data-history-count>{history}</span></summary>
+</details>
+<details class="disclosure" data-history-box><summary>Answered alerts ({history})</summary>
 <ol class="alert-list alert-history" data-alert-history></ol></details>
-</div></div></section>"#,
+</div></div></section>"##,
         section = SECTION,
         title = SECTION_TITLE,
         body = BODY,

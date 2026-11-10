@@ -24,7 +24,6 @@ pub fn document(title: &str, description: &str, body: &str, path: &str) -> Strin
     } else {
         ""
     };
-    let canonical = "https://github.com/bitprairie-team/fibershare-oss";
     format!(
         r##"<!doctype html>
 <html lang="en">
@@ -33,13 +32,11 @@ pub fn document(title: &str, description: &str, body: &str, path: &str) -> Strin
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content="{description}" />
-    <link rel="canonical" href="{canonical}" />
     <meta name="theme-color" content="#f2ede4" />
     <meta property="og:title" content="{title}" />
     <meta property="og:description" content="{description}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{canonical}" />
-    <meta property="og:site_name" content="FiberShare demo" />
+    <meta property="og:site_name" content="FiberShare" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/style.css" />
     {theme}
@@ -55,7 +52,6 @@ pub fn document(title: &str, description: &str, body: &str, path: &str) -> Strin
 "##,
         title = esc_attr(title),
         description = esc_attr(description),
-        canonical = canonical,
         theme = THEME,
         tour = fibershare_core::tour::steps_json(),
         wasm = wasm,

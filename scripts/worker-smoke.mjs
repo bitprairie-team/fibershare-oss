@@ -67,6 +67,14 @@ try {
   await ready();
   const home = await fetch(base + "/");
   if (home.status !== 200 || !(await home.text()).includes("<title>")) throw new Error("home page");
+  const missing = await fetch(base + "/no-such-page");
+  const missingBody = await missing.text();
+  if (missing.status !== 404) throw new Error("404 status " + missing.status);
+  if (!missingBody.includes("That address is not in this demo.")) throw new Error("404 body empty or wrong: " + missingBody.slice(0, 180));
+  const rancher = await fetch(base + "/rancher?error=That%20passphrase%20did%20not%20match.");
+  const rancherBody = await rancher.text();
+  if (!rancherBody.includes("That passphrase did not match.")) throw new Error("error not decoded");
+  if (rancherBody.includes("%20")) throw new Error("percent encoding left in the error");
   const unsigned = await fetch(base + "/api/log");
   if (unsigned.status !== 401) throw new Error("unsigned /api/log status " + unsigned.status);
   const signed = await fetch(base + "/api/log", {

@@ -1,4 +1,4 @@
-//! Herd Play, pin selection, and the phone sheet. Theme, the menu, and the
+//! Sample day, pin selection, and the phone sheet. Theme, the menu, and the
 //! tour live in /chrome.js so this module stays off the home and trace pages.
 //! The server renders each moment. This island only asks for the new HTML.
 
