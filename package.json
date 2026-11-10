@@ -1,0 +1,13 @@
+{
+  "name": "fibershare-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Playwright checks for the Rust demo. The site itself is not built with Node.",
+  "scripts": {
+    "e2e": "playwright test",
+    "worker:smoke": "node scripts/worker-smoke.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}

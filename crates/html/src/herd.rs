@@ -10,7 +10,7 @@ use fibershare_core::herd::{
 };
 use fibershare_core::jobs::{alerts_off_notice_html, jobs_line};
 use fibershare_core::log::{describe_log_entry, entries_for, last_checked};
-use fibershare_core::settings::read_jobs;
+use fibershare_core::settings::{read_jobs, MemoryStore, Store, SETTINGS_JOBS};
 use fibershare_core::time::{ago, date_time, day_time, parse_ms, time_of};
 use serde_json::{json, Value};
 
@@ -155,6 +155,29 @@ pub fn herd_page(query: &str) -> String {
         footer = footer(),
         data = data.replace('<', "\\u003c"),
     )
+}
+
+/// HTML for the part of the herd view the browser island swaps in.
+/// `body` is JSON: step, animal, sheet, log, jobs.
+pub fn herd_view_html(body: &str) -> String {
+    let value: Value = serde_json::from_str(body).unwrap_or(Value::Null);
+    let step = value.get("step").and_then(Value::as_u64).unwrap_or(0) as usize;
+    let animal = value
+        .get("animal")
+        .and_then(Value::as_str)
+        .unwrap_or("bramble");
+    let sheet = value.get("sheet").and_then(Value::as_bool).unwrap_or(false);
+    let log = value
+        .get("log")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let mut store = MemoryStore::default();
+    if let Some(jobs) = value.get("jobs").filter(|v| v.is_object()) {
+        store.set_item(SETTINGS_JOBS, &jobs.to_string());
+    }
+    let jobs = read_jobs(&store);
+    herd_dynamic(step, animal, sheet, &log, &jobs)
 }
 
 pub fn herd_dynamic(

@@ -5,6 +5,7 @@
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::Mutex;
 
 use async_trait::async_trait;
 use fibershare_core::api::{
@@ -55,7 +56,29 @@ impl fibershare_core::api::KvStore for BoundKv {
     }
 }
 
+/// Set only by the local `wrangler dev` smoke test. A deployed copy leaves this empty
+/// and the Worker fetches the team certs over HTTPS.
+static SMOKE_CERTS: Mutex<Option<String>> = Mutex::new(None);
+
+fn decode_certs(raw: String) -> String {
+    let trimmed = raw.trim();
+    if trimmed.starts_with('{') {
+        return trimmed.to_string();
+    }
+    use base64::Engine;
+    base64::engine::general_purpose::STANDARD
+        .decode(trimmed)
+        .ok()
+        .and_then(|bytes| String::from_utf8(bytes).ok())
+        .unwrap_or(raw)
+}
+
 fn pull_cert(url: String) -> Pin<Box<dyn Future<Output = Result<String, ()>> + 'static>> {
+    if url.contains("/cdn-cgi/access/certs") {
+        if let Some(body) = SMOKE_CERTS.lock().ok().and_then(|guard| guard.clone()) {
+            return Box::pin(async move { Ok(body) });
+        }
+    }
     Box::pin(async move {
         let parsed = url.parse().map_err(|_| ())?;
         let mut response = Fetch::Url(parsed).send().await.map_err(|_| ())?;
@@ -126,6 +149,10 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
     let aud = env_value(&env, "ACCESS_AUD");
     let push = env_value(&env, "PUSH_TOKEN");
     let arcgis = env_value(&env, "ARCGIS_API_KEY");
+    let smoke_certs = env_value(&env, "ACCESS_CERTS").filter(|value| !value.is_empty());
+    if let Ok(mut guard) = SMOKE_CERTS.lock() {
+        *guard = smoke_certs.map(decode_certs);
+    }
     let pages_env = PagesEnv {
         team: team.as_deref(),
         aud: aud.as_deref(),
@@ -137,6 +164,10 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
     };
     let page_url = url.to_string();
     let api = path.starts_with("/api/");
+    if method == Method::Post && path == "/api/herd-view" {
+        let body = req.text().await.unwrap_or_default();
+        return Response::from_html(fibershare_html::herd_view_html(&body));
+    }
     if api {
         let reply = match (method, path.as_str()) {
             (Method::Get, "/api/health") => pages_health(store.is_some()).await,

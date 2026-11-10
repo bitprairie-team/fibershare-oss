@@ -1,6 +1,7 @@
 node_modules/
 .vite/
 /target/
+crates/worker/build/
 dist/
 .wrangler/
 .dev.vars
@@ -11,4 +12,6 @@ dist/
 !.env.example
 # Live data from your own ChirpStack server. Never commit it.
 .local/
+test-results/
+playwright-report/
 !.env.example

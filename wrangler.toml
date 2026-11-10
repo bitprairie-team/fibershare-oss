@@ -1,18 +1,18 @@
 # Cloudflare Worker for this demo copy. Not the FiberShare app.
-# Build: worker-build --release
+# Build: worker-build --release crates/worker
 # Deploy: npx wrangler deploy
 # Set ACCESS_TEAM_DOMAIN, ACCESS_AUD, PUSH_TOKEN, and ARCGIS_API_KEY with
 # `npx wrangler secret put`. Do not put them in this file.
 name = "fibershare-dev"
-main = "build/worker/shim.mjs"
+main = "crates/worker/build/worker/shim.mjs"
 compatibility_date = "2026-10-01"
 workers_dev = true
 
 [build]
-command = "worker-build --release"
+command = "worker-build --release crates/worker"
 
 [assets]
-directory = "dist"
+directory = "public"
 binding = "ASSETS"
 run_worker_first = true
 

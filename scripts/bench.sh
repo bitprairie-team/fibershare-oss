@@ -33,6 +33,9 @@ echo "build rust release"
 start=$(date +%s%N)
 (cd "$ROOT" && cargo build -p fibershare --release)
 row build "rust cargo build -p fibershare --release ms" "$(( ($(date +%s%N) - start) / 1000000 ))"
+start=$(date +%s%N)
+(cd "$ROOT" && cargo build -p fibershare --release)
+row build "rust cargo build -p fibershare --release unchanged ms" "$(( ($(date +%s%N) - start) / 1000000 ))"
 
 echo "build node production"
 start=$(date +%s%N)
@@ -44,6 +47,7 @@ file_weight "rust public/style.css" "$ROOT/public/style.css"
 for font in "$ROOT"/public/fonts/*.woff2; do
   file_weight "rust $(basename "$font")" "$font"
 done
+file_weight "rust public/chrome.js" "$ROOT/public/chrome.js"
 file_weight "rust public/wasm/client.js" "$ROOT/public/wasm/client.js"
 file_weight "rust public/wasm/client_bg.wasm" "$ROOT/public/wasm/client_bg.wasm"
 file_weight "rust public/vendor/leaflet/leaflet.css" "$ROOT/public/vendor/leaflet/leaflet.css"

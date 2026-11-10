@@ -101,6 +101,14 @@ async fn api(State(app): State<Arc<App>>, request: Request) -> Response {
         return axum::response::Redirect::to(&format!("/rancher?error={}", urlencoding(error)))
             .into_response();
     }
+    if path == "/api/herd-view" && method == Method::POST {
+        let html = fibershare_html::herd_view_html(&body);
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .body(Body::from(html))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response());
+    }
     let reply = if path == "/api/health" {
         local_health()
     } else {

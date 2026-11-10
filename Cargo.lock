@@ -316,10 +316,7 @@ dependencies = [
 name = "fibershare-client"
 version = "0.1.0"
 dependencies = [
- "fibershare-core",
- "fibershare-html",
  "js-sys",
- "serde_json",
  "wasm-bindgen",
  "web-sys",
 ]
@@ -331,6 +328,7 @@ dependencies = [
  "async-trait",
  "base64",
  "chrono",
+ "fibershare-html",
  "getrandom 0.2.17",
  "hmac",
  "jsonwebtoken",
@@ -359,6 +357,7 @@ name = "fibershare-worker"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "base64",
  "console_error_panic_hook",
  "fibershare-core",
  "fibershare-html",

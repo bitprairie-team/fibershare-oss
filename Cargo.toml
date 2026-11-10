@@ -39,3 +39,11 @@ web-sys = "0.3"
 futures = "0.3"
 fibershare-core = { path = "crates/core" }
 fibershare-html = { path = "crates/html" }
+
+# Size-first profile for the browser island only. The server stays on release.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

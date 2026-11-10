@@ -18,7 +18,12 @@ const THEME: &str = r##"<script>
       })();
     </script>"##;
 
-pub fn document(title: &str, description: &str, body: &str, _home: bool) -> String {
+pub fn document(title: &str, description: &str, body: &str, path: &str) -> String {
+    let wasm = if path == "/map" {
+        r#"<script type="module">import init from "/wasm/client.js"; init();</script>"#
+    } else {
+        ""
+    };
     let canonical = "https://github.com/bitprairie-team/fibershare-oss";
     format!(
         r##"<!doctype html>
@@ -43,7 +48,8 @@ pub fn document(title: &str, description: &str, body: &str, _home: bool) -> Stri
     <div id="app">{body}</div>
     <div id="route-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <script type="application/json" id="tour-steps">{tour}</script>
-    <script type="module" src="/wasm/client.js"></script>
+    <script src="/chrome.js" defer></script>
+    {wasm}
   </body>
 </html>
 "##,
@@ -52,6 +58,7 @@ pub fn document(title: &str, description: &str, body: &str, _home: bool) -> Stri
         canonical = canonical,
         theme = THEME,
         tour = fibershare_core::tour::steps_json(),
+        wasm = wasm,
         body = body,
     )
 }

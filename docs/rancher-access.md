@@ -77,9 +77,9 @@ Build the Worker and the static files, then deploy. `wrangler.toml` binds `FIBER
 ```bash
 cargo build -p fibershare --release
 cargo build -p fibershare-worker --target wasm32-unknown-unknown --release
-# worker-build writes build/worker/shim.mjs, which wrangler.toml points at
+# worker-build writes crates/worker/build/worker/shim.mjs, which wrangler.toml points at
 cargo install worker-build
-worker-build --release
+worker-build --release crates/worker
 npx wrangler deploy
 ```
 

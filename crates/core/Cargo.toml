@@ -23,6 +23,7 @@ url = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
+fibershare-html = { path = "../html" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }

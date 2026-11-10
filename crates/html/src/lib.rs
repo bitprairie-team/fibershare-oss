@@ -8,7 +8,7 @@ mod layout;
 mod pages;
 
 pub use document::document;
-pub use herd::{herd_dynamic, herd_page};
+pub use herd::{herd_dynamic, herd_page, herd_view_html};
 pub use pages::page_body;
 
 use fibershare_core::meta::meta_for_path;
@@ -26,7 +26,7 @@ pub fn render(path: &str, query: &str) -> String {
         "/rancher" => pages::rancher(query),
         _ => pages::not_found(),
     };
-    document(meta.title, meta.description, &body, path == "/")
+    document(meta.title, meta.description, &body, path)
 }
 
 pub fn sitemap() -> String {

@@ -359,7 +359,11 @@ pub fn rancher(query: &str) -> String {
     } else {
         format!("<p class=\"form-error\" role=\"alert\">{}</p>", esc(&error))
     };
-    let map = r#"<div class="rancher-callout border-t border-ink pt-5" data-tour="rancher-map">
+    let layers = serde_json::to_string(&fibershare_core::layers::layers())
+        .unwrap_or_else(|_| "[]".into())
+        .replace('<', "\\u003c");
+    let map = format!(
+        r#"<div class="rancher-callout border-t border-ink pt-5" data-tour="rancher-map">
 <h2 class="text-xl">Rancher map</h2>
 <div class="mock-map relative overflow-hidden rounded-sm border border-rule bg-band" role="img" aria-label="Drawing of the rancher map: tracker dots on a basemap, a dashed fire perimeter, and a layer list">
 <svg viewBox="0 0 160 100" class="block aspect-[16/10] w-full" aria-hidden="true"><path d="M0 72 C30 64 52 78 80 70 S130 52 160 58 V100 H0Z" class="fill-band-2"/><circle cx="60" cy="42" r="1.9" class="fill-leather"/></svg>
@@ -368,10 +372,13 @@ pub fn rancher(query: &str) -> String {
 <p>After sign-in, trackers appear at their real positions, with map layers from public agencies. Map layers come from public agencies and OpenStreetMap, plus Esri basemaps when an ArcGIS key is set.</p>
 <p class="text-sm text-muted">Drawing only, until you are signed in. The live map needs your own trackers. Run <code>fibershare pull</code> on your own hardware.</p>
 <div id="live-map" class="live-map" data-live-map hidden></div>
+<script type="application/json" id="map-layers">{layers}</script>
 </div>
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
 <script src="/vendor/leaflet/leaflet.js"></script>
-<script src="/live-map.js"></script>"#;
+<script src="/live-map.js"></script>"#,
+        layers = layers
+    );
     format!(
         r#"{nav}<main class="{main}" id="main">
 <section class="{head}"><h1>Rancher sign-in</h1>
