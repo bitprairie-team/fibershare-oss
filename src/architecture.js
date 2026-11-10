@@ -3,11 +3,12 @@ import { APP, DISCORD, REPO } from "./sites.js";
 import { EXT } from "./util.js";
 import { PLANNED, PULL_JOB, alertsOffNoticeHtml, jobsFor, paintAlertsOffNotice } from "./loops.js";
 import { readJobs, readRules, setAllJobs, setJob } from "./settings.js";
+import { BODY, HEAD, LEDE, MAIN, PROSE, SECTION, SECTION_TITLE } from "./ui.js";
 
 const PARTS = [
   ["Pages", "Plain web pages built with Vite. Run them yourself or publish a copy on Cloudflare Pages."],
   ["Sample data", "The goats, the sample day and the fiber lots are in <code>public/data</code>. The fleece trace reads <code>docs/schemas/examples</code>."],
-  ["Server routes", "<code>/api/live</code> sends tracker data, <code>/api/session</code> handles sign-in and <code>/api/alerts</code> keeps a signed-in rancher's answers."],
+  ["Server routes", "<code>/api/live</code> sends tracker data, <code>/api/session</code> handles sign-in and <code>/api/alerts</code> and <code>/api/log</code> keep a signed-in rancher's answers and notes."],
   ["Your own trackers", "A pull script reads trackers from your LoRaWAN network server into <code>.local/live.json</code>. Git ignores that file and the build leaves it out."],
   ["Sign-in", "A passphrase on your own hardware, or Cloudflare Access on Pages. The server checks it on every request."],
   ["Alert rules", "<code>src/alerts.js</code> and <code>src/alert-config.js</code>. The browser and the server run the same code."],
@@ -32,38 +33,38 @@ export function renderArchitecture() {
     )
     .join("");
   const planned = PLANNED.join(", ").replace(/, ([^,]*)$/, " and $1");
-  const parts = PARTS.map(([k, v]) => "<dt>" + k + "</dt><dd>" + v + "</dd>").join("");
+  const parts = PARTS.map(([k, v]) => '<dt class="font-medium text-ink">' + k + '</dt><dd class="text-ink-2">' + v + "</dd>").join("");
   return (
     nav("/architecture") +
-    '<main class="wrap editorial" id="main">' +
-    '<section class="page-head">' +
+    '<main class="' + MAIN + '" id="main">' +
+    '<section class="' + HEAD + '">' +
     "<h1>How it works</h1>" +
-    '<p class="lede">What the demo does with tracker data, and the parts it runs on. Each automated job can be turned off below. All of it runs on your own hardware, with no account.</p>' +
+    '<p class="' + LEDE + '">What the demo does with tracker data, and the parts it runs on. Each automated job can be turned off below. All of it runs on your own hardware, with no account.</p>' +
     "</section>" +
-    '<section class="section" aria-labelledby="jobs-title">' +
-    '<h2 id="jobs-title">Automated jobs</h2>' +
-    '<div class="job-block">' +
-    '<p class="job-intro">Every job is on until you turn it off. With all of them off, the herd view still works by hand: answer and add alerts, save notes, and mark animals checked. Saved in this browser.</p>' +
+    '<section class="' + SECTION + ' mt-0 max-sm:mt-0" aria-labelledby="jobs-title">' +
+    '<h2 id="jobs-title" class="' + SECTION_TITLE + '">Automated jobs</h2>' +
+    '<div class="' + BODY + '">' +
+    '<p class="max-w-measure text-sm text-ink-2">Every job is on until you turn it off. With all of them off, the herd view still works by hand: answer and add alerts, save notes, and mark animals checked. Saved in this browser, or on the server once you sign in.</p>' +
     alertsOffNoticeHtml(state) +
-    '<ul class="job-list">' + jobs + "</ul>" +
-    '<p class="job-all"><button type="button" class="btn-link" data-all-jobs>' + (Object.values(state).some(Boolean) ? "Turn every job off" : "Turn every job on") + "</button>" +
-    '<span class="visually-hidden" role="status" data-job-status></span></p>' +
-    "</div>" +
-    '<p class="planned"><span class="tag">Planned</span> ' + planned.charAt(0).toUpperCase() + planned.slice(1) + ".</p>" +
+    '<ul class="job-list mt-3 divide-y divide-rule border-y border-rule">' + jobs + "</ul>" +
+    '<p class="mt-3 text-sm"><button type="button" class="btn-link" data-all-jobs>' + (Object.values(state).some(Boolean) ? "Turn every job off" : "Turn every job on") + "</button>" +
+    '<span class="sr-only" role="status" data-job-status></span></p>' +
+    '<p class="mt-6 max-w-measure text-sm text-ink-2"><span class="tag">Planned</span> ' + planned.charAt(0).toUpperCase() + planned.slice(1) + ".</p>" +
+    "</div></section>" +
+    '<section class="' + SECTION + '" aria-labelledby="parts-title">' +
+    '<h2 id="parts-title" class="' + SECTION_TITLE + '">Parts</h2>' +
+    '<dl class="' + BODY + ' grid text-sm sm:grid-cols-[11rem_minmax(0,1fr)] [&>dd]:border-b [&>dd]:border-rule [&>dd]:pb-3 sm:[&>dd]:pt-3 sm:[&>dt]:border-b sm:[&>dt]:border-rule sm:[&>dt]:py-3 max-sm:[&>dt]:pt-3 sm:[&>:nth-child(-n+2)]:pt-0">' + parts + "</dl>" +
     "</section>" +
-    '<section class="section" aria-labelledby="parts-title">' +
-    '<h2 id="parts-title">Parts</h2>' +
-    '<dl class="def-list">' + parts + "</dl>" +
-    "</section>" +
-    '<section class="section" aria-labelledby="run-title">' +
-    '<h2 id="run-title">Run your own copy</h2>' +
+    '<section class="' + SECTION + '" aria-labelledby="run-title">' +
+    '<h2 id="run-title" class="' + SECTION_TITLE + '">Run your own copy</h2>' +
+    '<div class="' + PROSE + ' max-w-content">' +
     "<p>You need Node 20.9 or newer.</p>" +
     "<pre><code>git clone " + REPO + ".git\ncd fibershare-oss\nnpm install\nnpm run dev</code></pre>" +
     "<p>Then open http://localhost:5173.</p>" +
     "<p>The code is MIT licensed, so anyone may use it. Joining the community network through a self-hosted or co-op server is free for non-commercial and research use. Keep private ranch files and real tracker data out of the repository. " +
     'See the <a href="' + REPO + '/blob/main/CONTRIBUTING.md"' + EXT + ">contribution guide</a>, or ask on <a href=\"" + DISCORD + '"' + EXT + ">Discord</a>.</p>" +
     '<p>The FiberShare app is a separate product at <a href="' + APP + '"' + EXT + ">fibershare.app</a>.</p>" +
-    "</section></main>" +
+    "</div></section></main>" +
     footer()
   );
 }

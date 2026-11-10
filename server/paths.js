@@ -7,3 +7,4 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const LIVE_FILE = join(ROOT, ".local", "live.json");
 export const RANCHER_FILE = join(ROOT, ".local", "rancher.json");
 export const ALERTS_FILE = join(ROOT, ".local", "alert-feedback.json");
+export const LOG_FILE = join(ROOT, ".local", "ranch-log.json");

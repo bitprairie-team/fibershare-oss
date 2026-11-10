@@ -2,7 +2,7 @@ import { PRIVACY, TERMS } from "./sites.js";
 import { icon } from "./icons.js";
 
 const MARK =
-  '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
+  '<svg class="size-8" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
   '<rect width="32" height="32" rx="7" fill="#5c4030"/>' +
   '<path d="M15 12c-.6-4.1 3.1-7.1 6.5-5.6 1.8.8 1.2 3.1-.9 3.6 2.6-.2 4.4 1.6 3.3 3.8-.8 1.7-3.6 1.4-4.8-.4" fill="none" stroke="#c49a6c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
   '<path d="M8 15c-2.9.9-4.3 4.5-2.3 6.8 1.4 1.6 4 .8 4.5-1.5.4-1.8-.4-4.1-2.2-5.3z" fill="#e8dfd2"/>' +
@@ -28,31 +28,33 @@ export const NAV_LINKS = [
 export function nav(active) {
   const links = NAV_LINKS.map(([href, label]) => {
     const on = active === href;
-    return '<a href="#' + href + '"' + (on ? ' class="active" aria-current="page"' : "") + ">" + label + "</a>";
+    return '<a class="nav-link" href="#' + href + '"' + (on ? ' aria-current="page"' : "") + ">" + label + "</a>";
   }).join("");
   return (
-    '<a class="skip-link" href="#main">Skip to content</a>' +
-    '<header class="site-header"><p class="demo-bar">This is a demo, not the FiberShare app.</p>' +
-    '<div class="wrap header-row">' +
-    '<a class="brand" href="#/">' + MARK + '<span class="brand-name">FiberShare</span></a>' +
-    '<nav class="nav" id="primary-nav" aria-label="Primary">' + links + "</nav>" +
-    '<div class="header-actions">' +
-    '<button class="btn btn-tour" type="button" data-tour-start>Tour</button>' +
+    '<a class="skip-link absolute -top-16 left-4 z-[100] rounded-md bg-leather px-4 py-2 font-semibold text-on-leather no-underline focus:top-3" href="#main">Skip to content</a>' +
+    '<header class="site-header sticky top-0 z-40 border-b border-rule bg-paper">' +
+    '<p class="m-0 border-b border-rule bg-band px-4 py-1 text-center text-xs text-ink-2">This is a demo, not the FiberShare app.</p>' +
+    '<div class="relative mx-auto flex h-16 max-w-page items-center gap-4 px-gutter max-sm:h-14">' +
+    '<a class="mr-auto inline-flex flex-none items-center gap-2.5 text-lg font-semibold tracking-tight text-ink no-underline hover:text-ink" href="#/">' + MARK + "<span>FiberShare</span></a>" +
+    '<nav class="flex items-center gap-1 max-nav:absolute max-nav:inset-x-0 max-nav:top-full max-nav:z-10 max-nav:hidden max-nav:max-h-[calc(100dvh-7rem)] max-nav:flex-col max-nav:items-stretch max-nav:gap-0 max-nav:overflow-y-auto max-nav:border-y max-nav:border-rule max-nav:bg-surface max-nav:px-gutter max-nav:pt-2 max-nav:pb-4 max-nav:[&.is-open]:flex" id="primary-nav" aria-label="Primary">' + links + "</nav>" +
+    '<div class="relative z-20 flex flex-none items-center gap-1">' +
+    '<button class="h-10 cursor-pointer px-2 text-sm font-medium text-ink-2 hover:text-ink" type="button" data-tour-start>Tour</button>' +
     '<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">' + icon("moon", { cls: "i-moon" }) + icon("sun", { cls: "i-sun" }) + "</button>" +
-    '<button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">' + icon("menu", { cls: "i-open" }) + icon("close", { cls: "i-close" }) + "</button>" +
+    '<button class="icon-btn nav-toggle nav:hidden" type="button" data-nav-toggle aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">' + icon("menu", { cls: "i-open" }) + icon("close", { cls: "i-close" }) + "</button>" +
     "</div></div></header>"
   );
 }
 
 export function footer() {
   return (
-    '<footer class="site-footer"><div class="wrap footer-row">' +
-    '<img class="footer-logo" src="/brand/bitprairie-tile.svg" alt="" width="28" height="28" />' +
-    '<div class="footer-legal">' +
+    '<footer class="site-footer mt-auto border-t border-rule text-sm text-ink-2">' +
+    '<div class="mx-auto flex max-w-page items-center gap-3 px-gutter py-6">' +
+    '<img class="size-7 flex-none rounded-md" src="/brand/bitprairie-tile.svg" alt="" width="28" height="28" />' +
+    '<div class="flex min-w-0 flex-wrap items-baseline gap-x-5 gap-y-2">' +
     "<p>© 2026 BitPrairie LLC</p>" +
-    '<nav class="footer-legal-links" aria-label="Legal">' +
-    '<a href="' + TERMS + '">Terms</a>' +
-    '<a href="' + PRIVACY + '">Privacy</a>' +
+    '<nav class="flex flex-wrap gap-4" aria-label="Legal">' +
+    '<a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="' + TERMS + '">Terms</a>' +
+    '<a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="' + PRIVACY + '">Privacy</a>' +
     "</nav></div></div></footer>"
   );
 }
