@@ -12,6 +12,7 @@ import { renderRancher, bindRancher } from "./rancher.js";
 import { tourAfterRender } from "./tour.js";
 import { skeleton } from "./skeleton.js";
 import { applyPageMeta, metaForPath } from "./page-meta.js";
+import { ACTIONS, HEAD, LEDE, MAIN } from "./ui.js";
 
 const trace = { render: renderTrace };
 const routes = {
@@ -33,11 +34,11 @@ function pathFromHash() {
 function renderNotFound() {
   return (
     nav("") +
-    '<main class="wrap" id="main">' +
-    '<section class="page-head">' +
+    '<main class="' + MAIN + '" id="main">' +
+    '<section class="' + HEAD + '">' +
     "<h1>Page not found</h1>" +
-    '<p class="lede">Nothing is at this address.</p>' +
-    '<div class="cta-row"><a class="btn btn-primary" href="#/">Home</a><a href="#/map">Herd view</a></div>' +
+    '<p class="' + LEDE + '">Nothing is at this address.</p>' +
+    '<div class="' + ACTIONS + '"><a class="btn btn-primary" href="#/">Home</a><a href="#/map">Herd view</a></div>' +
     "</section></main>" +
     footer()
   );

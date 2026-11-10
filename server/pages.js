@@ -5,6 +5,7 @@ import { hiddenProblems } from "./push-check.js";
 import { accessToken, isRancher, teamHost, verifyAccessJwt } from "./access-jwt.js";
 import { liveBody, NO_STORE } from "./live-response.js";
 import { addFeedback, KV_FEEDBACK, parseFeedbackList } from "./alert-feedback.js";
+import { addLogEntry, authorFromClaims, readLog, writeLogEntry } from "./ranch-log.js";
 
 export const KV_HIDDEN = "live-hidden";
 export const KV_FULL = "live-full";
@@ -106,9 +107,9 @@ function sameSite(request) {
   }
 }
 
-async function alertGate({ request, env }, { fetchImpl, now }) {
+async function alertGate({ request, env }, { fetchImpl, now }, what = "see and answer alerts") {
   if (!accessConfigured(env) || !(await isRancher(request, env, { fetchImpl, now }))) {
-    return json(401, { error: "Sign in as the rancher to see and answer alerts." });
+    return json(401, { error: "Sign in as the rancher to " + what + "." });
   }
   if (!env.FIBERSHARE_LIVE) return json(503, { error: "No store is set up on this copy." });
   return null;
@@ -132,5 +133,41 @@ export async function postAlerts(context, { fetchImpl = fetch, now = Date.now() 
   const store = context.env.FIBERSHARE_LIVE;
   const result = addFeedback(parseFeedbackList(await store.get(KV_FEEDBACK)), text, { now: new Date(now).toISOString() });
   if (result.list) await store.put(KV_FEEDBACK, JSON.stringify(result.list));
+  return json(result.status, result.body);
+}
+
+async function logGate({ request, env }, { fetchImpl, now }, what = "see and save notes") {
+  if (!accessConfigured(env)) return { error: json(401, { error: "Sign in as the rancher to " + what + "." }) };
+  const result = await verifyAccessJwt(accessToken(request), {
+    teamDomain: env.ACCESS_TEAM_DOMAIN,
+    aud: env.ACCESS_AUD,
+    fetchImpl,
+    now,
+  });
+  if (!result.ok) return { error: json(401, { error: "Sign in as the rancher to " + what + "." }) };
+  if (!env.FIBERSHARE_LIVE) return { error: json(503, { error: "No store is set up on this copy." }) };
+  return { author: authorFromClaims(result.claims) };
+}
+
+/** GET /api/log: the shared ranch log. Signed-in ranchers only. */
+export async function getLog(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  const gate = await logGate(context, { fetchImpl, now });
+  if (gate.error) return gate.error;
+  return json(200, { log: await readLog(context.env.FIBERSHARE_LIVE) });
+}
+
+/** POST /api/log: add one note, check or hand-made alert, tagged with the signed-in rancher. */
+export async function postLog(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  if (!sameSite(context.request)) return json(403, { error: "Save notes from this site." });
+  const gate = await logGate(context, { fetchImpl, now });
+  if (gate.error) return gate.error;
+  const text = await context.request.text();
+  if (text.length > 4096) return json(413, { error: "That entry is too long." });
+  const result = addLogEntry([], text, { now: new Date(now).toISOString(), author: gate.author });
+  if (result.entry) {
+    await writeLogEntry(context.env.FIBERSHARE_LIVE, result.entry);
+    const log = await readLog(context.env.FIBERSHARE_LIVE);
+    return json(200, { ok: true, entry: result.entry, log });
+  }
   return json(result.status, result.body);
 }
