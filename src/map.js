@@ -13,6 +13,7 @@ import { alertScope, createAlertStore } from "./alert-store.js";
 import { LIMITS, readJobs, readRules, setJob, setLimit } from "./settings.js";
 import { createRanchLog, entriesFor, lastChecked } from "./ranch-log.js";
 import { PULL_SECONDS, alertsOffNoticeHtml, jobsLine, paintAlertsOffNotice } from "./loops.js";
+import { BODY, HEAD, LEDE, MAIN, SECTION, SECTION_TITLE } from "./ui.js";
 
 const ALERT_KIND = {
   manual: ["info", "Added by hand"],
@@ -128,9 +129,9 @@ function addAlertForm(animals) {
     '<form class="add-alert" data-add-alert>' +
     '<p class="add-alert-title" id="add-alert-title">Add an alert by hand</p>' +
     '<div class="alert-answer">' +
-    '<label class="visually-hidden" for="add-alert-animal">Animal</label>' +
+    '<label class="sr-only" for="add-alert-animal">Animal</label>' +
     '<select id="add-alert-animal" class="alert-note add-alert-animal" data-add-animal>' + options + "</select>" +
-    '<label class="visually-hidden" for="add-alert-text">What needs attention</label>' +
+    '<label class="sr-only" for="add-alert-text">What needs attention</label>' +
     '<input id="add-alert-text" class="alert-note" type="text" maxlength="' + ALERT_RULES.noteMaxLength + '" placeholder="What needs attention" autocomplete="off" data-add-text />' +
     '<button type="submit" class="btn btn-ghost btn-small" aria-describedby="add-alert-title">Add alert</button>' +
     "</div></form>"
@@ -139,20 +140,21 @@ function addAlertForm(animals) {
 
 function alertsSection(data, live) {
   return (
-    '<section class="section alerts-section" data-tour="alerts" aria-labelledby="alerts-title">' +
-    '<h2 class="section-rule" id="alerts-title">Open alerts <span class="count" data-open-count></span></h2>' +
+    '<section class="' + SECTION + '" data-tour="alerts" aria-labelledby="alerts-title">' +
+    '<h2 class="' + SECTION_TITLE + '" id="alerts-title">Open alerts <span class="count" data-open-count></span></h2>' +
+    '<div class="' + BODY + '">' +
     '<p class="jobs-line"><span data-jobs-line>' + esc(jobsLine(view.jobs, view.rules)) + '</span> <button type="button" class="btn-link" data-open-settings>Change</button></p>' +
     alertsOffNoticeHtml(view.jobs) +
     (live ? "" : '<p class="muted feed-note">Predator Watch, Wildfire Watch, not-moving, and out-of-paddock reports on the sample day are simulated.</p>') +
     '<p class="notice notice-warn alert-error" data-alert-error role="alert" hidden></p>' +
-    '<p class="visually-hidden" data-alert-status role="status"></p>' +
+    '<p class="sr-only" data-alert-status role="status"></p>' +
     '<div data-alerts>' +
     settingsHtml(live) +
     '<ol class="alert-list" data-alert-open></ol>' +
     addAlertForm(data.animals) +
     '<details class="disclosure" data-history-box><summary>Answered alerts <span class="count" data-history-count></span></summary>' +
     '<ol class="alert-list alert-history" data-alert-history></ol></details>' +
-    "</div>" +
+    "</div></div>" +
     "</section>"
   );
 }
@@ -204,7 +206,7 @@ export async function renderMap() {
     log: [],
     pullTimer: null,
   };
-  view.log = view.logStore.load();
+  view.log = view.logStore.server ? [] : view.logStore.load();
   const animals = data.animals;
   view.selected =
     (animals.find((a) => a.id === keepSelected) || animals.find((a) => a.id === "bramble") || animals[0] || {}).id || null;
@@ -253,7 +255,7 @@ export async function renderMap() {
       (events.length
         ? '<div class="playback">' +
           '<button type="button" class="btn btn-ghost btn-small" data-play>' + PLAY + "</button>" +
-          '<label class="visually-hidden" for="scrub">Time of day</label>' +
+          '<label class="sr-only" for="scrub">Time of day</label>' +
           '<input id="scrub" type="range" min="0" max="' + events.length + '" value="' + events.length + '" data-scrub />' +
           '<output class="clock" for="scrub" data-clock></output>' +
           "</div>"
@@ -272,8 +274,17 @@ export async function renderMap() {
       '<div class="detail-body" data-detail-body aria-live="polite"></div></aside>' +
       "</div>" +
       alertsSection(data, live) +
+      '<section class="' + SECTION + '" aria-labelledby="ledger-title">' +
+      '<h2 class="' + SECTION_TITLE + '" id="ledger-title">All animals</h2>' +
+      '<div class="' + BODY + ' overflow-x-auto" data-tour="ledger"><table class="data-table herd-ledger">' +
+      '<caption class="sr-only">Every animal, with battery and last check-in at the time shown</caption>' +
+      '<thead><tr><th scope="col">Animal</th><th scope="col" class="max-sm:hidden">Cell</th><th scope="col" class="num">Battery</th><th scope="col" class="num">Last check-in</th><th scope="col" class="max-sm:hidden">Checked by hand</th><th scope="col">Open alerts</th></tr></thead>' +
+      '<tbody data-ledger></tbody></table></div></section>' +
+      '<section class="' + SECTION + '" aria-labelledby="feed-title">' +
+      '<h2 class="' + SECTION_TITLE + '" id="feed-title">Event log</h2>' +
+      '<div class="' + BODY + '">' +
       '<details class="disclosure feed-section" data-tour="feed"><summary>Show all events <span class="count">' + events.length + "</span></summary>" +
-      '<ol class="feed" data-feed></ol></details>'
+      '<ol class="feed" data-feed></ol></details></div></section>'
     : data.loadFailed
       ? stateBox(
           "error",
@@ -290,11 +301,11 @@ export async function renderMap() {
 
   return (
     nav("/map") +
-    '<main class="wrap wrap-wide herd-page" id="main">' +
-    '<section class="page-head head-row"><div>' +
+    '<main class="herd-page ' + MAIN + '" id="main">' +
+    '<section class="' + HEAD + ' flex flex-wrap items-end justify-between gap-x-10 gap-y-4"><div class="min-w-0 flex-[1_1_32rem]">' +
     "<h1>" +
     esc(data.ranch) +
-    '</h1><p class="lede">' +
+    '</h1><p class="' + LEDE + '">' +
     (data.loadFailed && !animals.length ? "The herd view needs the sample herd file." : lede) +
     '</p></div><div class="source-box">' +
     sourceBadge +
@@ -392,7 +403,7 @@ function renderPins(root, state, alerts) {
       pin.innerHTML =
         '<span class="goat-short" aria-hidden="true">' + esc(initials(animal.alias || animal.name)) + "</span>" +
         '<span class="goat-full" aria-hidden="true">' + esc(animal.name) + "</span>" +
-        '<span class="visually-hidden" data-pin-label></span>';
+        '<span class="sr-only" data-pin-label></span>';
       pin.addEventListener("click", () => select(root, animal.id));
       holder.appendChild(pin);
     }
@@ -559,6 +570,7 @@ function renderLog(holder, animal) {
     '<div class="note-actions"><button type="submit" class="btn btn-ghost btn-small">Save note</button>' +
     '<button type="button" class="btn btn-ghost btn-small" data-mark-checked>Mark checked</button></div>' +
     (view.logError ? '<p class="notice notice-warn" role="alert">' + esc(view.logError) + "</p>" : "") +
+    (view.logStore.server ? '<p class="fine-print">' + esc(view.logStore.where) + "</p>" : "") +
     "</form>" +
     (items ? '<ol class="note-list" aria-label="Notes and checks on ' + esc(animal.name) + '">' + items + "</ol>" : "");
   const input = holder.querySelector("[data-note-text]");
@@ -566,9 +578,19 @@ function renderLog(holder, animal) {
   if (hadFocus) input.focus();
 }
 
-function addLog(root, entry, message) {
+async function loadLog(root) {
+  if (!view.logStore.server) return;
   try {
-    view.log = view.logStore.add(entry);
+    view.log = await view.logStore.load();
+  } catch (error) {
+    view.logError = "Notes did not load. " + (error?.message || "");
+  }
+  if (document.body.contains(root.querySelector("[data-alerts]"))) draw(root);
+}
+
+async function addLog(root, entry, message) {
+  try {
+    view.log = await view.logStore.add(entry);
     view.logError = "";
     const status = root.querySelector("[data-alert-status]");
     if (status) status.textContent = message;
@@ -662,6 +684,38 @@ function renderGrazingLog(root, state) {
     .join("");
 }
 
+// One ruled row per animal: the numbers line up, so a low battery or an old
+// check-in stands out down the column.
+function renderLedger(root, state, alerts) {
+  const holder = root.querySelector("[data-ledger]");
+  if (!holder) return;
+  const nowMs = new Date(clockIso()).getTime();
+  const html = state.animals
+    .map((animal) => {
+      const open = alerts.open.filter((a) => a.animalId === animal.id).map((a) => ALERT_KIND[a.kind][1]);
+      const pct = Number.isFinite(animal.battery) ? Math.round(animal.battery) : null;
+      const low = pct !== null && pct < view.rules.lowBatteryPercent;
+      const checked = lastChecked(view.log, animal.id);
+      return (
+        "<tr" + (animal.id === view.selected ? ' aria-current="true"' : "") + ">" +
+        '<th scope="row"><button type="button" class="btn-link" data-row-animal="' + esc(animal.id) + '">' + esc(animal.name) + "</button></th>" +
+        '<td class="max-sm:hidden">' + (view.data.mapSpan && animal.onMap ? '<span class="muted">on map</span>' : esc(cellOf(animal.x, animal.y))) + "</td>" +
+        '<td class="num' + (low ? " is-warn" : "") + '">' + (pct === null ? '<span class="muted">none</span>' : pct + "%") + "</td>" +
+        '<td class="num">' + (animal.lastSeen ? esc(dayTime(animal.lastSeen, nowMs)) : '<span class="muted">not yet</span>') + "</td>" +
+        '<td class="max-sm:hidden">' + (checked ? esc(dateTime(checked)) : '<span class="muted">not yet</span>') + "</td>" +
+        "<td" + (open.length ? ' class="is-alert"' : "") + ">" + (open.length ? esc(open.join(", ")) : '<span class="muted">none</span>') + "</td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+  if (holder.dataset.html === html) return;
+  holder.dataset.html = html;
+  holder.innerHTML = html;
+  holder.querySelectorAll("[data-row-animal]").forEach((btn) => {
+    btn.addEventListener("click", () => select(root, btn.dataset.rowAnimal));
+  });
+}
+
 function renderFeed(root, state) {
   const holder = root.querySelector("[data-feed]");
   if (!holder) return;
@@ -709,7 +763,7 @@ function openItem(alert) {
     '<li class="alert-item kind-' + alert.kind + '" data-alert="' + esc(alert.id) + '">' +
     '<div class="alert-body">' +
     '<p class="alert-title" id="' + titleId + '"><strong>' + esc(alert.title) + "</strong></p>" +
-    (alert.manual ? "" : '<p class="alert-why"><span class="visually-hidden">Why: </span>' + esc(alert.why || "") + "</p>") +
+    (alert.manual ? "" : '<p class="alert-why"><span class="sr-only">Why: </span>' + esc(alert.why || "") + "</p>") +
     '<p class="row-meta">' +
     (alert.manual
       ? esc(label) + ' · <time datetime="' + esc(alert.time) + '">' + esc(dateTime(alert.time)) + "</time>"
@@ -723,7 +777,7 @@ function openItem(alert) {
       : "") +
     "</p>" +
     '<div class="alert-answer">' +
-    '<label class="visually-hidden" for="' + noteId + '">Note for this answer (optional)</label>' +
+    '<label class="sr-only" for="' + noteId + '">Note for this answer (optional)</label>' +
     '<input id="' + noteId + '" class="alert-note" type="text" maxlength="' + ALERT_RULES.noteMaxLength + '" placeholder="Note (optional)" autocomplete="off" data-alert-note />' +
     '<button type="button" class="btn btn-ghost btn-small" data-answer="confirmed" aria-describedby="' + titleId + '">Confirm</button>' +
     '<button type="button" class="btn btn-ghost btn-small" data-answer="dismissed" aria-describedby="' + titleId + '">Dismiss</button>' +
@@ -837,14 +891,14 @@ function bindAlerts(root) {
       settingsChanged(root, "Limit saved.");
     }
   });
-  box.addEventListener("submit", (event) => {
+  box.addEventListener("submit", async (event) => {
     const form = event.target.closest("[data-add-alert]");
     if (!form) return;
     event.preventDefault();
     const text = form.querySelector("[data-add-text]");
     const animalId = form.querySelector("[data-add-animal]").value;
     try {
-      view.log = view.logStore.add({ type: "alert", animalId, text: text.value });
+      view.log = await view.logStore.add({ type: "alert", animalId, text: text.value });
       text.value = "";
       view.alertError = "";
       const status = root.querySelector("[data-alert-status]");
@@ -880,6 +934,7 @@ function bindAlerts(root) {
     answer(root, li.dataset.alert, "confirmed", event.target.value);
   });
   loadFeedback(root);
+  loadLog(root);
 }
 
 function openSettings(root, focus) {
@@ -941,6 +996,7 @@ function draw(root) {
   renderDetail(root, state, alerts);
   renderGrazingLog(root, state);
   renderFeed(root, state);
+  renderLedger(root, state, alerts);
   renderAlerts(root, alerts);
   rancherMap?.setAlerts?.(alerts.open.map((a) => a.animalId).filter(Boolean));
   const scrub = root.querySelector("[data-scrub]");
@@ -1065,12 +1121,12 @@ export function bindMap(root) {
     });
     resizeObserver.observe(paddock);
   }
-  root.querySelector("[data-detail]")?.addEventListener("submit", (event) => {
+  root.querySelector("[data-detail]")?.addEventListener("submit", async (event) => {
     if (!event.target.closest("[data-note-form]")) return;
     event.preventDefault();
     const input = event.target.querySelector("[data-note-text]");
     const name = view.data.animals.find((a) => a.id === view.selected)?.name || "";
-    if (addLog(root, { type: "note", animalId: view.selected, text: input.value }, "Note saved on " + name + ".")) {
+    if (await addLog(root, { type: "note", animalId: view.selected, text: input.value }, "Note saved on " + name + ".")) {
       const fresh = root.querySelector("[data-note-text]");
       if (fresh) {
         fresh.value = "";
@@ -1078,12 +1134,12 @@ export function bindMap(root) {
       }
     } else root.querySelector("[data-note-text]")?.focus();
   });
-  root.querySelector("[data-detail]")?.addEventListener("click", (event) => {
+  root.querySelector("[data-detail]")?.addEventListener("click", async (event) => {
     if (event.target.closest("[data-mark-checked]")) {
       const input = root.querySelector("[data-note-text]");
       const name = view.data.animals.find((a) => a.id === view.selected)?.name || "";
       // A typed note goes with the check.
-      if (addLog(root, { type: "checked", animalId: view.selected, text: input?.value || "" }, name + " marked checked.")) {
+      if (await addLog(root, { type: "checked", animalId: view.selected, text: input?.value || "" }, name + " marked checked.")) {
         const fresh = root.querySelector("[data-note-text]");
         if (fresh) fresh.value = "";
         root.querySelector("[data-mark-checked]")?.focus();
