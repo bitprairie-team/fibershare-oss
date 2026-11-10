@@ -5,6 +5,7 @@
 // - A signed-in rancher looking at real data: the server, at /api/log,
 //   behind the same sign-in check as the real data and /api/alerts.
 import { ALERT_RULES } from "./alert-config.js";
+import { timeOf } from "./time.js";
 
 export const LOG_TYPES = ["note", "alert", "checked"];
 export const LOG_KEYS = { demo: "fs-log-demo", public: "fs-log-public", rancher: "fs-log-rancher" };
@@ -19,7 +20,7 @@ function clean(value, max) {
 }
 
 /** Check one entry before it is saved. Returns { ok, entry } or { ok: false, error }. */
-export function normalizeEntry(input, { now = new Date().toISOString(), id } = {}) {
+export function normalizeEntry(input, { now = new Date().toISOString(), id, author: optionsAuthor } = {}) {
   if (!input || !LOG_TYPES.includes(input.type)) return { ok: false, error: "Unknown entry." };
   const text = clean(input.text, ALERT_RULES.noteMaxLength);
   if (input.type !== "checked" && !text) return { ok: false, error: input.type === "alert" ? "Say what needs attention." : "Write a note first." };
@@ -27,6 +28,9 @@ export function normalizeEntry(input, { now = new Date().toISOString(), id } = {
   if (input.type !== "alert" && !animalId) return { ok: false, error: "Pick an animal first." };
   const entry = { id: id || Date.parse(now).toString(36) + Math.random().toString(36).slice(2, 6), type: input.type, text, at: now };
   if (animalId) entry.animalId = animalId;
+  // Author is set only by the server from the verified sign-in, never from the client body.
+  const author = clean(optionsAuthor, 120);
+  if (author) entry.author = author;
   return { ok: true, entry };
 }
 
@@ -40,7 +44,7 @@ function serverLog(fetchImpl) {
   };
   return {
     server: true,
-    where: "Saved on the server for signed-in ranchers.",
+    where: "Shared on the server by signed-in ranchers on this copy.",
     load: () => call({ method: "GET" }),
     async add(input) {
       // Check here too, so a missing note fails without a round trip.
@@ -82,6 +86,24 @@ export function createRanchLog(scope, { storage = globalThis.localStorage, fetch
       return list;
     },
   };
+}
+
+/**
+ * Plain line for the log UI. Server-saved entries name the author,
+ * e.g. "Checked by rancher@example.com at 17:55". Sample and public
+ * entries have no author and keep a shorter line.
+ */
+export function describeLogEntry(entry) {
+  if (!entry) return "";
+  const when = timeOf(entry.at);
+  const who = typeof entry.author === "string" ? entry.author.trim() : "";
+  if (entry.type === "checked") {
+    const lead = who ? "Checked by " + who : "Checked by hand";
+    return lead + (when ? " at " + when : "") + (entry.text ? ": " + entry.text : "");
+  }
+  const text = (entry.text || "").replace(/[.,;:\s]+$/, "");
+  if (who) return (text ? text + " by " : "") + who + (when ? " at " + when : "");
+  return entry.text || "";
 }
 
 /** Notes and checks for one animal, newest first. */

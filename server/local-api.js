@@ -1,10 +1,10 @@
 // The /api routes for your own hardware. Used by the Vite dev and preview
 // servers and by `npm run serve:local`. The full live file never leaves this
 // process unless the request carries a valid rancher session cookie.
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { addFeedback, parseFeedbackList } from "./alert-feedback.js";
-import { addLogEntry, parseLogList } from "./ranch-log.js";
+import { LOCAL_LOG_AUTHOR, addLogEntry, mergeLogEntries, parseLogList, parseLogValue } from "./ranch-log.js";
 import { liveBody, NO_STORE } from "./live-response.js";
 import {
   checkSession,
@@ -90,7 +90,47 @@ export function createLocalApi({ liveFile, rancherFile, alertsFile, logFile, env
     return { read, change };
   };
   const feedback = listFile(alertsFile || join(dirname(rancherFile), "alert-feedback.json"), parseFeedbackList);
-  const ranchLog = listFile(logFile || join(dirname(rancherFile), "ranch-log.json"), parseLogList);
+  // The shared ranch log: still read any leftover .json list, and append each
+  // new entry as a line so two processes cannot drop a save.
+  const ranchLog = (() => {
+    const file = logFile || join(dirname(rancherFile), "ranch-log.json");
+    const journal = file.replace(/\.json$/, "") + ".jsonl";
+    let writing = Promise.resolve();
+    const readJournal = async () => {
+      try {
+        return (await readFile(journal, "utf8"))
+          .split("\n")
+          .filter(Boolean)
+          .flatMap(parseLogValue);
+      } catch {
+        return [];
+      }
+    };
+    const read = async () => mergeLogEntries(await (async () => {
+      try {
+        return parseLogList(await readFile(file, "utf8"));
+      } catch {
+        return [];
+      }
+    })(), await readJournal());
+    const change = (fn) =>
+      (writing = writing.then(async () => {
+        const out = fn(await read());
+        if (out.entry) {
+          await mkdir(dirname(journal), { recursive: true });
+          await appendFile(journal, JSON.stringify(out.entry) + "\n", { mode: 0o600 });
+          try {
+            await chmod(journal, 0o600);
+          } catch {
+            // Not every file system keeps modes.
+          }
+          out.list = mergeLogEntries(await read());
+          out.body = { ...out.body, log: out.list };
+        }
+        return out;
+      }));
+    return { read, change };
+  })();
 
   const signedIn = (req) => {
     const record = readRecord(rancherFile);
@@ -158,7 +198,7 @@ export function createLocalApi({ liveFile, rancherFile, alertsFile, logFile, env
         return send(res, 413, { error: alerts ? "That answer is too long." : "That entry is too long." });
       }
       const at = new Date(now()).toISOString();
-      const result = await list.change((current) => (alerts ? addFeedback(current, text, { now: at }) : addLogEntry(current, text, { now: at })));
+      const result = await list.change((current) => (alerts ? addFeedback(current, text, { now: at }) : addLogEntry(current, text, { now: at, author: LOCAL_LOG_AUTHOR })));
       return send(res, result.status, result.body);
     }
 

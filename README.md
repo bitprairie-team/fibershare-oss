@@ -148,7 +148,7 @@ Browser
               ├── /api/health  (the site is up)
               ├── /api/live    (hidden data, or full data for a signed-in rancher, from KV)
               ├── /api/alerts  (a signed-in rancher's answers, in KV)
-              ├── /api/log     (a signed-in rancher's notes and checks, in KV)
+              ├── /api/log     (shared notes and checks for signed-in ranchers, in KV)
               ├── /api/session and /api/rancher/login  (Cloudflare Access sign-in)
               └── /api/push    (your pull sends data here with a token)
 ```

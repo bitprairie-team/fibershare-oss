@@ -11,7 +11,7 @@ import { ALERT_RULES } from "./alert-config.js";
 import { computeAlerts, latestAnswers, splitAlerts } from "./alerts.js";
 import { alertScope, createAlertStore } from "./alert-store.js";
 import { LIMITS, readJobs, readRules, setJob, setLimit } from "./settings.js";
-import { createRanchLog, entriesFor, lastChecked } from "./ranch-log.js";
+import { createRanchLog, describeLogEntry, entriesFor, lastChecked } from "./ranch-log.js";
 import { PULL_SECONDS, alertsOffNoticeHtml, jobsLine, paintAlertsOffNotice } from "./loops.js";
 import { BODY, HEAD, LEDE, MAIN, SECTION, SECTION_TITLE } from "./ui.js";
 
@@ -558,12 +558,11 @@ function renderLog(holder, animal) {
   holder.dataset.key = key;
   const items = entries
     .slice(0, 5)
-    .map(
-      (e) =>
-        '<li><time datetime="' + esc(e.at) + '">' + esc(dateTime(e.at)) + "</time> " +
-        (e.type === "checked" ? "Checked by hand" + (e.text ? ": " + esc(e.text) : "") : esc(e.text)) +
-        "</li>"
-    )
+    .map((e) => {
+      const line = describeLogEntry(e);
+      if (e.author) return '<li><time datetime="' + esc(e.at) + '">' + esc(line) + "</time></li>";
+      return '<li><time datetime="' + esc(e.at) + '">' + esc(dateTime(e.at)) + "</time> " + esc(line) + "</li>";
+    })
     .join("");
   holder.innerHTML =
     '<form class="note-form" data-note-form>' +
