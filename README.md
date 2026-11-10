@@ -148,13 +148,14 @@ Browser
               ├── /api/health  (the site is up)
               ├── /api/live    (hidden data, or full data for a signed-in rancher, from KV)
               ├── /api/alerts  (a signed-in rancher's answers, in KV)
+              ├── /api/log     (a signed-in rancher's notes and checks, in KV)
               ├── /api/session and /api/rancher/login  (Cloudflare Access sign-in)
               └── /api/push    (your pull sends data here with a token)
 ```
 
 `fibershare-dev` is the project name for a copy of this demo, not the FiberShare app.
 
-On your own hardware, `npm run dev`, `npm run preview` and `npm run serve:local` answer `/api/live`, `/api/session` and `/api/alerts` from `.local/`. The access rules are in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
+On your own hardware, `npm run dev`, `npm run preview` and `npm run serve:local` answer `/api/live`, `/api/session`, `/api/alerts` and `/api/log` from `.local/`. The access rules are in `server/`. The rancher map uses [Leaflet](https://leafletjs.com/) and [Esri Leaflet](https://developers.arcgis.com/esri-leaflet/), loaded only for a signed-in rancher. Their licenses are in `public/licenses/map-libraries.txt`.
 
 ## Related sites
 

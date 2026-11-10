@@ -1,6 +1,9 @@
 // What a rancher records by hand: notes, alerts they add, and animals they
-// marked as checked. None of it needs an automated job. Saved in this
-// browser, one list per data source, so sample notes never mix with real ones.
+// marked as checked. None of it needs an automated job.
+// - Sample data and the public live view: this browser, one list per data
+//   source, so sample notes never mix with real ones.
+// - A signed-in rancher looking at real data: the server, at /api/log,
+//   behind the same sign-in check as the real data and /api/alerts.
 import { ALERT_RULES } from "./alert-config.js";
 
 export const LOG_TYPES = ["note", "alert", "checked"];
@@ -27,7 +30,33 @@ export function normalizeEntry(input, { now = new Date().toISOString(), id } = {
   return { ok: true, entry };
 }
 
-export function createRanchLog(scope, { storage = globalThis.localStorage } = {}) {
+function serverLog(fetchImpl) {
+  const call = async (init) => {
+    const res = await fetchImpl("/api/log", { credentials: "same-origin", cache: "no-store", ...init });
+    const body = await res.json().catch(() => ({}));
+    if (res.status === 401) throw new Error("Sign in again to save notes.");
+    if (!res.ok) throw new Error(body.error || "The server did not save it.");
+    return Array.isArray(body.log) ? body.log.filter((e) => e && LOG_TYPES.includes(e.type)) : [];
+  };
+  return {
+    server: true,
+    where: "Saved on the server for signed-in ranchers.",
+    load: () => call({ method: "GET" }),
+    async add(input) {
+      // Check here too, so a missing note fails without a round trip.
+      const checked = normalizeEntry(input);
+      if (!checked.ok) throw new Error(checked.error);
+      return call({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: input.type, animalId: input.animalId, text: input.text }) });
+    },
+  };
+}
+
+/**
+ * The log for one data source. The browser log answers at once; the server
+ * log returns promises. Callers await both.
+ */
+export function createRanchLog(scope, { storage = globalThis.localStorage, fetchImpl = globalThis.fetch?.bind(globalThis) } = {}) {
+  if (scope === "rancher") return serverLog(fetchImpl);
   const key = LOG_KEYS[scope] || LOG_KEYS.demo;
   const read = () => {
     try {
@@ -38,6 +67,7 @@ export function createRanchLog(scope, { storage = globalThis.localStorage } = {}
     }
   };
   return {
+    server: false,
     where: "Saved in this browser.",
     load: read,
     add(input, options) {

@@ -4,6 +4,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { addFeedback, parseFeedbackList } from "./alert-feedback.js";
+import { addLogEntry, parseLogList } from "./ranch-log.js";
 import { liveBody, NO_STORE } from "./live-response.js";
 import {
   checkSession,
@@ -56,28 +57,40 @@ function sameOrigin(req) {
  *   liveFile     path to .local/live.json
  *   rancherFile  path to .local/rancher.json
  *   alertsFile   path to .local/alert-feedback.json (answers to alerts)
+ *   logFile      path to .local/ranch-log.json (notes, checks, alerts by hand)
  *   env          for ARCGIS_API_KEY
  *   secure       add Secure to the cookie (when served over https)
  *   now          clock for tests
  */
-export function createLocalApi({ liveFile, rancherFile, alertsFile, env = process.env, secure = false, now = () => Date.now() }) {
+export function createLocalApi({ liveFile, rancherFile, alertsFile, logFile, env = process.env, secure = false, now = () => Date.now() }) {
   const limiter = createLimiter();
-  const feedbackFile = alertsFile || join(dirname(rancherFile), "alert-feedback.json");
-  let writing = Promise.resolve();
-
-  const readFeedback = async () => {
-    try {
-      return parseFeedbackList(await readFile(feedbackFile, "utf8"));
-    } catch {
-      return [];
-    }
+  // A JSON list in .local/, owner-only, written one change at a time so two
+  // quick saves cannot overwrite each other.
+  const listFile = (file, parse) => {
+    let writing = Promise.resolve();
+    const read = async () => {
+      try {
+        return parse(await readFile(file, "utf8"));
+      } catch {
+        return [];
+      }
+    };
+    const write = async (list) => {
+      await mkdir(dirname(file), { recursive: true });
+      const tmp = file + ".tmp";
+      await writeFile(tmp, JSON.stringify(list, null, 1) + "\n", { mode: 0o600 });
+      await rename(tmp, file);
+    };
+    const change = (fn) =>
+      (writing = writing.then(async () => {
+        const out = fn(await read());
+        if (out.list) await write(out.list);
+        return out;
+      }));
+    return { read, change };
   };
-  const writeFeedback = async (list) => {
-    await mkdir(dirname(feedbackFile), { recursive: true });
-    const tmp = feedbackFile + ".tmp";
-    await writeFile(tmp, JSON.stringify(list, null, 1) + "\n", { mode: 0o600 });
-    await rename(tmp, feedbackFile);
-  };
+  const feedback = listFile(alertsFile || join(dirname(rancherFile), "alert-feedback.json"), parseFeedbackList);
+  const ranchLog = listFile(logFile || join(dirname(rancherFile), "ranch-log.json"), parseLogList);
 
   const signedIn = (req) => {
     const record = readRecord(rancherFile);
@@ -131,23 +144,21 @@ export function createLocalApi({ liveFile, rancherFile, alertsFile, env = proces
       return send(res, 200, liveBody({ live, rancher: signedIn(req), arcgisApiKey: env.ARCGIS_API_KEY, unreadable }));
     }
 
-    if (path === "/api/alerts") {
+    if (path === "/api/alerts" || path === "/api/log") {
+      const alerts = path === "/api/alerts";
       if (req.method !== "GET" && req.method !== "POST") return send(res, 405, { error: "Use GET or POST." }, { Allow: "GET, POST" });
-      if (req.method === "POST" && !sameOrigin(req)) return send(res, 403, { error: "Answer alerts from this site." });
-      if (!signedIn(req)) return send(res, 401, { error: "Sign in as the rancher to see and answer alerts." });
-      if (req.method === "GET") return send(res, 200, { feedback: await readFeedback() });
+      if (req.method === "POST" && !sameOrigin(req)) return send(res, 403, { error: alerts ? "Answer alerts from this site." : "Save notes from this site." });
+      if (!signedIn(req)) return send(res, 401, { error: alerts ? "Sign in as the rancher to see and answer alerts." : "Sign in as the rancher to see and save notes." });
+      const list = alerts ? feedback : ranchLog;
+      if (req.method === "GET") return send(res, 200, alerts ? { feedback: await list.read() } : { log: await list.read() });
       let text = "";
       try {
         text = await readBody(req);
       } catch {
-        return send(res, 413, { error: "That answer is too long." });
+        return send(res, 413, { error: alerts ? "That answer is too long." : "That entry is too long." });
       }
-      // One write at a time, so two quick answers cannot overwrite each other.
-      const result = await (writing = writing.then(async () => {
-        const out = addFeedback(await readFeedback(), text, { now: new Date(now()).toISOString() });
-        if (out.list) await writeFeedback(out.list);
-        return out;
-      }));
+      const at = new Date(now()).toISOString();
+      const result = await list.change((current) => (alerts ? addFeedback(current, text, { now: at }) : addLogEntry(current, text, { now: at })));
       return send(res, result.status, result.body);
     }
 

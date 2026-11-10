@@ -5,6 +5,7 @@ import { hiddenProblems } from "./push-check.js";
 import { accessToken, isRancher, teamHost, verifyAccessJwt } from "./access-jwt.js";
 import { liveBody, NO_STORE } from "./live-response.js";
 import { addFeedback, KV_FEEDBACK, parseFeedbackList } from "./alert-feedback.js";
+import { KV_LOG, addLogEntry, parseLogList } from "./ranch-log.js";
 
 export const KV_HIDDEN = "live-hidden";
 export const KV_FULL = "live-full";
@@ -106,9 +107,9 @@ function sameSite(request) {
   }
 }
 
-async function alertGate({ request, env }, { fetchImpl, now }) {
+async function alertGate({ request, env }, { fetchImpl, now }, what = "see and answer alerts") {
   if (!accessConfigured(env) || !(await isRancher(request, env, { fetchImpl, now }))) {
-    return json(401, { error: "Sign in as the rancher to see and answer alerts." });
+    return json(401, { error: "Sign in as the rancher to " + what + "." });
   }
   if (!env.FIBERSHARE_LIVE) return json(503, { error: "No store is set up on this copy." });
   return null;
@@ -132,5 +133,25 @@ export async function postAlerts(context, { fetchImpl = fetch, now = Date.now() 
   const store = context.env.FIBERSHARE_LIVE;
   const result = addFeedback(parseFeedbackList(await store.get(KV_FEEDBACK)), text, { now: new Date(now).toISOString() });
   if (result.list) await store.put(KV_FEEDBACK, JSON.stringify(result.list));
+  return json(result.status, result.body);
+}
+
+/** GET /api/log: the rancher's notes, checks and alerts added by hand. Signed-in ranchers only. */
+export async function getLog(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  const blocked = await alertGate(context, { fetchImpl, now }, "see and save notes");
+  if (blocked) return blocked;
+  return json(200, { log: parseLogList(await context.env.FIBERSHARE_LIVE.get(KV_LOG)) });
+}
+
+/** POST /api/log: add one note, check or hand-made alert. */
+export async function postLog(context, { fetchImpl = fetch, now = Date.now() } = {}) {
+  if (!sameSite(context.request)) return json(403, { error: "Save notes from this site." });
+  const blocked = await alertGate(context, { fetchImpl, now }, "see and save notes");
+  if (blocked) return blocked;
+  const text = await context.request.text();
+  if (text.length > 4096) return json(413, { error: "That entry is too long." });
+  const store = context.env.FIBERSHARE_LIVE;
+  const result = addLogEntry(parseLogList(await store.get(KV_LOG)), text, { now: new Date(now).toISOString() });
+  if (result.list) await store.put(KV_LOG, JSON.stringify(result.list));
   return json(result.status, result.body);
 }
