@@ -261,9 +261,9 @@ export async function renderMap() {
       (live
         ? ""
         : '<section class="grazing-log" data-grazing-log aria-labelledby="grazing-title">' +
-          '<h3 class="grazing-title" id="grazing-title">Paddock moves</h3>' +
+          '<h2 class="grazing-title" id="grazing-title">Paddock moves</h2>' +
           '<p class="muted grazing-note">Sample paddock moves and grazing notes for this made-up day. They advance with Play.</p>' +
-          '<ol class="grazing-list" data-grazing-list></ol>' +
+          '<ol class="grazing-list" data-grazing-list tabindex="0" aria-labelledby="grazing-title"></ol>' +
           "</section>") +
       "</div>" +
       '<aside class="detail" data-detail data-tour="detail" aria-label="Animal details">' +

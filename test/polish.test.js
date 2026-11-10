@@ -393,3 +393,8 @@ test("map: the pin layer covers the paddock so pins sit in their grid cell", () 
   assert.match(block[1], /inset: 0;/);
   assert.match(css, /\.paddock \[data-pins\] \.goat \{[^}]*pointer-events: auto;/);
 });
+
+test("a11y: the paddock moves log is an h2 under the page title and its scroll box takes focus", () => {
+  assert.match(src["map.js"], /<h2 class="grazing-title" id="grazing-title">/);
+  assert.match(src["map.js"], /<ol class="grazing-list" data-grazing-list tabindex="0" aria-labelledby="grazing-title">/);
+});
