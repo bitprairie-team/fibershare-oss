@@ -28,6 +28,8 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 | [docs/DIRECTION.md](docs/DIRECTION.md) | Demo vs the FiberShare app |
 | [docs/rancher-access.md](docs/rancher-access.md) | Local passphrase and Cloudflare Access |
 | [docs/chirpstack.md](docs/chirpstack.md) | Pull live trackers from ChirpStack v4 |
+| [docs/hardware.md](docs/hardware.md) | Trackers, cameras, gateways and satellite links, with what each does on a ranch |
+| [docs/paddock-cameras.md](docs/paddock-cameras.md) | Live paddock video over Media over QUIC, and how it fits FiberShare |
 | [docs/schemas/](docs/schemas/README.md) | Draft animal, shearing, fleece, and fiber-lot JSON Schemas |
 | [docs/schemas/examples/](docs/schemas/examples/) | Example records used by the fleece trace |
 | [ROADMAP.md](ROADMAP.md) | Shipped vs planned work |
@@ -56,6 +58,19 @@ The default thresholds are in `src/alert-config.js`. The rules are in `src/alert
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
 
 The planned work covers fuller grazing records for each paddock, learning each tracker's normal check-in pattern, tuning the alert rules from rancher answers, and sharing a confirmed predator report with nearby ranchers. [ROADMAP.md](ROADMAP.md) has the detail.
+
+## Hardware
+
+FiberShare runs on LoRaWAN collar trackers, a LoRaWAN gateway and a network server on the ranch. Paddock cameras that send live pictures over Media over QUIC are being tested. They are not in this demo yet.
+
+Planned:
+
+- A live camera view for a signed-in rancher
+- Detections from cameras sent to Predator Watch as reports the rancher confirms or dismisses
+- Stills for Wildfire Watch smoke checks
+- A satellite link for alerts where there is no cell signal
+
+[docs/hardware.md](docs/hardware.md) lists the devices, what each one does on a ranch, and what is worth testing next. [docs/paddock-cameras.md](docs/paddock-cameras.md) covers the camera work.
 
 ## Setups
 
@@ -91,7 +106,7 @@ This repository holds no secrets, API keys, mail settings or real collar data. A
 You need Node 20.9 or newer. `npm run pages:dev` needs Node 22 or newer.
 
 ```bash
-git clone https://github.com/steelhead99x/fibershare-oss.git
+git clone https://github.com/bitprairie-team/fibershare-oss.git
 cd fibershare-oss
 npm install
 npm run dev
