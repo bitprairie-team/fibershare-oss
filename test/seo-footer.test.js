@@ -66,3 +66,11 @@ test("seo: main applies page meta on each render", () => {
   assert.match(main, /metaForPath\(path\)/);
   assert.match(main, /from "\.\/page-meta\.js"/);
 });
+
+test("links: the site, package and sitemap point at the bitprairie-team repository", () => {
+  for (const file of ["index.html", "package.json", "public/sitemap.xml", "src/sites.js"]) {
+    const text = readFileSync(new URL("../" + file, import.meta.url), "utf8");
+    assert.ok(!/steelhead99x/.test(text), file + " still names the old repository owner");
+    assert.match(text, /github\.com\/bitprairie-team\/fibershare-oss/, file);
+  }
+});
