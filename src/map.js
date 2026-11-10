@@ -261,9 +261,9 @@ export async function renderMap() {
       (live
         ? ""
         : '<section class="grazing-log" data-grazing-log aria-labelledby="grazing-title">' +
-          '<h3 class="grazing-title" id="grazing-title">Paddock moves</h3>' +
+          '<h2 class="grazing-title" id="grazing-title">Paddock moves</h2>' +
           '<p class="muted grazing-note">Sample paddock moves and grazing notes for this made-up day. They advance with Play.</p>' +
-          '<ol class="grazing-list" data-grazing-list></ol>' +
+          '<ol class="grazing-list" data-grazing-list tabindex="0" aria-labelledby="grazing-title"></ol>' +
           "</section>") +
       "</div>" +
       '<aside class="detail" data-detail data-tour="detail" aria-label="Animal details">' +
@@ -347,6 +347,11 @@ function renderTrail(root, state) {
     return;
   }
   const points = positionTrail(view.events, id, view.step, { limit: TRAIL_LIMIT });
+  // Pins near each other are spread apart, so end the trail where the pin is drawn.
+  const pin = root.querySelector('[data-pins] .goat[data-id="' + CSS.escape(id) + '"]');
+  const drawn = pin && { x: parseFloat(pin.style.left), y: parseFloat(pin.style.top) };
+  const last = points.at(-1);
+  if (last && drawn && Number.isFinite(drawn.x) && Number.isFinite(drawn.y)) points[points.length - 1] = { ...last, x: drawn.x, y: drawn.y };
   if (points.length < 2) {
     layer.innerHTML = "";
     return;
@@ -358,11 +363,13 @@ function renderTrail(root, state) {
   layer.innerHTML =
     '<path class="trail-line" d="' +
     path +
-    '" fill="none" />' +
+    '" fill="none" vector-effect="non-scaling-stroke" />' +
     points
       .map((pt, i) => {
         const opacity = (0.35 + (0.65 * (i + 1)) / points.length).toFixed(2);
-        return '<circle class="trail-dot" cx="' + pt.x.toFixed(2) + '" cy="' + pt.y.toFixed(2) + '" r="1.6" style="opacity:' + opacity + '" />';
+        // A zero-length round-capped stroke stays a circle when the grid is stretched.
+        const at = pt.x.toFixed(2) + " " + pt.y.toFixed(2);
+        return '<path class="trail-dot" d="M' + at + " L" + at + '" vector-effect="non-scaling-stroke" style="opacity:' + opacity + '" />';
       })
       .join("");
 }
@@ -1054,6 +1061,7 @@ export function bindMap(root) {
       last = paddock.clientWidth;
       const state = currentState();
       renderPins(root, state, alertsFor(state));
+      renderTrail(root, state);
     });
     resizeObserver.observe(paddock);
   }

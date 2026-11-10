@@ -4,13 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "description": "FiberShare open-source demo: a sample goat herd, fleece-to-fiber-lot records, and a rancher map from your own ChirpStack LoRaWAN trackers. Not the FiberShare app.",
-  "homepage": "https://github.com/steelhead99x/fibershare-oss",
+  "homepage": "https://github.com/bitprairie-team/fibershare-oss",
   "bugs": {
-    "url": "https://github.com/steelhead99x/fibershare-oss/issues"
+    "url": "https://github.com/bitprairie-team/fibershare-oss/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/steelhead99x/fibershare-oss.git"
+    "url": "git+https://github.com/bitprairie-team/fibershare-oss.git"
   },
   "license": "MIT",
   "author": "BitPrairie LLC <legal@bitprairie.com>",

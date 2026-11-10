@@ -19,7 +19,7 @@ You can also run the code on your own ranch and share with no one. Any of these 
 
 ## What the loops do
 
-The automation is what sets FiberShare apart. Intelligence and realtime systems read tracker, sensor and camera data and turn it into alerts and suggestions. The rancher decides every time, and each answer is stored so the next suggestion fits that ranch better. Each loop does one job:
+The automation is what sets FiberShare apart. Realtime intelligence systems read tracker, sensor and camera data and turn it into alerts and suggestions. The rancher decides every time, and each answer is stored so the next suggestion fits that ranch better. Each loop does one job:
 
 - **Find an animal in trouble.** In use in the FiberShare app: alerts, and the rancher's confirm or dismiss. Built: the movement and distress feed to Predator Watch. Planned: learning from the rancher's answers.
 - **Catch a dying or silent tracker.** In use in the FiberShare app: low-battery and quiet-tracker alerts. Also in this demo with sample data. Planned: learning each device's normal pattern.
@@ -70,7 +70,7 @@ These are described here only so the pieces make sense together. Details live on
 - moqFeeder is a related project for paddock video over Media over QUIC.
 - moqXAIO is BitPrairie's paddock camera project. A small camera board sends live pictures over Media over QUIC through a relay on the ranch. It is being tested, and its FiberShare uses are Planned. See [paddock-cameras.md](paddock-cameras.md).
 
-Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch. The detection side uses intelligence systems trained by BitPrairie.
+Predator Watch and Wildfire Watch share the same sensors and run on the same LoRa radios and solar power on the ranch. The detection side uses realtime intelligence systems trained by BitPrairie.
 
 The devices behind all of this, and the ones worth testing next, are listed in [hardware.md](hardware.md).
 
@@ -117,7 +117,7 @@ None is final. Each one starts as a draft for comment.
 - Planned: event and alert schemas
 - Planned: a LoRa uplink payload format
 - Planned: an alert-routing plugin interface, so alerts can go to the tools a community already uses
-- Planned: a bring-your-own-model hook, so a self-hosted system can use its own intelligence systems
+- Planned: a bring-your-own-model hook, so a self-hosted system can use its own realtime intelligence systems
 
 ## What stays private
 
