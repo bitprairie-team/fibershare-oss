@@ -358,11 +358,13 @@ function renderTrail(root, state) {
   layer.innerHTML =
     '<path class="trail-line" d="' +
     path +
-    '" fill="none" />' +
+    '" fill="none" vector-effect="non-scaling-stroke" />' +
     points
       .map((pt, i) => {
         const opacity = (0.35 + (0.65 * (i + 1)) / points.length).toFixed(2);
-        return '<circle class="trail-dot" cx="' + pt.x.toFixed(2) + '" cy="' + pt.y.toFixed(2) + '" r="1.6" style="opacity:' + opacity + '" />';
+        // A zero-length round-capped stroke stays a circle when the grid is stretched.
+        const at = pt.x.toFixed(2) + " " + pt.y.toFixed(2);
+        return '<path class="trail-dot" d="M' + at + " L" + at + '" vector-effect="non-scaling-stroke" style="opacity:' + opacity + '" />';
       })
       .join("");
 }

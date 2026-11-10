@@ -2108,13 +2108,16 @@ button.feed-row:focus-visible {
 }
 .trail-line {
   stroke: var(--accent);
-  stroke-width: 0.7;
+  stroke-width: 3px;
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0.55;
 }
 .trail-dot {
-  fill: var(--accent);
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10px;
+  stroke-linecap: round;
 }
 /* The pin layer covers the whole grid, so top and left percentages land in the right cell. */
 .paddock [data-pins] {
