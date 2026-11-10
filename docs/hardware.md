@@ -36,7 +36,7 @@ Things to know about the T1000 line on a ranch:
 | --- | --- | --- |
 | Collar or tag tracker | SenseCAP T1000-A | SenseCAP T1000-E for LoRaWAN, for its open firmware |
 | Live paddock video | XIAO ESP32-S3 Sense with moqXAIO (being tested) | reCamera Pro or reCamera HQ PoE at a powered site |
-| On-device detection, battery site | None yet | SenseCAP A1102, or Grove Vision AI V2 beside the XIAO camera |
+| On-device detection, battery site | None yet | SenseCAP A1102, or the Seeed Grove vision module (V2) beside the XIAO camera |
 | On-device detection, powered site | None yet | reCamera Pro |
 | Gateway at a far paddock | One LoRaWAN gateway | SenseCAP Outdoor Gateway with 4G |
 | Link where there is no cell signal | None | RockBLOCK 9704 satellite modem, for alerts and small files |
@@ -56,7 +56,7 @@ Things to know about the T1000 line on a ranch:
 
 **XIAO ESP32-S3 Sense (being tested with moqXAIO).** ESP32-S3 with 8 MB of PSRAM and 8 MB of flash, a camera, a digital microphone and an SD slot. Seeed has changed the camera: the OV2640 is discontinued, and new boards ship with an OV5640 with autofocus or an OV3660. On a 3.8 V battery Seeed measures about 155 mA on average while serving video and about 3 mA in deep sleep with the camera board attached, so a battery camera needs a schedule or a wake trigger, not an always-on stream.
 
-**Grove Vision AI V2 (worth testing).** A small vision board built on the Himax WiseEye2 HX6538 (two Arm Cortex-M55 cores and an Ethos-U55 neural unit). It runs MobileNet, EfficientNet-Lite and YOLOv5 or YOLOv8 models and connects to a XIAO board. When a XIAO is attached it reports detection results, not the live picture, at the same time. That split suits FiberShare: the detector says what it saw, and the camera board handles video.
+**Seeed Grove vision module, V2 (worth testing).** A small vision board built on the Himax WiseEye2 HX6538 (two Arm Cortex-M55 cores and an Ethos-U55 neural unit). It runs MobileNet, EfficientNet-Lite and YOLOv5 or YOLOv8 models and connects to a XIAO board. When a XIAO is attached it reports detection results, not the live picture, at the same time. That split suits FiberShare: the detector says what it saw, and the camera board handles video.
 
 **SenseCAP A1102 (worth testing).** An IP66 outdoor camera built on the same HX6538. It runs detection on the device at 480 by 480 at about 10 frames a second and sends only the results over LoRaWAN, 2 to 10 km depending on terrain. It runs on a replaceable 19 Ah D-size battery in cycles, or on 12 V DC. Limits to check before a trial: Seeed rates it for 0 to 70 °C, so it is not rated below freezing, and Seeed's own human-detection test reached 70% confidence at 1 to 5 m. Treat it as a close-range sensor at a gate, trough or pen, not a long-range predator camera.
 
@@ -103,7 +103,7 @@ Checked November 2026.
 - T1000-E for LoRaWAN firmware release: https://www.seeedstudio.com/blog/2025/05/15/weve-open-sourced-sensecap-t1000-e-for-lorawan-and-sensecap-m2-lorawan-gateway-unlocking-full-control-and-customization/
 - SenseCAP MeshTracker X1: https://wiki.seeedstudio.com/meshtracker_x1_intro/
 - XIAO ESP32-S3 series: https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/
-- Grove Vision AI V2: https://wiki.seeedstudio.com/grove_vision_ai_v2/
+- Seeed Grove vision module (V2): https://wiki.seeedstudio.com/grove_vision_ai_v2/
 - SenseCAP A1102: https://wiki.seeedstudio.com/sensecap_a1102/
 - reCamera 2002: https://wiki.seeedstudio.com/recamera_2002_series_hardware_and_specs/
 - reCamera HQ PoE: https://wiki.seeedstudio.com/reCamera_hq_poe_hardware_and_specs/
