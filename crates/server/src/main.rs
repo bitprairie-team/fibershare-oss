@@ -57,8 +57,20 @@ fn public_origin_from_env() -> String {
 async fn page(State(app): State<Arc<App>>, request: Request) -> Response {
     let path = request.uri().path();
     let query = request.uri().query().unwrap_or("");
+    if let Some((content_type, body)) = fibershare_html::plain_file(path, &app.public_origin) {
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, content_type)
+            .body(Body::from(body))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response());
+    }
     let html = render_at(path, query, Site::default(), &app.public_origin);
-    Html(html).into_response()
+    let status = if fibershare_html::is_known_page(path) {
+        StatusCode::OK
+    } else {
+        StatusCode::NOT_FOUND
+    };
+    (status, Html(html)).into_response()
 }
 
 async fn api(State(app): State<Arc<App>>, request: Request) -> Response {
@@ -153,6 +165,7 @@ fn content_type(path: &Path) -> &'static str {
         Some("json") => "application/json",
         Some("woff2") => "font/woff2",
         Some("txt") => "text/plain; charset=utf-8",
+        Some("md") => "text/markdown; charset=utf-8",
         Some("xml") => "application/xml",
         Some("wasm") => "application/wasm",
         Some("png") => "image/png",
@@ -180,6 +193,13 @@ async fn fallback(State(app): State<Arc<App>>, request: Request) -> Response {
     let path = request.uri().path().to_string();
     let query = request.uri().query().unwrap_or("").to_string();
     let looks_like_file = path.rsplit('/').next().unwrap_or("").contains('.');
+    if let Some((content_type, body)) = fibershare_html::plain_file(&path, &app.public_origin) {
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, content_type)
+            .body(Body::from(body))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response());
+    }
     if let Some(file) = public_file(&app.root.join("public"), &path) {
         let bytes = std::fs::read(&file).unwrap_or_default();
         return Response::builder()
@@ -192,7 +212,12 @@ async fn fallback(State(app): State<Arc<App>>, request: Request) -> Response {
         return StatusCode::NOT_FOUND.into_response();
     }
     let html = render_at(&path, &query, Site::default(), &app.public_origin);
-    (StatusCode::NOT_FOUND, Html(html)).into_response()
+    let status = if fibershare_html::is_known_page(&path) {
+        StatusCode::OK
+    } else {
+        StatusCode::NOT_FOUND
+    };
+    (status, Html(html)).into_response()
 }
 
 fn iso_now() -> String {
@@ -235,9 +260,17 @@ fn build_site(root: &Path) -> std::io::Result<()> {
             fibershare_html::render_at(path, "", Site::default(), &public_origin_from_env()),
         )?;
     }
-    std::fs::write(dist.join("sitemap.xml"), fibershare_html::sitemap())?;
-    std::fs::write(dist.join("robots.txt"), "User-agent: *\nAllow: /\n")?;
     copy_dir(&root.join("public"), &dist)?;
+    let origin = public_origin_from_env();
+    std::fs::write(
+        dist.join("sitemap.xml"),
+        fibershare_html::sitemap_at(&origin),
+    )?;
+    std::fs::write(
+        dist.join("robots.txt"),
+        fibershare_html::robots_txt(&origin),
+    )?;
+    std::fs::write(dist.join("llms.txt"), fibershare_html::llms_txt(&origin))?;
     if root.join("dist/style.css").exists() {
         // Tailwind output is already in dist when the CLI ran first.
     }
@@ -332,15 +365,11 @@ async fn serve(root: PathBuf) {
         .route("/setups", get(page))
         .route("/architecture", get(page))
         .route("/rancher", get(page))
-        .route(
-            "/sitemap.xml",
-            get(|| async {
-                (
-                    [(header::CONTENT_TYPE, "application/xml")],
-                    fibershare_html::sitemap(),
-                )
-            }),
-        )
+        .route("/docs", get(page))
+        .route("/docs/*rest", get(page))
+        .route("/llms.txt", get(page))
+        .route("/robots.txt", get(page))
+        .route("/sitemap.xml", get(page))
         .nest_service("/style.css", ServeFile::new(style))
         .nest_service("/brand", ServeDir::new(public.join("brand")))
         .nest_service("/fonts", ServeDir::new(public.join("fonts")))

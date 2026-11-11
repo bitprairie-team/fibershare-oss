@@ -31,6 +31,34 @@ pub fn meta_for_path(path: &str) -> PageMeta {
             title: "Rancher sign-in, FiberShare",
             description: "Sign in to see real tracker positions. The public herd view stays open.",
         },
+        "/docs" => PageMeta {
+            title: "Demo docs, FiberShare",
+            description: "Guides for running this demo, wiring your own trackers, and reading the record format.",
+        },
+        "/docs/direction" => PageMeta {
+            title: "How this demo fits, FiberShare",
+            description: "How this open-source demo relates to the FiberShare app and to BitPrairie's other work.",
+        },
+        "/docs/hardware" => PageMeta {
+            title: "Hardware, FiberShare",
+            description: "Trackers, cameras, gateways, and satellite links, with what each one does on a ranch.",
+        },
+        "/docs/paddock-cameras" => PageMeta {
+            title: "Paddock cameras, FiberShare",
+            description: "Live paddock video over Media over QUIC, and how it would fit FiberShare. Planned in this demo.",
+        },
+        "/docs/chirpstack" => PageMeta {
+            title: "Live trackers, FiberShare",
+            description: "Pull your own LoRaWAN collar trackers from ChirpStack v4 instead of the sample goats.",
+        },
+        "/docs/rancher-access" => PageMeta {
+            title: "Rancher sign-in docs, FiberShare",
+            description: "How a signed-in rancher sees real tracker positions, using a local passphrase or Cloudflare Access.",
+        },
+        "/docs/schemas" => PageMeta {
+            title: "Record format, FiberShare",
+            description: "Draft JSON Schemas for animal, shearing, fleece, and fiber-lot records, with example files.",
+        },
         _ => PageMeta {
             title: "Page not found, FiberShare",
             description: "That address is not in this demo.",
