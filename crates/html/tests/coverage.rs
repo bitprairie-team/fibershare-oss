@@ -38,10 +38,109 @@ fn each_route_has_a_title_and_description() {
 }
 
 #[test]
-fn pages_omit_a_github_canonical() {
+fn pages_point_canonical_at_themselves() {
+    for path in [
+        "/",
+        "/map",
+        "/trace",
+        "/setups",
+        "/architecture",
+        "/rancher",
+    ] {
+        let html = page(path);
+        assert!(
+            html.contains(&format!("rel=\"canonical\" href=\"{path}\"")),
+            "{path}"
+        );
+        assert!(
+            html.contains(&format!("property=\"og:url\" content=\"{path}\"")),
+            "{path}"
+        );
+        assert!(
+            !html.contains("rel=\"canonical\" href=\"https://github.com"),
+            "{path}"
+        );
+        assert!(
+            !html.contains("property=\"og:url\" content=\"https://github.com"),
+            "{path}"
+        );
+    }
+    let hosted = fibershare_html::render_at(
+        "/map",
+        "",
+        fibershare_html::Site::default(),
+        "https://fibershare.example",
+    );
+    assert!(hosted.contains("rel=\"canonical\" href=\"https://fibershare.example/map\""));
+    assert!(hosted.contains("property=\"og:url\" content=\"https://fibershare.example/map\""));
+    assert!(hosted.contains(
+        "property=\"og:image\" content=\"https://fibershare.example/brand/social-preview-1280x640.png\""
+    ));
+    let junk = fibershare_html::render_at(
+        "/",
+        "",
+        fibershare_html::Site::default(),
+        "https://evil.example/\"><script>",
+    );
+    assert!(junk.contains("rel=\"canonical\" href=\"/\""));
+    assert!(!junk.contains("evil.example"));
+}
+
+#[test]
+fn configured_origin_only_keeps_a_safe_public_origin() {
+    assert_eq!(fibershare_html::configured_origin(None), "");
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://demo.example")),
+        "https://demo.example"
+    );
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://demo.example/")),
+        "https://demo.example"
+    );
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://evil.example/\"><script>")),
+        ""
+    );
+}
+
+#[test]
+fn favicon_and_social_image_links_exist() {
     let html = page("/");
-    assert!(!html.contains("rel=\"canonical\""));
-    assert!(!html.contains("og:url"));
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    for href in [
+        "/favicon.svg",
+        "/favicon-32.png",
+        "/favicon-16.png",
+        "/favicon.ico",
+        "/apple-touch-icon.png",
+        "/brand/logo-light.svg",
+        "/brand/logo-dark.svg",
+        "/brand/bitprairie-tile.svg",
+        "/brand/social-preview-1280x640.png",
+    ] {
+        assert!(html.contains(href), "{href}");
+        let file = root.join(format!("public{href}"));
+        assert!(file.is_file(), "{}", file.display());
+    }
+    // Dark icons are chosen in the theme script. The files still have to be there.
+    assert!(html.contains("\"-dark\""));
+    for href in [
+        "/favicon-dark.svg",
+        "/favicon-32-dark.png",
+        "/favicon-16-dark.png",
+        "/favicon-dark.ico",
+    ] {
+        let file = root.join(format!("public{href}"));
+        assert!(file.is_file(), "{}", file.display());
+    }
+    assert!(html.contains("property=\"og:image\""));
+    assert!(html.contains("property=\"og:image:width\" content=\"1280\""));
+    assert!(html.contains("property=\"og:image:height\" content=\"640\""));
+    assert!(html.contains("name=\"twitter:card\" content=\"summary_large_image\""));
+    assert!(html.contains("alt=\"BitPrairie\""));
+    assert!(html.contains("logo-mark-light"));
+    assert!(html.contains("logo-mark-dark"));
+    assert!(!html.contains("#5c4030"));
 }
 
 #[test]

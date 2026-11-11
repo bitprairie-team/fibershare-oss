@@ -83,12 +83,13 @@ worker-build --release crates/worker
 npx wrangler deploy
 ```
 
-Set two variables on the Worker. `npx wrangler secret put` is the place for them. Do not commit a team hostname.
+Set Access on the Worker with `npx wrangler secret put`. Do not commit a team hostname. You can also set an optional `PUBLIC_ORIGIN` Worker variable (not a secret) to the public scheme and host of this copy, such as `https://your-worker.workers.dev`. If you leave it unset, the Worker uses the request URL for canonical and social tags. The local `fibershare serve` binary does not trust the Host header for those tags; set `PUBLIC_ORIGIN` there too, or the pages keep path-only tags.
 
 | Variable | Example | What it is |
 | --- | --- | --- |
 | `ACCESS_TEAM_DOMAIN` | `yourteam.cloudflareaccess.com` | Your Zero Trust team domain |
 | `ACCESS_AUD` | the long AUD tag | The audience tag of the Access app |
+| `PUBLIC_ORIGIN` | `https://your-worker.workers.dev` | Optional public origin for canonical and social tags |
 
 The **Rancher** page then shows a **Sign in with Cloudflare Access** button. Access asks you to log in, then sends you back to the herd view.
 

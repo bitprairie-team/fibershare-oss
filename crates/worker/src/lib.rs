@@ -163,6 +163,15 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             .map(|s| s as &dyn fibershare_core::api::KvStore),
     };
     let page_url = url.to_string();
+    let configured =
+        fibershare_html::configured_origin(env_value(&env, "PUBLIC_ORIGIN").as_deref());
+    // The request URL is set by the Workers runtime. Use it when PUBLIC_ORIGIN
+    // is unset. Do not read a raw Host header here.
+    let origin = if configured.is_empty() {
+        url.origin().ascii_serialization()
+    } else {
+        configured
+    };
     let api = path.starts_with("/api/");
     if method == Method::Post && path == "/api/herd-view" {
         let body = req.text().await.unwrap_or_default();
@@ -242,7 +251,7 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             "/" | "/map" | "/trace" | "/shop" | "/setups" | "/architecture" | "/rancher"
         )
     {
-        let html = fibershare_html::render_for(&path, &query, site);
+        let html = fibershare_html::render_at(&path, &query, site, &origin);
         return Response::from_html(html);
     }
     if path == "/sitemap.xml" && matches!(method, Method::Get | Method::Head) {
@@ -253,16 +262,16 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         return Ok(response);
     }
     if matches!(method, Method::Get | Method::Head) && !looks_like_file(&path) {
-        return html_not_found(&path, &query, site).await;
+        return html_not_found(&path, &query, site, &origin).await;
     }
     if let Ok(assets) = env.assets("ASSETS") {
         let response = assets.fetch_request(req).await?;
         if response.status_code() == 404 && !looks_like_file(&path) {
-            return html_not_found(&path, &query, site).await;
+            return html_not_found(&path, &query, site, &origin).await;
         }
         return Ok(response);
     }
-    html_not_found(&path, &query, site).await
+    html_not_found(&path, &query, site, &origin).await
 }
 
 fn page_site(team: Option<&str>, aud: Option<&str>) -> fibershare_html::Site {
@@ -281,8 +290,13 @@ fn looks_like_file(path: &str) -> bool {
     path.rsplit('/').next().unwrap_or("").contains('.')
 }
 
-async fn html_not_found(path: &str, query: &str, site: fibershare_html::Site) -> Result<Response> {
-    let html = fibershare_html::render_for(path, query, site);
+async fn html_not_found(
+    path: &str,
+    query: &str,
+    site: fibershare_html::Site,
+    origin: &str,
+) -> Result<Response> {
+    let html = fibershare_html::render_at(path, query, site, origin);
     let response = Response::from_html(html)?;
     Ok(response.with_status(404))
 }

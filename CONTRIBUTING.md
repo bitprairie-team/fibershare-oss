@@ -94,4 +94,4 @@ Make pages feel like a ranch notebook and a fiber list. Keep them plain and usef
 
 The site uses IBM Plex Sans. It is self-hosted. Its license text is in `public/licenses/`.
 
-Colors: paper `#f4efe6`, ink `#1c1916`, leather `#5c4030`, pasture `#4f5d41`, muted `#6e675c`. Use gold rarely, for rules and the active state.
+Colors: paper `#f2ede4`, ink `#141416`, leather `#6b4a2e` on a light page and pale leather `#bf9474` in the dark theme, secondary text `#3a3732`. Night cream `#f7f1e8` is for dark-theme text and highlights, not the page background.
