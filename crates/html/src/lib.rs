@@ -2,11 +2,15 @@
 //! static build both call this crate. A small WASM island updates the herd
 //! view after the page has loaded.
 
+mod docs;
 mod document;
 mod herd;
 mod layout;
 mod pages;
 
+pub use docs::{
+    is_known_page, llms_txt, markdown_doc, plain_file, robots_txt, sitemap, sitemap_at,
+};
 pub use document::{configured_origin, document, safe_origin};
 pub use herd::{herd_dynamic, herd_page, herd_view_html};
 pub use pages::{page_body, SignIn};
@@ -43,34 +47,20 @@ pub fn render_for(path: &str, query: &str, site: Site) -> String {
 pub fn render_at(path: &str, query: &str, site: Site, origin: &str) -> String {
     let path = if path == "/shop" { "/trace" } else { path };
     let meta = meta_for_path(path);
-    let body = match path {
-        "/" => pages::home(),
-        "/map" => herd_page(query),
-        "/trace" => pages::trace(query),
-        "/setups" => pages::setups(),
-        "/architecture" => pages::architecture(),
-        "/rancher" => pages::rancher(query, site.sign_in),
-        _ => pages::not_found(),
+    let body = if path == "/docs" {
+        docs::docs_index()
+    } else if let Some(slug) = path.strip_prefix("/docs/") {
+        docs::doc_page(slug).unwrap_or_else(pages::not_found)
+    } else {
+        match path {
+            "/" => pages::home(),
+            "/map" => herd_page(query),
+            "/trace" => pages::trace(query),
+            "/setups" => pages::setups(),
+            "/architecture" => pages::architecture(),
+            "/rancher" => pages::rancher(query, site.sign_in),
+            _ => pages::not_found(),
+        }
     };
     document(meta.title, meta.description, &body, path, origin)
-}
-
-pub fn sitemap() -> String {
-    let routes = [
-        "/",
-        "/map",
-        "/trace",
-        "/setups",
-        "/architecture",
-        "/rancher",
-    ];
-    // This demo has no stable public host yet, so the locations are paths.
-    let mut xml = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-    for route in routes {
-        xml.push_str("  <url><loc>");
-        xml.push_str(route);
-        xml.push_str("</loc></url>\n");
-    }
-    xml.push_str("</urlset>\n");
-    xml
 }

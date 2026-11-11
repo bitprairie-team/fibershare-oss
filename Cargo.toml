@@ -39,6 +39,7 @@ web-sys = "0.3"
 futures = "0.3"
 fibershare-core = { path = "crates/core" }
 fibershare-html = { path = "crates/html" }
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
 
 # Size-first profile for the browser island only. The server stays on release.
 [profile.wasm-release]

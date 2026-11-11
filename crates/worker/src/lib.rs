@@ -245,21 +245,16 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         return reply_of(reply).await;
     }
     let site = page_site(team.as_deref(), aud.as_deref());
-    if matches!(method, Method::Get | Method::Head)
-        && matches!(
-            path.as_str(),
-            "/" | "/map" | "/trace" | "/shop" | "/setups" | "/architecture" | "/rancher"
-        )
-    {
-        let html = fibershare_html::render_at(&path, &query, site, &origin);
-        return Response::from_html(html);
-    }
-    if path == "/sitemap.xml" && matches!(method, Method::Get | Method::Head) {
-        let mut response = Response::ok(fibershare_html::sitemap())?;
-        response
-            .headers_mut()
-            .set("content-type", "application/xml")?;
-        return Ok(response);
+    if matches!(method, Method::Get | Method::Head) {
+        if let Some((content_type, body)) = fibershare_html::plain_file(&path, &origin) {
+            let mut response = Response::ok(body)?;
+            response.headers_mut().set("content-type", content_type)?;
+            return Ok(response);
+        }
+        if fibershare_html::is_known_page(&path) {
+            let html = fibershare_html::render_at(&path, &query, site, &origin);
+            return Response::from_html(html);
+        }
     }
     if matches!(method, Method::Get | Method::Head) && !looks_like_file(&path) {
         return html_not_found(&path, &query, site, &origin).await;

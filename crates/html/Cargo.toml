@@ -9,3 +9,4 @@ description = "Server-rendered HTML for the FiberShare demo."
 [dependencies]
 serde_json = { workspace = true }
 fibershare-core = { workspace = true }
+pulldown-cmark = { workspace = true }

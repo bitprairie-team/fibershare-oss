@@ -25,6 +25,7 @@ mod copy {
     pub const HOME_TITLE: &str = "Sample herd, one day's trackers";
     pub const HOME_LEDE: &str = "This demo follows eight sample goats through one made-up day. It flags low batteries and missed check-ins, lists Predator Watch and Wildfire Watch reports, and traces a fleece lot back to the goat. Every automated job can be turned off. You can still add alerts, notes, and checks by hand.";
     pub const HOME_ACTION: &str = "Open the herd view";
+    pub const HOME_DOCS: &str = "Read the docs";
 
     pub const SETUPS_TITLE: &str = "Setups";
     pub const SETUPS_LEDE: &str =
@@ -72,7 +73,7 @@ pub fn home() -> String {
 <section class="{head}" data-tour="hero">
 <h1>{title}</h1>
 <p class="{lede}">{lede_text}</p>
-<p class="{actions}"><a class="btn btn-primary" href="/map">{action}</a></p>
+<p class="{actions}"><a class="btn btn-primary" href="/map">{action}</a><a class="btn btn-ghost" href="/docs">{docs}</a></p>
 </section></main>{footer}"#,
         nav = nav("/"),
         main = MAIN,
@@ -82,6 +83,7 @@ pub fn home() -> String {
         lede_text = copy::HOME_LEDE,
         actions = ACTIONS,
         action = copy::HOME_ACTION,
+        docs = copy::HOME_DOCS,
         footer = footer(),
     )
 }

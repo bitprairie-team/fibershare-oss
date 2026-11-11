@@ -41,6 +41,8 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 | [ROADMAP.md](ROADMAP.md) | Shipped vs planned work |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to help |
 
+When you run the demo, the same guides are also at `/docs`. Each guide has a Markdown copy, and `/llms.txt` is a plain-text map of the demo and those guides.
+
 ## Automated jobs
 
 | Job | Rule |
