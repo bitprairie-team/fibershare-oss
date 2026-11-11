@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-11-11T00:00:00-08:00",
+  "working": 0,
+  "gatedUnknown": 2,
+  "total": 4,
+  "moneyPaths": [
+    {
+      "name": "FiberShare fibershare.app",
+      "ok": null,
+      "gated": true,
+      "detail": "gated: unknown (example only — replace with the probe's own wording)"
+    }
+  ],
+  "gate": []
+}
