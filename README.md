@@ -1,3 +1,9 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/brand/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="public/brand/logo-light.svg">
+  <img src="public/brand/logo-light.svg" alt="FiberShare (open source)" width="128" height="128">
+</picture>
+
 # FiberShare (open source)
 
 This repository is a browser demo of herd tracking and fiber trace. It has eight sample goats on a paddock drawing, one made-up day of tracker data, and a fleece lot you can trace back to the goat. It runs on sample data, works offline, and is meant for ranchers, hardware makers, and developers who want to see the idea before wiring real collars.
