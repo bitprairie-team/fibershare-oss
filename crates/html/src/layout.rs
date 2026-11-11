@@ -60,6 +60,7 @@ pub fn footer() -> String {
 <div class="flex min-w-0 flex-col gap-2">
 <p>{note}</p>
 <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+<a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="/docs">Docs</a>
 <a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="/setups">Setups</a>
 <a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="/architecture">How it works</a>
 <a class="text-ink-2 underline underline-offset-[0.15em] hover:text-ink" href="{terms}">Terms</a>

@@ -67,3 +67,53 @@ test("trace does not load the wasm island", async ({ page }) => {
   await expect(page.locator("[data-tour='chain']")).toBeVisible();
   expect(wasm).toEqual([]);
 });
+
+test("docs map, sitemap, and robots use the right content types", async ({ request, baseURL }) => {
+  const llms = await request.get("/llms.txt");
+  expect(llms.ok()).toBeTruthy();
+  expect(llms.headers()["content-type"]).toMatch(/text\/plain/);
+  const llmsBody = await llms.text();
+  expect(llmsBody).toContain("# FiberShare (open source)");
+  expect(llmsBody).toContain("/docs/hardware.md");
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.ok()).toBeTruthy();
+  expect(robots.headers()["content-type"]).toMatch(/text\/plain/);
+  const robotsBody = await robots.text();
+  expect(robotsBody).toContain("Sitemap:");
+  expect(robotsBody).toContain("/llms.txt");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.ok()).toBeTruthy();
+  expect(sitemap.headers()["content-type"]).toMatch(/application\/xml|text\/xml/);
+  const xml = await sitemap.text();
+  expect(xml).toContain("<loc>/docs</loc>");
+  expect(xml).toContain("<loc>/docs/hardware</loc>");
+
+  const markdown = await request.get("/docs/hardware.md");
+  expect(markdown.ok()).toBeTruthy();
+  expect(markdown.headers()["content-type"]).toMatch(/markdown|text\/plain/);
+  expect(await markdown.text()).toContain("# Hardware");
+});
+
+test("docs pages are server-rendered HTML", async ({ page, request }) => {
+  const wasm = [];
+  const errors = [];
+  page.on("request", (req) => {
+    if (req.url().includes("/wasm/")) wasm.push(req.url());
+  });
+  page.on("pageerror", (err) => errors.push(String(err)));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(msg.text());
+  });
+  const response = await page.goto("/docs");
+  expect(response.status()).toBe(200);
+  await expect(page.locator("h1")).toHaveText("Docs");
+  await expect(page.getByRole("link", { name: "Hardware" })).toBeVisible();
+  await page.getByRole("link", { name: "Hardware", exact: true }).click();
+  await expect(page.locator("h1")).toHaveText("Hardware");
+  expect(wasm).toEqual([]);
+  expect(errors).toEqual([]);
+  const missing = await request.get("/docs/no-such-guide");
+  expect(missing.status()).toBe(404);
+});

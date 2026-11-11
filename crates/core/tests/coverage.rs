@@ -813,6 +813,13 @@ fn seo_routes_have_unique_titles_and_descriptions() {
         "/architecture",
         "/rancher",
         "/shop",
+        "/docs",
+        "/docs/direction",
+        "/docs/hardware",
+        "/docs/paddock-cameras",
+        "/docs/chirpstack",
+        "/docs/rancher-access",
+        "/docs/schemas",
     ];
     let mut titles = BTreeMap::new();
     for path in routes {
@@ -859,7 +866,7 @@ fn footer_names_bitprairie_and_the_legal_links() {
 
 #[test]
 fn copy_pages_do_not_say_producer_or_ai() {
-    for path in ["/", "/map", "/trace", "/architecture", "/rancher"] {
+    for path in ["/", "/map", "/trace", "/architecture", "/rancher", "/docs"] {
         let html = fibershare_html::render(path, "");
         let lower = html.to_lowercase();
         assert!(!lower.contains("producer"), "{path}");
@@ -883,7 +890,7 @@ fn unbuilt_features_are_marked_planned() {
 
 #[test]
 fn home_and_trace_do_not_load_the_wasm_island() {
-    for path in ["/", "/trace", "/architecture", "/rancher"] {
+    for path in ["/", "/trace", "/architecture", "/rancher", "/docs"] {
         let html = fibershare_html::render(path, "");
         assert!(!html.contains("/wasm/client.js"), "{path}");
         assert!(html.contains("/chrome.js"), "{path}");

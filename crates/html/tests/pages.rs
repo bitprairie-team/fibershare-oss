@@ -8,6 +8,9 @@ fn home_is_one_title_one_paragraph_and_one_button() {
     assert!(html.contains("Every automated job can be turned off."));
     assert_eq!(html.matches("btn-primary").count(), 1);
     assert!(html.contains("Open the herd view"));
+    assert!(html.contains("btn-ghost"));
+    assert!(html.contains("Read the docs"));
+    assert!(html.contains("href=\"/docs\""));
     assert!(html.contains("© 2026 BitPrairie LLC"));
     assert!(html.contains("Sample data. This is not the FiberShare app."));
     assert!(!html.contains("This is a demo, not the FiberShare app."));

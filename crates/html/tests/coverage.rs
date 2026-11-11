@@ -15,6 +15,9 @@ fn each_route_has_one_h1() {
         "/setups",
         "/architecture",
         "/rancher",
+        "/docs",
+        "/docs/hardware",
+        "/docs/direction",
     ] {
         let html = page(path);
         assert_eq!(html.matches("<h1").count(), 1, "{path}");
@@ -30,6 +33,9 @@ fn each_route_has_a_title_and_description() {
         "/setups",
         "/architecture",
         "/rancher",
+        "/docs",
+        "/docs/hardware",
+        "/docs/direction",
     ] {
         let html = page(path);
         assert!(html.contains("<title>"));
@@ -46,6 +52,9 @@ fn pages_point_canonical_at_themselves() {
         "/setups",
         "/architecture",
         "/rancher",
+        "/docs",
+        "/docs/hardware",
+        "/docs/direction",
     ] {
         let html = page(path);
         assert!(
@@ -198,9 +207,29 @@ fn not_found_page_still_has_the_chrome_script() {
 #[test]
 fn sitemap_lists_the_public_routes() {
     let xml = fibershare_html::sitemap();
-    for route in ["/map", "/trace", "/setups", "/architecture", "/rancher"] {
-        assert!(xml.contains(route), "{route}");
+    for route in [
+        "/map",
+        "/trace",
+        "/setups",
+        "/architecture",
+        "/rancher",
+        "/docs",
+        "/docs/hardware",
+        "/docs/chirpstack",
+    ] {
+        assert!(xml.contains(&format!("<loc>{route}</loc>")), "{route}");
     }
+    assert!(!xml.contains("https://"));
+}
+
+#[test]
+fn sitemap_uses_a_configured_origin() {
+    let xml = fibershare_html::sitemap_at("https://fibershare.example");
+    assert!(xml.contains("<loc>https://fibershare.example/docs/hardware</loc>"));
+    assert!(xml.contains("<loc>https://fibershare.example/</loc>"));
+    let junk = fibershare_html::sitemap_at("javascript:alert(1)");
+    assert!(junk.contains("<loc>/docs</loc>"));
+    assert!(!junk.contains("javascript"));
 }
 
 #[test]
@@ -225,7 +254,7 @@ fn herd_query_selects_an_animal() {
 
 #[test]
 fn no_main_page_loads_leaflet() {
-    for path in ["/", "/map", "/trace"] {
+    for path in ["/", "/map", "/trace", "/docs"] {
         assert!(!page(path).contains("leaflet.js"), "{path}");
     }
 }
@@ -251,14 +280,14 @@ fn home_has_a_single_primary_action() {
 
 #[test]
 fn copy_avoids_the_word_producer() {
-    for path in ["/", "/map", "/trace", "/setups", "/architecture"] {
+    for path in ["/", "/map", "/trace", "/setups", "/architecture", "/docs"] {
         assert!(!page(path).to_lowercase().contains("producer"), "{path}");
     }
 }
 
 #[test]
 fn copy_avoids_a_bare_ai_token() {
-    for path in ["/", "/map", "/trace"] {
+    for path in ["/", "/map", "/trace", "/docs"] {
         let html = page(path);
         assert!(!html.contains(" AI "));
         assert!(!html.contains("A.I."));
@@ -362,4 +391,71 @@ fn rancher_error_query_is_escaped() {
     let html = render("/rancher", "error=<b>");
     assert!(html.contains("&lt;b&gt;") || html.contains("&amp;lt;b"));
     assert!(!html.contains("<b>"));
+}
+
+#[test]
+fn docs_index_and_guides_are_full_html_pages() {
+    let index = page("/docs");
+    assert!(index.contains("<h1>Docs</h1>"));
+    assert!(index.contains("/llms.txt"));
+    assert!(index.contains("href=\"/docs/hardware\""));
+    assert!(index.contains("href=\"/docs/hardware.md\""));
+    assert!(index.contains("BitPrairie LLC"));
+    assert!(index.contains("rel=\"canonical\" href=\"/docs\""));
+    assert!(!index.contains("/wasm/client.js"));
+    let hardware = page("/docs/hardware");
+    assert!(hardware.contains("<h1>Hardware</h1>"));
+    assert!(hardware.contains("Sources"));
+    assert!(hardware.contains("href=\"/docs/hardware.md\""));
+    assert!(hardware.contains("rel=\"canonical\" href=\"/docs/hardware\""));
+    assert!(!hardware.contains("/wasm/client.js"));
+    let missing = page("/docs/no-such-guide");
+    assert!(missing.contains("Page not found"));
+    assert!(!fibershare_html::is_known_page("/docs/no-such-guide"));
+}
+
+#[test]
+fn markdown_copies_match_the_repo_guides() {
+    let md = fibershare_html::markdown_doc("/docs/hardware.md").expect("hardware");
+    assert!(md.contains("# Hardware"));
+    assert!(fibershare_html::markdown_doc("/docs/direction.md")
+        .unwrap()
+        .contains("# Direction"));
+    assert!(fibershare_html::markdown_doc("/docs/missing.md").is_none());
+}
+
+#[test]
+fn docs_map_and_robots_point_at_the_guides() {
+    let map = fibershare_html::llms_txt("");
+    assert!(map.starts_with("# FiberShare (open source)"));
+    assert!(map.contains("/docs/hardware.md"));
+    assert!(map.contains("/llms.txt"));
+    assert!(map.contains("bitprairie-team/fibershare-oss"));
+    assert!(!map.contains(" AI "));
+    assert!(!map.contains("A.I."));
+    let hosted = fibershare_html::llms_txt("https://fibershare.example");
+    assert!(hosted.contains("https://fibershare.example/docs/hardware.md"));
+    let robots = fibershare_html::robots_txt("https://fibershare.example");
+    assert!(robots.contains("User-agent: *"));
+    assert!(robots.contains("Allow: /"));
+    assert!(robots.contains("Sitemap: https://fibershare.example/sitemap.xml"));
+    assert!(robots.contains("https://fibershare.example/llms.txt"));
+    let local = fibershare_html::robots_txt("");
+    assert!(local.contains("Sitemap: /sitemap.xml"));
+    assert!(local.contains("/llms.txt"));
+}
+
+#[test]
+fn relative_doc_links_point_at_the_html_guides() {
+    let cameras = page("/docs/paddock-cameras");
+    assert!(cameras.contains("href=\"/docs/hardware\""));
+    assert!(!cameras.contains("href=\"hardware.md\""));
+}
+
+#[test]
+fn bare_source_urls_become_links() {
+    let hardware = page("/docs/hardware");
+    assert!(hardware
+        .contains("href=\"https://wiki.seeedstudio.com/SenseCAP_T1000_tracker/Introduction/\""));
+    assert!(hardware.contains("href=\"https://www.groundcontrol.com/product/rockblock-9704/\""));
 }
