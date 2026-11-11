@@ -36,7 +36,7 @@
   --color-band: #e8e0d2;
   --color-band-2: #ddd3c2;
   --color-ink: #141416;
-  --color-ink-2: #3a342d;
+  --color-ink-2: #3a3732;
   --color-muted: #5f574c;
   --color-rule: #ddd4c5;
   --color-rule-strong: #c4b7a3;
@@ -73,7 +73,7 @@
   --text-xs--line-height: 1.45;
   --text-sm: 0.875rem;
   --text-sm--line-height: 1.5;
-  --text-base: 1rem;
+  --text-base: 1.0625rem;
   --text-base--line-height: 1.6;
   --text-lg: 1.125rem;
   --text-lg--line-height: 1.55;
@@ -97,7 +97,7 @@
   --blur-*: initial;
 
   /* Widths: one page width that lines up with the logo, one text measure. */
-  --container-page: 82rem;
+  --container-page: 72rem;
   --container-content: 52rem;
   --container-measure: 62ch;
   --container-form: 26rem;
@@ -121,7 +121,7 @@
   --color-muted: #b3a999;
   --color-rule: #3a3229;
   --color-rule-strong: #52473a;
-  --color-leather: #c49a6c;
+  --color-leather: #bf9474;
   --color-leather-hover: #d4b088;
   --color-on-leather: #161310;
   --color-pasture: #3d4632;
@@ -156,6 +156,20 @@
   body {
     @apply bg-paper font-sans text-base text-ink antialiased;
     overflow-x: clip;
+  }
+  /* The header tile follows data-theme. A picture media query would not. */
+  .logo-mark {
+    display: block;
+  }
+  [data-theme="dark"] .logo-mark-light {
+    display: none;
+  }
+  [data-theme="dark"] .logo-mark-dark {
+    display: block;
+  }
+  [data-theme="light"] .logo-mark-dark,
+  :root:not([data-theme="dark"]) .logo-mark-dark {
+    display: none;
   }
   #app {
     @apply flex min-h-screen flex-col;
@@ -526,7 +540,7 @@
   }
   .goat.is-active,
   [data-theme="dark"] .goat.is-active {
-    @apply z-[6] border-white bg-[#5c4030] text-[#fffaf2] outline-2 outline-offset-1 outline-white/60;
+    @apply z-[6] border-white bg-leather text-on-leather outline-2 outline-offset-1 outline-white/60;
   }
   .goat.is-active .goat-short {
     @apply hidden;
@@ -1035,7 +1049,7 @@
     @apply border-0 bg-transparent;
   }
   .rancher-pin span {
-    @apply inline-block -translate-1/2 rounded-sm border-2 border-[#fffaf2] bg-[#5c4030] px-2 py-0.5 text-xs leading-snug font-semibold whitespace-nowrap text-[#fffaf2];
+    @apply inline-block -translate-1/2 rounded-sm border-2 border-[#fffaf2] bg-leather px-2 py-0.5 text-xs leading-snug font-semibold whitespace-nowrap text-on-leather;
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
   }
   .rancher-pin.is-low span {

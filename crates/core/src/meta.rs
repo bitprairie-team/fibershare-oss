@@ -9,7 +9,7 @@ pub fn meta_for_path(path: &str) -> PageMeta {
     match path {
         "/" => PageMeta {
             title: "Sample herd and fleece, FiberShare",
-            description: "Eight sample goats through one made-up day, with alerts you can turn off and a fleece lot traced back to the goat.",
+            description: "Open-source FiberShare demo by BitPrairie LLC: a sample goat herd, one sample day of alerts, paddock moves, and fleece trace. Sample data only; not the FiberShare app.",
         },
         "/map" => PageMeta {
             title: "Herd view, FiberShare",

@@ -26,3 +26,6 @@ id = "00000000000000000000000000000000"
 # Empty on purpose. A copy with no Access application refuses /api/alerts and
 # /api/log. Set the real team domain and audience tag as secrets or vars
 # for the copy you deploy. Never commit a real hostname.
+# Optional: PUBLIC_ORIGIN is the public scheme and host for canonical and
+# social tags (for example https://your-worker.workers.dev). Leave it unset
+# and the Worker uses the request URL. Do not commit a real hostname.

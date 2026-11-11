@@ -13,6 +13,7 @@
     var meta = qs('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", next === "dark" ? "#161310" : "#f2ede4");
     try { localStorage.setItem("fs-theme", next); } catch (e) {}
+    if (window.fsIcons) window.fsIcons(next);
     theme.setAttribute("aria-label", next === "dark" ? "Switch to light theme" : "Switch to dark theme");
   });
 

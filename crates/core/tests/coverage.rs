@@ -99,7 +99,9 @@ fn brand_dark_theme_sets_every_light_colour() {
     assert!(css.contains(r#"[data-theme="dark"]"#));
     assert!(css.contains("#161310"));
     assert!(css.contains("#f7f1e8"));
-    assert!(css.contains("#c49a6c"));
+    assert!(css.contains("#bf9474"));
+    assert!(!css.contains("#c49a6c"));
+    assert!(!css.contains("#5c4030"));
     let doc = read("crates/html/src/document.rs");
     assert!(doc.contains(r#"=== "dark" ? "dark" : "light""#));
     assert!(doc.contains("content=\\\"#f2ede4\\\"") || doc.contains("#f2ede4"));
@@ -128,7 +130,9 @@ fn brand_one_type_scale_and_one_page_width() {
     for name in ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"] {
         assert!(theme.contains(&format!("--text-{name}:")), "{name}");
     }
-    assert!(theme.contains("--container-page: 82rem;"));
+    assert!(theme.contains("--container-page: 72rem;"));
+    assert!(theme.contains("--text-base: 1.0625rem;"));
+    assert!(theme.contains("--color-ink-2: #3a3732;"));
 }
 
 #[test]

@@ -21,7 +21,7 @@ const NAV: &[(&str, &str)] = &[
 
 const SAMPLE_NOTE: &str = "Sample data. This is not the FiberShare app.";
 
-const MARK: &str = r##"<svg class="size-8" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#5c4030"/><path d="M15 12c-.6-4.1 3.1-7.1 6.5-5.6 1.8.8 1.2 3.1-.9 3.6 2.6-.2 4.4 1.6 3.3 3.8-.8 1.7-3.6 1.4-4.8-.4" fill="none" stroke="#c49a6c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15c-2.9.9-4.3 4.5-2.3 6.8 1.4 1.6 4 .8 4.5-1.5.4-1.8-.4-4.1-2.2-5.3z" fill="#e8dfd2"/><path d="M10 14c1.4-5 7-7.4 11.6-5.1 3.6 1.7 6.5 5.6 5.6 8.8-.6 2.3-3 4.1-6.3 4.3-3.4.2-6.8-.4-8.8-2.3-1.8-1.7-2.4-4-2.1-5.7z" fill="#f4efe6"/><circle cx="20.75" cy="15" r="1.3" fill="#1c1916"/></svg>"##;
+const MARK: &str = r#"<img class="size-8 logo-mark logo-mark-light" src="/brand/logo-light.svg" alt="" width="32" height="32" /><img class="size-8 logo-mark logo-mark-dark" src="/brand/logo-dark.svg" alt="" width="32" height="32" />"#;
 
 pub fn nav(active: &str) -> String {
     let links = NAV
@@ -56,7 +56,7 @@ pub fn footer() -> String {
     format!(
         r#"<footer class="site-footer mt-auto border-t border-rule text-sm text-ink-2">
 <div class="mx-auto flex max-w-page items-start gap-3 px-gutter py-6">
-<img class="size-7 flex-none rounded-md" src="/brand/bitprairie-tile.svg" alt="" width="28" height="28" />
+<img class="size-8 flex-none" src="/brand/bitprairie-tile.svg" alt="BitPrairie" width="32" height="32" />
 <div class="flex min-w-0 flex-col gap-2">
 <p>{note}</p>
 <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
