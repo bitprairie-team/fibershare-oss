@@ -53,6 +53,13 @@ file_weight "rust public/wasm/client_bg.wasm" "$ROOT/public/wasm/client_bg.wasm"
 file_weight "rust public/vendor/leaflet/leaflet.css" "$ROOT/public/vendor/leaflet/leaflet.css"
 file_weight "rust public/vendor/leaflet/leaflet.js" "$ROOT/public/vendor/leaflet/leaflet.js"
 file_weight "rust public/live-map.js" "$ROOT/public/live-map.js"
+# Header logos and the footer plate, requested on every HTML page.
+file_weight "rust public/brand/logo-light.svg" "$ROOT/public/brand/logo-light.svg"
+file_weight "rust public/brand/logo-dark.svg" "$ROOT/public/brand/logo-dark.svg"
+file_weight "rust public/brand/bitprairie-tile.svg" "$ROOT/public/brand/bitprairie-tile.svg"
+if [[ -f "$OLD/public/brand/bitprairie-tile.svg" ]]; then
+  file_weight "node public/brand/bitprairie-tile.svg" "$OLD/public/brand/bitprairie-tile.svg"
+fi
 file_weight "node dist/index.html" "$OLD/dist/index.html"
 while IFS= read -r asset; do
   file_weight "node dist/assets/$(basename "$asset")" "$asset"

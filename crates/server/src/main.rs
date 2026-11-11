@@ -15,7 +15,7 @@ use axum::routing::{any, get};
 use axum::Router;
 use fibershare_core::api::{local_api, local_health, LocalPaths, LocalState};
 use fibershare_core::auth::now_ms;
-use fibershare_html::{render, render_at, Site};
+use fibershare_html::{render_at, Site};
 use serde_json::Value;
 use tower_http::services::{ServeDir, ServeFile};
 
@@ -23,6 +23,8 @@ struct App {
     root: PathBuf,
     state: LocalState,
     secure: bool,
+    /// Scheme and host from PUBLIC_ORIGIN, or empty for path-only tags.
+    public_origin: String,
 }
 
 fn paths(root: &Path) -> LocalPaths {
@@ -45,24 +47,17 @@ fn header_map(headers: &HeaderMap) -> HashMap<String, String> {
     out
 }
 
-fn request_origin(headers: &HeaderMap) -> String {
-    let host = headers
-        .get(header::HOST)
-        .and_then(|value| value.to_str().ok())
-        .unwrap_or("");
-    let scheme = headers
-        .get("x-forwarded-proto")
-        .and_then(|value| value.to_str().ok())
-        .filter(|value| *value == "https" || *value == "http")
-        .unwrap_or("http");
-    format!("{scheme}://{host}")
+/// Public origin for canonical and social tags. Read once at startup from
+/// PUBLIC_ORIGIN. The local server does not trust Host or x-forwarded-proto
+/// for these tags, because it binds itself and has no trusted-proxy list.
+fn public_origin_from_env() -> String {
+    fibershare_html::configured_origin(std::env::var("PUBLIC_ORIGIN").ok().as_deref())
 }
 
-async fn page(State(_app): State<Arc<App>>, request: Request) -> Response {
+async fn page(State(app): State<Arc<App>>, request: Request) -> Response {
     let path = request.uri().path();
     let query = request.uri().query().unwrap_or("");
-    let origin = request_origin(request.headers());
-    let html = render_at(path, query, Site::default(), &origin);
+    let html = render_at(path, query, Site::default(), &app.public_origin);
     Html(html).into_response()
 }
 
@@ -196,8 +191,7 @@ async fn fallback(State(app): State<Arc<App>>, request: Request) -> Response {
     if looks_like_file {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let origin = request_origin(request.headers());
-    let html = render_at(&path, &query, Site::default(), &origin);
+    let html = render_at(&path, &query, Site::default(), &app.public_origin);
     (StatusCode::NOT_FOUND, Html(html)).into_response()
 }
 
@@ -236,7 +230,10 @@ fn build_site(root: &Path) -> std::io::Result<()> {
         if let Some(parent) = file.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        std::fs::write(file, render(path, ""))?;
+        std::fs::write(
+            file,
+            fibershare_html::render_at(path, "", Site::default(), &public_origin_from_env()),
+        )?;
     }
     std::fs::write(dist.join("sitemap.xml"), fibershare_html::sitemap())?;
     std::fs::write(dist.join("robots.txt"), "User-agent: *\nAllow: /\n")?;
@@ -309,6 +306,7 @@ async fn serve(root: PathBuf) {
         root: root.clone(),
         state: LocalState::new(),
         secure: false,
+        public_origin: public_origin_from_env(),
     });
     let public = root.join("public");
     let dist = root.join("dist");

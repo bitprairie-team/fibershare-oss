@@ -7,7 +7,7 @@ mod herd;
 mod layout;
 mod pages;
 
-pub use document::{document, safe_origin};
+pub use document::{configured_origin, document, safe_origin};
 pub use herd::{herd_dynamic, herd_page, herd_view_html};
 pub use pages::{page_body, SignIn};
 

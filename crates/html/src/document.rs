@@ -47,6 +47,18 @@ pub fn safe_origin(origin: &str) -> String {
     origin.to_string()
 }
 
+/// Public site origin for canonical and social tags, when one is configured.
+///
+/// Pass the `PUBLIC_ORIGIN` setting (scheme and host only). The value is run
+/// through [`safe_origin`]. An empty or unusable value means the page should
+/// keep path-only tags, not read a Host header.
+pub fn configured_origin(value: Option<&str>) -> String {
+    match value {
+        Some(value) => safe_origin(value),
+        None => String::new(),
+    }
+}
+
 pub fn document(title: &str, description: &str, body: &str, path: &str, origin: &str) -> String {
     let wasm = if path == "/map" {
         r#"<script type="module">import init from "/wasm/client.js"; init();</script>"#

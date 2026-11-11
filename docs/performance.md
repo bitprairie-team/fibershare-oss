@@ -8,7 +8,7 @@ The Vite site is one `index.html` for every route. The hash router paints home, 
 
 | Item | How it was measured |
 | --- | --- |
-| Page weight | Response or built file, `gzip -9`, `brotli -q 11`. A page total is the sum of the HTML plus the CSS, font, JS, and WASM files that document requests. Fonts count because `@font-face` points at them. The `.woff` fallbacks on the Vite site are not in the total. Leaflet is only on `/rancher`. |
+| Page weight | Response or built file, `gzip -9`, `brotli -q 11`. A page total is the sum of the HTML plus the CSS, font, JS, WASM, and image files that document requests. Fonts count because `@font-face` points at them. Header logos and the footer plate count because the markup includes them (both theme logos are in the HTML; CSS hides one). Favicons and the social card are not in the total. The `.woff` fallbacks on the Vite site are not in the total. Leaflet is only on `/rancher`. The Vite totals in this writeup still omit the old footer tile (4,477 bytes, brotli 1,204), which was the only header or footer image on that shell. |
 | Lighthouse | `lighthouse@12.8.2`, Chrome headless (`--headless=new --no-sandbox --disable-gpu`), performance category only, 3 runs, median. Mobile is simulated slow 4G (`rttMs` 150, throughput 1638.4 kbps, CPU 4×) at 412×823. Desktop is the desktop preset (`rttMs` 40, CPU 1×) at 1350×940. |
 | Throughput | `oha` 1.8.0, `-c 32 -n 2000`, both servers up. p50 and p99 are `latencyPercentiles`. req/s is `summary.requestsPerSec`. |
 | Cold start | Nanoseconds from process spawn until `GET /api/health` returns, polled every 5 ms. The binary and `node` were already in the page cache. |
@@ -24,15 +24,15 @@ Signed `GET /api/log` used a bench passphrase (`bench-sample-pass`) and the `fs_
 
 Bytes. Gzip and Brotli are the sums of each file compressed on its own.
 
-| Page | HTML | CSS | JS / WASM | Fonts | Total | Gzip | Brotli |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Rust `/` | 8,486 | 81,446 | 9,668 | 71,024 | 170,624 | 88,840 | 86,067 |
-| Rust `/map` (herd and alerts) | 43,794 | 81,446 | 68,522 | 71,024 | 264,786 | 115,841 | 109,005 |
-| Rust `/trace` | 8,698 | 81,446 | 9,668 | 71,024 | 170,836 | 88,876 | 86,109 |
-| Rust `/rancher` | 16,475 | 96,252 | 169,102 | 71,024 | 352,853 | 140,828 | 131,198 |
-| Vite, every hash route | 4,330 | 67,002 | 114,176 | 71,024 | 256,532 | 122,846 | 115,836 |
+| Page | HTML | CSS | JS / WASM | Fonts | Images | Total | Gzip | Brotli |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Rust `/` | 8,486 | 81,446 | 9,668 | 71,024 | 47,595 | 218,219 | 106,396 | 99,279 |
+| Rust `/map` (herd and alerts) | 43,794 | 81,446 | 68,522 | 71,024 | 47,595 | 312,381 | 133,397 | 122,217 |
+| Rust `/trace` | 8,698 | 81,446 | 9,668 | 71,024 | 47,595 | 218,431 | 106,432 | 99,321 |
+| Rust `/rancher` | 16,475 | 96,252 | 169,102 | 71,024 | 47,595 | 400,448 | 158,384 | 144,410 |
+| Vite, every hash route | 4,330 | 67,002 | 114,176 | 71,024 | — | 256,532 | 122,846 | 115,836 |
 
-Home and trace load `chrome.js` (9,668; brotli 2,487) and no WASM. `/map` also loads `client.js` (20,824; brotli 4,090) and `client_bg.wasm` (38,030; brotli 14,100). `/rancher` loads `chrome.js`, `leaflet.css` (14,806), `leaflet.js` (147,552), and `live-map.js` (11,882), and no WASM. The Vite rancher route has extra built files that the shell does not request up front: `rancher-map-CKzLhw3K.js` (231,099; brotli 56,858) and `rancher-map-CIGW-MKW.css` (15,607; brotli 5,723). Home, the herd view, and trace are each under the Vite shell's brotli total of 115,836.
+Home and trace load `chrome.js` (9,668; brotli 2,487) and no WASM. `/map` also loads `client.js` (20,824; brotli 4,090) and `client_bg.wasm` (38,030; brotli 14,100). `/rancher` loads `chrome.js`, `leaflet.css` (14,806), `leaflet.js` (147,552), and `live-map.js` (11,882), and no WASM. Every Rust page also requests `logo-light.svg` (10,726; brotli 3,245), `logo-dark.svg` (10,726; brotli 3,246), and `bitprairie-tile.svg` (26,143; brotli 6,721). The Vite rancher route has extra built files that the shell does not request up front: `rancher-map-CKzLhw3K.js` (231,099; brotli 56,858) and `rancher-map-CIGW-MKW.css` (15,607; brotli 5,723). Home and trace stay under the Vite shell's brotli total of 115,836 (99,279 and 99,321). `/map` is now above it at 122,217, mostly from the official marks plus the WASM island. Adding the old Vite footer tile (brotli 1,204) to the Vite total would not change that /map result.
 
 ## Lighthouse
 

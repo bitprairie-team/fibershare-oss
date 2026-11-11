@@ -31,6 +31,15 @@ weight	rust public/vendor/leaflet/leaflet.js brotli-11	36938
 weight	rust public/live-map.js bytes	11882
 weight	rust public/live-map.js gzip-9	3786
 weight	rust public/live-map.js brotli-11	3240
+weight	rust public/brand/logo-light.svg bytes	10726
+weight	rust public/brand/logo-light.svg gzip-9	4359
+weight	rust public/brand/logo-light.svg brotli-11	3245
+weight	rust public/brand/logo-dark.svg bytes	10726
+weight	rust public/brand/logo-dark.svg gzip-9	4358
+weight	rust public/brand/logo-dark.svg brotli-11	3246
+weight	rust public/brand/bitprairie-tile.svg bytes	26143
+weight	rust public/brand/bitprairie-tile.svg gzip-9	8839
+weight	rust public/brand/bitprairie-tile.svg brotli-11	6721
 weight	node dist/index.html bytes	4330
 weight	node dist/index.html gzip-9	1301
 weight	node dist/index.html brotli-11	978

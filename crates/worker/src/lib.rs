@@ -163,7 +163,15 @@ async fn fetch(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             .map(|s| s as &dyn fibershare_core::api::KvStore),
     };
     let page_url = url.to_string();
-    let origin = url.origin().ascii_serialization();
+    let configured =
+        fibershare_html::configured_origin(env_value(&env, "PUBLIC_ORIGIN").as_deref());
+    // The request URL is set by the Workers runtime. Use it when PUBLIC_ORIGIN
+    // is unset. Do not read a raw Host header here.
+    let origin = if configured.is_empty() {
+        url.origin().ascii_serialization()
+    } else {
+        configured
+    };
     let api = path.starts_with("/api/");
     if method == Method::Post && path == "/api/herd-view" {
         let body = req.text().await.unwrap_or_default();

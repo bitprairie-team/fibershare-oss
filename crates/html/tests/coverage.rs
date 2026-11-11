@@ -87,6 +87,23 @@ fn pages_point_canonical_at_themselves() {
 }
 
 #[test]
+fn configured_origin_only_keeps_a_safe_public_origin() {
+    assert_eq!(fibershare_html::configured_origin(None), "");
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://demo.example")),
+        "https://demo.example"
+    );
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://demo.example/")),
+        "https://demo.example"
+    );
+    assert_eq!(
+        fibershare_html::configured_origin(Some("https://evil.example/\"><script>")),
+        ""
+    );
+}
+
+#[test]
 fn favicon_and_social_image_links_exist() {
     let html = page("/");
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
