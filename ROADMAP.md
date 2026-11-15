@@ -7,6 +7,7 @@ This list covers the open demo and its open docs. It is not a plan for the Fiber
 - Home, herd view, sample fiber list, and a page about how the demo is built
 - Sample goats, a simulated day of events, and sample fiber in `public/data/`
 - A herd view on a virtual paddock grid, with day playback and clearly simulated predator and smoke alerts
+- A usual check-in gap for each sample tracker, learned from its hourly uplink counts. The quiet alert still uses the 2 hour limit, and it can fire sooner when the gap is longer than twice that usual gap and at least 45 minutes
 - A fleece-to-fiber-lot page that follows the sample goat Bramble through the draft records, as a rancher, buyer, or the public sees it
 - A page comparing the three setups: your own hardware, hosted by BitPrairie, or a mix of both
 - An optional pull from your own ChirpStack v4 server, over REST and MQTT, with tracker details hidden by default, and a `--watch` mode to keep it fresh (see `docs/chirpstack.md`)
@@ -24,7 +25,7 @@ This list covers the open demo and its open docs. It is not a plan for the Fiber
 Each loop does one job and suggests; the rancher decides. Answers are stored so the next suggestion fits the ranch better. See the table in the [README](README.md#what-the-loops-do).
 
 - Find an animal in trouble: learn from the rancher's confirm and dismiss answers. Alerts and the confirm or dismiss step are in use in the FiberShare app, and the movement and distress feed to Predator Watch is built
-- Catch a dying or silent tracker: learn each device's normal check-in pattern. Low-battery and quiet-tracker alerts are in use in the FiberShare app and in this demo
+- Catch a dying or silent tracker. Low-battery and quiet-tracker alerts are in use in the FiberShare app and in this demo. This demo learns each tracker's usual check-in gap from its uplink counts
 - Plan the next paddock move: suggest when and where to move a group
 - Plan a move ahead of fire or smoke: a move plan built from ranch sensors and public fire and smoke layers
 - Warn neighbors about predator activity: a heads-up when confirmed events cluster, for ranches that opt in
