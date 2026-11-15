@@ -13,6 +13,7 @@ pub mod layers;
 pub mod live;
 pub mod log;
 pub mod meta;
+pub mod pattern;
 pub mod private_data;
 pub mod pull;
 pub mod records;
