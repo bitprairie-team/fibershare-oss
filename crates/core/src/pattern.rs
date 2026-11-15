@@ -66,10 +66,17 @@ pub fn pattern_from_times(
     let mut times: Vec<i64> = times_ms.iter().copied().filter(|t| *t <= now_ms).collect();
     times.sort_unstable();
     times.dedup();
+    let limit_ms = quiet_limit_minutes.saturating_mul(60_000);
     let mut gaps = Vec::new();
     for pair in times.windows(2) {
-        let minutes = ((pair[1] - pair[0]) as f64 / 60_000.0).round() as i64;
-        if (1..=quiet_limit_minutes).contains(&minutes) {
+        let elapsed = pair[1].saturating_sub(pair[0]);
+        // Compare the raw gap first. Rounding 120 minutes and 10 seconds
+        // down to 120 would count an over-limit gap as a habit.
+        if elapsed == 0 || elapsed > limit_ms {
+            continue;
+        }
+        let minutes = (elapsed as f64 / 60_000.0).round() as i64;
+        if minutes >= 1 {
             gaps.push(minutes);
         }
     }

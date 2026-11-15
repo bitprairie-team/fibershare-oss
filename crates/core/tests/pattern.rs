@@ -57,6 +57,29 @@ fn too_few_gaps_is_not_a_pattern() {
 }
 
 #[test]
+fn a_gap_just_over_the_limit_does_not_round_into_the_habit() {
+    let minute = 60_000;
+    let times = [
+        0,
+        20 * minute,
+        40 * minute,
+        60 * minute,
+        60 * minute + 120 * minute + 10_000,
+    ];
+    assert!(pattern_from_times(&times, times[4], 120).is_none());
+    let exact = [
+        0,
+        20 * minute,
+        40 * minute,
+        60 * minute,
+        60 * minute + 120 * minute,
+    ];
+    let pattern = pattern_from_times(&exact, exact[4], 120).unwrap();
+    assert_eq!(pattern.gaps, 4);
+    assert_eq!(pattern.usual_minutes, 20);
+}
+
+#[test]
 fn gaps_past_the_quiet_limit_are_left_out() {
     let times = [
         0,
