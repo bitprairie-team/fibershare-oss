@@ -3,6 +3,7 @@
 use serde_json::{json, Value};
 
 use crate::alerts::ALERT_RULES;
+use crate::pattern::{animal_pattern, implied_uplink_ms};
 use crate::time::{local_iso, parse_ms};
 
 fn num(value: &Value) -> Option<f64> {
@@ -33,19 +34,12 @@ pub fn heard_by(uplinks: Option<&Value>, start_iso: &str, now: &str) -> Option<S
     let start = parse_ms(start_iso)?;
     let end = parse_ms(now)?;
     let list = uplinks?.as_array()?;
-    let mut best: Option<i64> = None;
-    for (i, count) in list.iter().enumerate() {
-        let n = count.as_f64().unwrap_or(0.0).floor().max(0.0) as i64;
-        for k in 0..n {
-            let t = start
-                + i as i64 * 3_600_000
-                + (((k + 1) * 3_600_000) as f64 / (n as f64 + 1.0)).round() as i64;
-            if t <= end && best.is_none_or(|b| t > b) {
-                best = Some(t);
-            }
-        }
-    }
-    best.and_then(|t| local_iso(start_iso, t - start))
+    let counts: Vec<i64> = list
+        .iter()
+        .map(|count| count.as_f64().unwrap_or(0.0).floor().max(0.0) as i64)
+        .collect();
+    let best = *implied_uplink_ms(&counts, start, end).last()?;
+    local_iso(start_iso, best - start)
 }
 
 pub struct HerdState {
@@ -172,6 +166,20 @@ pub fn state_at(
             if let Some(heard) = heard_by(state.get("uplinks"), start, now) {
                 if parse_ms(&heard).unwrap_or(0) > parse_ms(seen).unwrap_or(0) {
                     state["lastSeen"] = json!(heard);
+                }
+            }
+        }
+    }
+    if let Some(now) = now {
+        for (_, state) in &mut by_id {
+            match animal_pattern(state, uplinks_start, now, ALERT_RULES.quiet_minutes) {
+                Some(pattern) => {
+                    state["usualMinutes"] = json!(pattern.usual_minutes);
+                }
+                None => {
+                    if let Some(obj) = state.as_object_mut() {
+                        obj.remove("usualMinutes");
+                    }
                 }
             }
         }

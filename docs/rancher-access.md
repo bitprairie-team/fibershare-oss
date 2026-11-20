@@ -115,7 +115,7 @@ The push needs `https`, except to localhost. The token is never printed, and it 
 
 ## Answers to alerts
 
-The herd view raises an alert for a battery below 20% (unless the tracker is on outside power) and for a tracker with nothing heard for over 2 hours. The thresholds live with the alert rules in the Rust core. You can confirm or dismiss each alert, with an optional note.
+The herd view raises an alert for a battery below 20% (unless the tracker is on outside power) and for a tracker with nothing heard for over 2 hours. If that tracker has a usual check-in gap, a shorter silence raises the same quiet alert when it is longer than twice that gap and at least 45 minutes. The thresholds live with the alert rules in the Rust core. You can confirm or dismiss each alert, with an optional note.
 
 - Public live view and sample data: answers stay in your browser, under `fs-alerts-public` and `fs-alerts-demo`. Reset demo clears them.
 - Signed-in rancher: answers go to `/api/alerts`. It has the same check as the full data. Without a valid sign-in, GET and POST get 401 and nothing is stored. A POST from another site gets 403. Local mode keeps the answers in `.local/alert-feedback.json`, owner-only. The Worker keeps them in the `FIBERSHARE_LIVE` KV namespace under `alert-feedback`, and answers 503 if no namespace is bound.

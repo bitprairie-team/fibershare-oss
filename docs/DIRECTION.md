@@ -22,7 +22,7 @@ You can also run the code on your own ranch and share with no one. Any of these 
 The automation is what sets FiberShare apart. Realtime intelligence systems read tracker, sensor and camera data and turn it into alerts and suggestions. The rancher decides every time, and each answer is stored so the next suggestion fits that ranch better. Each loop does one job:
 
 - **Find an animal in trouble.** In use in the FiberShare app: alerts, and the rancher's confirm or dismiss. Built: the movement and distress feed to Predator Watch. Planned: learning from the rancher's answers.
-- **Catch a dying or silent tracker.** In use in the FiberShare app: low-battery and quiet-tracker alerts. Also in this demo with sample data. Planned: learning each device's normal pattern.
+- **Catch a dying or silent tracker.** In use in the FiberShare app: low-battery and quiet-tracker alerts. In this demo: those alerts, and a usual check-in gap learned from each tracker's uplink counts, so an unusual silence can show up before the fixed time limit.
 - **Plan the next paddock move.** Planned.
 - **Plan a move ahead of fire or smoke.** Being built: the sensor feed to Wildfire Watch. Planned: move plans.
 - **Warn neighbors about predator activity.** Planned, for ranches that opt in, with delayed events on a coarse grid.

@@ -52,6 +52,9 @@ fn herd_view_renders_pins_alerts_ledger_and_sheet() {
     assert!(html.contains("data-job=\"smoke\""));
     assert!(html.contains("aria-valuetext"));
     assert!(html.contains("Open alerts ("));
+    assert!(html.contains("Usual check-in"));
+    assert!(html.contains("about every"));
+    assert!(html.contains("Usual check-in is about every"));
     assert!(html.contains("data-tour-start"));
     assert!(
         html.contains("max-h-[45dvh]")
@@ -75,7 +78,8 @@ fn architecture_jobs_and_notice_stay_hidden_while_jobs_are_on() {
     assert!(!html.contains("20%On"));
     assert!(!html.contains(">On.<"));
     assert!(html.contains("Planned"));
-    assert!(html.contains("usual check-in pattern"));
+    assert!(html.contains("twice the usual check-in"));
+    assert!(!html.contains("a usual check-in pattern for each tracker"));
     assert!(!html.contains("All of it runs on your own hardware"));
     assert!(!html.contains("id=\"parts-title\""));
 }
