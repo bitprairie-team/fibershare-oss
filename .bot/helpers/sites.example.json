@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-11-11T00:00:00-08:00",
+  "sites": [
+    {
+      "name": "fibershare.app",
+      "url": "https://fibershare.app/",
+      "status": 200,
+      "final": "https://fibershare.app/",
+      "redirects": 0,
+      "tip": "",
+      "title": "example",
+      "gate": "open",
+      "state": "ok",
+      "note": ""
+    }
+  ]
+}
