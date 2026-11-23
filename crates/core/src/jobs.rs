@@ -3,6 +3,7 @@
 use std::collections::BTreeMap;
 
 use crate::alerts::AlertRules;
+use crate::pattern::UNUSUAL_FLOOR_MINUTES;
 use crate::settings::{read_jobs, JOB_IDS};
 use crate::time::minutes_text;
 
@@ -39,8 +40,9 @@ pub fn jobs_for(rules: &AlertRules) -> Vec<Job> {
                 minutes_text(rules.quiet_minutes)
             ),
             detail: format!(
-                "An alert after {} with no check-in.",
-                minutes_text(rules.quiet_minutes)
+                "An alert after {} with no check-in. Sooner when the gap is longer than twice the usual check-in, and at least {}.",
+                minutes_text(rules.quiet_minutes),
+                minutes_text(UNUSUAL_FLOOR_MINUTES)
             ),
             off: "No quiet-tracker alerts. Each animal still shows its last check-in.",
             kind: "safety",
@@ -131,9 +133,8 @@ pub fn pull_job() -> Job {
     }
 }
 
-pub const PLANNED: [&str; 4] = [
+pub const PLANNED: [&str; 3] = [
     "paddock grazing records",
-    "a usual check-in pattern for each tracker, so unusual quiet stands out",
     "tighter alert rules from the answers ranchers already give",
     "share a confirmed Predator Watch report with nearby ranchers",
 ];

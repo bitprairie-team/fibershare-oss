@@ -15,7 +15,7 @@ This repository is **not** the FiberShare app at [fibershare.app](https://fibers
 ## Features (what is shipped)
 
 - **Herd view.** Eight sample goats on a paddock drawing, not a map. Run the sample day to move through one made-up day. Open alerts, the animal ledger, and a collapsed event log sit on the same page.
-- **Alerts.** Low battery, missed check-in, animal not moving, animal outside the paddock, tracker SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. Confirm, dismiss, or add one by hand. Each job can be turned off.
+- **Alerts.** Low battery, missed check-in, animal not moving, animal outside the paddock, tracker SOS, plus simulated Predator Watch and Wildfire Watch on the sample day. A missed check-in can come before the time limit when that tracker is quiet longer than its usual gap. Confirm, dismiss, or add one by hand. Each job can be turned off.
 - **Paddock moves.** A short log of sample paddock moves and grazing notes for this sample day.
 - **Tracker trail.** Select a goat while you run the sample day to see a short trail of its last few positioned check-ins.
 - **Fleece trace.** Trace the `mohair-bramble` lot through fleece and shearing records to Bramble. A rancher, a buyer, or the public can be the viewer. Nothing is for sale.
@@ -48,7 +48,7 @@ When you run the demo, the same guides are also at `/docs`. Each guide has a Mar
 | Job | Rule |
 | --- | --- |
 | Low battery (below 20%) | Trackers on outside power are skipped |
-| Missed check-in (after 2 hours) | No check-in for over 2 hours |
+| Missed check-in (after 2 hours) | No check-in for over 2 hours. Sooner when the gap is longer than twice that tracker's usual check-in, and at least 45 min |
 | Animal not moving (after 2 hours) | Still checking in for over 2 hours with little movement |
 | Animal outside the paddock | Active paddock bounds are 0-100 on the grid |
 | Tracker SOS | The alert names the animal |
@@ -61,11 +61,11 @@ Every job is on until you turn it off, on How it works or in the herd view's Ale
 
 Alerts are an aid, not a guarantee. They can be late, wrong or missing, and turning a job off stops its alerts. Keep checking your animals in person. In an emergency, call 911.
 
-The default thresholds and the rules live in `crates/core`. The pages and the server call that same crate. Each answer is stored with the rule that raised the alert.
+The default thresholds and the rules live in `crates/core`. The pages and the server call that same crate. Each answer is stored with the rule that raised the alert. That crate also learns a usual check-in gap from each tracker's hourly uplink counts. A quiet alert can fire before the time limit when the gap is longer than twice that usual gap, and at least 45 minutes.
 
 The rancher makes every decision. Nothing moves animals, opens gates or contacts anyone without the rancher's OK.
 
-Planned: paddock grazing records. Planned: a usual check-in pattern for each tracker, so unusual quiet stands out. Planned: tighter alert rules from the answers ranchers already give. Planned: share a confirmed Predator Watch report with nearby ranchers. [ROADMAP.md](ROADMAP.md) has the detail.
+Planned: paddock grazing records. Planned: tighter alert rules from the answers ranchers already give. Planned: share a confirmed Predator Watch report with nearby ranchers. [ROADMAP.md](ROADMAP.md) has the detail.
 
 ## Hardware
 

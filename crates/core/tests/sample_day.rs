@@ -145,6 +145,19 @@ fn sample_day_story() {
         .collect();
     assert_eq!(at920, vec!["quiet:pippin"]);
     assert!(sample_at(after("e11")).is_empty());
+    let mid = after("e37");
+    let early = sample_at(mid)
+        .into_iter()
+        .find(|a| a["kind"] == "quiet")
+        .unwrap();
+    assert_eq!(early["animalId"], "willow");
+    assert!(early["title"]
+        .as_str()
+        .unwrap()
+        .starts_with("Willow: no check-in for 1 hour"));
+    let early_why = early["why"].as_str().unwrap();
+    assert!(early_why.contains("about every 20 min"));
+    assert!(early_why.contains("has not been reached"));
     let still = after("e30");
     assert!(sample_at(still)
         .iter()
@@ -175,6 +188,10 @@ fn sample_day_story() {
         .as_str()
         .unwrap()
         .starts_with("Willow: no check-in for 3 hours 25 min"));
+    let why = quiet["why"].as_str().unwrap();
+    assert!(why.contains("over the limit of 2 hours"));
+    assert!(why.contains("Usual check-in is about every 20 min"));
+    assert_eq!(quiet["usualMinutes"], json!(20));
 }
 
 #[test]

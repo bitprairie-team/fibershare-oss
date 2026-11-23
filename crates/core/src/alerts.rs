@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 
 use serde_json::{json, Map, Value};
 
+use crate::pattern::unusual_after;
 use crate::time::{minutes_text, parse_ms, time_of};
 
 #[derive(Clone, Debug)]
@@ -93,6 +94,43 @@ pub fn in_paddock(x: f64, y: f64, paddock: &Paddock) -> bool {
         && y <= paddock.max_y
 }
 
+fn quiet_why(
+    last: &str,
+    quiet: i64,
+    now: &str,
+    rules: &AlertRules,
+    usual: Option<i64>,
+    early: bool,
+) -> String {
+    let heard = format!(
+        "Last check-in {}, {} before {}",
+        time_of(last),
+        duration(quiet),
+        time_of(now)
+    );
+    if early {
+        let usual_minutes = usual.unwrap_or(0);
+        let line = unusual_after(usual_minutes);
+        return format!(
+            "{heard}. Usual check-in is about every {}. This gap is longer than {}, the point where this tracker counts as unusually quiet. The limit of {} has not been reached.",
+            minutes_text(usual_minutes),
+            duration(line),
+            duration(rules.quiet_minutes)
+        );
+    }
+    let base = format!(
+        "{heard}, over the limit of {}.",
+        duration(rules.quiet_minutes)
+    );
+    match usual {
+        Some(minutes) => format!(
+            "{base} Usual check-in is about every {}.",
+            minutes_text(minutes)
+        ),
+        None => base,
+    }
+}
+
 fn duration(minutes: i64) -> String {
     if minutes < 60 {
         return format!("{minutes} min");
@@ -139,23 +177,28 @@ pub fn tracker_alerts(
         if job_on(jobs, "quiet") {
             if let (Some(seen), Some(now_ms)) = (seen, now_ms) {
                 let quiet = ((now_ms - seen) as f64 / 60000.0).round() as i64;
-                if quiet > rules.quiet_minutes {
+                let usual = field_num(animal, "usualMinutes")
+                    .map(|n| n.round() as i64)
+                    .filter(|n| *n >= 1);
+                let early_line = usual.map(unusual_after);
+                let over_limit = quiet > rules.quiet_minutes;
+                let over_pattern =
+                    early_line.is_some_and(|line| quiet > line && line < rules.quiet_minutes);
+                if over_limit || over_pattern {
                     let last = field_str(animal, "lastSeen").unwrap_or("");
-                    out.push(json!({
+                    let mut alert = json!({
                         "id": format!("quiet:{id}:{last}"),
                         "kind": "quiet",
                         "animalId": id,
                         "title": format!("{name}: no check-in for {}", duration(quiet)),
                         "detail": format!("Last heard at {}. The tracker may be out of range, off, or out of battery.", time_of(last)),
-                        "why": format!(
-                            "Last check-in {}, {} before {}, over the limit of {}.",
-                            time_of(last),
-                            duration(quiet),
-                            time_of(now),
-                            duration(rules.quiet_minutes)
-                        ),
+                        "why": quiet_why(last, quiet, now, rules, usual, !over_limit),
                         "time": last,
-                    }));
+                    });
+                    if let Some(minutes) = usual {
+                        alert["usualMinutes"] = json!(minutes);
+                    }
+                    out.push(alert);
                 }
             } else if field_str(animal, "status") == Some("never seen") {
                 out.push(json!({

@@ -10,8 +10,9 @@ use fibershare_core::grid::{cell_labels, cell_of, spread_pins};
 use fibershare_core::herd::{grazing_log, key_moments, position_trail, sort_events, state_at};
 use fibershare_core::jobs::{alerts_off_notice_html, jobs_line};
 use fibershare_core::log::{describe_log_entry, entries_for, last_checked};
+use fibershare_core::pattern::UNUSUAL_FLOOR_MINUTES;
 use fibershare_core::settings::{read_jobs, MemoryStore, Store, SETTINGS_JOBS};
-use fibershare_core::time::{ago, date_time, day_time, parse_ms, time_of};
+use fibershare_core::time::{ago, date_time, day_time, minutes_text, parse_ms, time_of};
 use serde_json::{json, Value};
 
 use crate::document::{esc, esc_attr};
@@ -482,8 +483,16 @@ fn detail_html(view: &View, animals: &[Value], open: &[Value], now: &str, now_ms
                 .collect::<Vec<_>>()
                 .join(", ")
         };
+        let usual = animal
+            .get("usualMinutes")
+            .and_then(Value::as_i64)
+            .filter(|n| *n >= 1);
+        let usual_html = match usual {
+            Some(minutes) => esc(&format!("about every {}", minutes_text(minutes))),
+            None => "<span class=\"muted\">not enough check-ins yet</span>".into(),
+        };
         let facts = format!(
-            "<dl class=\"facts\"><dt>Breed</dt><dd>{}</dd><dt>Battery</dt><dd>{}</dd><dt>Last check-in</dt><dd>{}</dd><dt>Checked by hand</dt><dd>{}</dd><dt>Grid cell</dt><dd>{}</dd><dt>Alerts</dt><dd>{}</dd></dl>",
+            "<dl class=\"facts\"><dt>Breed</dt><dd>{}</dd><dt>Battery</dt><dd>{}</dd><dt>Last check-in</dt><dd>{}</dd><dt>Usual check-in</dt><dd>{usual_html}</dd><dt>Checked by hand</dt><dd>{}</dd><dt>Grid cell</dt><dd>{}</dd><dt>Alerts</dt><dd>{}</dd></dl>",
             esc(animal.get("breed").and_then(Value::as_str).unwrap_or("")),
             esc(&battery_text),
             if seen.is_empty() { "<span class=\"muted\">not yet</span>".into() } else { esc(&day_time(seen, now_ms)) },
@@ -570,8 +579,16 @@ fn alerts_html(view: &View, open: &[Value], history: &[Value]) -> String {
             } else {
                 String::new()
             };
+            let note = if *id == "quiet" {
+                format!(
+                    "<p class=\"muted\">Sooner when the gap is longer than twice the usual check-in, and at least {}.</p>",
+                    minutes_text(UNUSUAL_FLOOR_MINUTES)
+                )
+            } else {
+                String::new()
+            };
             format!(
-                "<li class=\"setting-row\"><label class=\"toggle\"><input type=\"checkbox\" data-job=\"{id}\"{} /> {label}</label><span class=\"job-state\" data-job-state=\"{id}\">{}</span>{limit_html}</li>",
+                "<li class=\"setting-row\"><label class=\"toggle\"><input type=\"checkbox\" data-job=\"{id}\"{} /> {label}</label><span class=\"job-state\" data-job-state=\"{id}\">{}</span>{limit_html}{note}</li>",
                 if on { " checked" } else { "" },
                 if on { "On" } else { "Off" }
             )
